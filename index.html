@@ -350,18 +350,6 @@
     font-size: 20px;
   }
 
-  .card-caption {
-    padding: 0 16px 8px;
-    font-size: 12px;
-    color: var(--text-secondary);
-    line-height: 1.5;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    min-height: 36px;
-  }
-
   .card-contact {
     padding: 8px 16px 14px;
     display: flex;
@@ -1702,17 +1690,6 @@ function renderCard(d, isCard) {
     </div>
   ` : '';
 
-  // Contacts
-  const contacts = [];
-if (d.line_id) contacts.push(`<a href="https://line.me/ti/p/${d.line_id}" target="_blank" class="contact-pill" title="LINE">💬 LINE</a>`);
-if (d.youtube) contacts.push(`<a href="${d.youtube}" target="_blank" class="contact-pill" title="YouTube">▶️ YouTube</a>`);
-if (d.tiktok) contacts.push(`<a href="https://tiktok.com/@${d.tiktok.replace('@','')}" target="_blank" class="contact-pill" title="TikTok">🎵 TikTok</a>`);
-if (d.instagram) contacts.push(`<a href="https://instagram.com/${d.instagram.replace('@','')}" target="_blank" class="contact-pill" title="Instagram">📷 Instagram</a>`);
-if (d.x) contacts.push(`<a href="https://x.com/${d.x.replace('@','')}" target="_blank" class="contact-pill" title="X">🐦 X</a>`);
-// ปุ่ม Share
-contacts.push(`<button class="contact-pill share-btn" onclick="event.stopPropagation();shareProfile('${d.id}')">🔗 Share</button>`);
-
-
   if (isCard) {
     return `
       <div class="card" onclick="openModal('${d.id}')">
@@ -1858,6 +1835,14 @@ function openModal(id) {
       </div>
     `;
   }).join('');
+
+  const contacts = [];
+  if (d.line_id) contacts.push(`<a href="https://line.me/ti/p/${d.line_id}" target="_blank" class="contact-pill" title="LINE">💬 LINE</a>`);
+  if (d.youtube) contacts.push(`<a href="${d.youtube}" target="_blank" class="contact-pill" title="YouTube">▶️ YouTube</a>`);
+  if (d.tiktok) contacts.push(`<a href="https://tiktok.com/@${d.tiktok.replace('@','')}" target="_blank" class="contact-pill" title="TikTok">🎵 TikTok</a>`);
+  if (d.instagram) contacts.push(`<a href="https://instagram.com/${d.instagram.replace('@','')}" target="_blank" class="contact-pill" title="Instagram">📷 Instagram</a>`);
+  if (d.x) contacts.push(`<a href="https://x.com/${d.x.replace('@','')}" target="_blank" class="contact-pill" title="X">🐦 X</a>`);
+contacts.push(`<button class="contact-pill share-btn" onclick="shareProfile('${d.id}')">🔗 Share</button>`);
 
   modal.innerHTML = `
     <div class="modal-owner">
