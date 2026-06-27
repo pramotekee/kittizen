@@ -1,0 +1,1886 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kittizen — where cat communities live</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Bungee+Shade&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F5F5F7;
+    --surface: #FFFFFF;
+    --accent: #E8734A;
+    --accent-dark: #D4623A;
+    --accent-light: #FDE8E0;
+    --text-primary: #1D1D1F;
+    --text-secondary: #6E6E73;
+    --tag-bg: #E8E8ED;
+    --border: #D2D2D7;
+    --card-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    --card-shadow-hover: 0 8px 28px rgba(0,0,0,0.12);
+    --rainbow: #C0C0C0;
+    --success: #2ecc71;
+    --warning: #f39c12;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+  }
+  .app {
+    max-width: 1400px;
+    margin: 0 auto;
+    min-height: 100vh;
+    padding-bottom: 20px;
+  }
+
+  /* HEADER */
+  .header {
+    text-align: center;
+    padding: 40px 20px 50px;
+    background: linear-gradient(135deg, #E8734A 0%, #D4623A 100%);
+    border-radius: 0 0 32px 32px;
+    margin-bottom: 20px;
+  }
+  .header h1 {
+    font-family: 'Bungee Shade', cursive;
+    font-size: 52px;
+    font-weight: 700;
+    color: #FFFFFF;
+    letter-spacing: 4px;
+    line-height: 1;
+  }
+  .header .slogan {
+    font-size: 18px;
+    font-weight: 500;
+    color: #FFF5E6;
+    margin-top: 12px;
+  }
+  .header .caption {
+    font-size: 14px;
+    font-weight: 400;
+    color: #FFE0CC;
+    max-width: 500px;
+    margin: 8px auto 0;
+  }
+
+  /* DASHBOARD */
+  .dashboard {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 0 20px 20px;
+    justify-content: center;
+  }
+  .dash-item {
+    background: var(--surface);
+    padding: 12px 24px;
+    border-radius: 16px;
+    box-shadow: var(--card-shadow);
+    text-align: center;
+    min-width: 100px;
+    flex: 1;
+    max-width: 180px;
+  }
+  .dash-item .number {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .dash-item .label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+  }
+
+  /* SEARCH & FILTER */
+  .search-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 0 20px 14px;
+  }
+  .search-box {
+    flex: 2;
+    min-width: 200px;
+    position: relative;
+  }
+  .search-box input {
+    width: 100%;
+    padding: 11px 18px 11px 40px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .search-box input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(232,115,74,0.12);
+  }
+  .search-box::before {
+    content: "🔍";
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    opacity: 0.4;
+  }
+
+  .filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0 20px 14px;
+  }
+  .filter-group select {
+    padding: 9px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    font-size: 13px;
+    outline: none;
+    cursor: pointer;
+    min-width: 120px;
+    flex: 1;
+    max-width: 180px;
+  }
+  .filter-group select:focus {
+    border-color: var(--accent);
+  }
+  .filter-group .filter-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 500;
+  }
+  .filter-reset {
+    background: var(--tag-bg);
+    border: none;
+    border-radius: 10px;
+    padding: 9px 16px;
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: all 0.15s;
+  }
+  .filter-reset:hover {
+    background: #D8D8DD;
+    color: var(--text-primary);
+  }
+
+  /* VIEW TOGGLE */
+  .view-toggle {
+    display: flex;
+    gap: 8px;
+    padding: 0 20px 14px;
+    justify-content: flex-start;
+  }
+  .view-toggle-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 30px;
+    padding: 6px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.15s;
+  }
+  .view-toggle-btn.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+  .view-toggle-btn:hover:not(.active) {
+    background: var(--tag-bg);
+  }
+
+  /* GRID */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    padding: 0 16px 20px;
+  }
+  @media (min-width: 600px) {
+    .grid { grid-template-columns: repeat(3, 1fr); gap: 18px; padding: 0 20px 20px; }
+  }
+  @media (min-width: 900px) {
+    .grid { grid-template-columns: repeat(4, 1fr); gap: 20px; padding: 0 24px 20px; }
+  }
+  @media (min-width: 1200px) {
+    .grid { grid-template-columns: repeat(5, 1fr); gap: 22px; }
+  }
+
+  /* CARD */
+  .card {
+    background: var(--surface);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+    cursor: pointer;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--card-shadow-hover);
+  }
+  .card:active { transform: scale(0.98); }
+
+  .card-owner {
+    padding: 14px 16px 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .card-owner-img {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: var(--tag-bg);
+  }
+  .card-owner-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .card-owner-info .name {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+  .card-owner-info .job {
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .card-cats {
+    display: flex;
+    gap: 6px;
+    padding: 0 16px 8px;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+  .card-cats::-webkit-scrollbar { height: 2px; }
+  .card-cats::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .cat-thumb {
+    flex: 0 0 60px;
+    text-align: center;
+    position: relative;
+  }
+  .cat-thumb .cat-img {
+    width: 60px;
+    height: 60px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--tag-bg);
+    position: relative;
+  }
+  .cat-thumb .cat-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .cat-thumb .cat-img.rainbow {
+    filter: grayscale(100%);
+    opacity: 0.7;
+  }
+  .cat-thumb .rainbow-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    font-size: 14px;
+    background: rgba(255,255,255,0.9);
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+  }
+  .cat-thumb .cat-name {
+    font-size: 10px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 60px;
+  }
+  .cat-thumb .cat-name.rainbow {
+    text-decoration: line-through;
+    color: var(--rainbow);
+  }
+  .cat-thumb .rainbow-date {
+    font-size: 8px;
+    color: var(--rainbow);
+    display: block;
+  }
+
+  .card-seemore {
+    flex: 0 0 60px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--tag-bg);
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 4px;
+  }
+  .card-seemore .icon {
+    font-size: 20px;
+  }
+
+  .card-caption {
+    padding: 0 16px 8px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 36px;
+  }
+
+  .card-contact {
+    padding: 8px 16px 14px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    border-top: 1px solid var(--border);
+  }
+  .card-contact a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 18px;
+    transition: color 0.15s;
+  }
+  .card-contact a:hover {
+    color: var(--accent);
+  }
+
+  /* PAGINATION */
+  .pagination-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 0 20px 20px;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .pagination-wrap .left {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .pagination-wrap .left select {
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    font-size: 13px;
+    outline: none;
+    cursor: pointer;
+  }
+  .pagination-wrap .center {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .pagination-wrap .center .page-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+    min-width: 36px;
+    text-align: center;
+  }
+  .pagination-wrap .center .page-btn:hover:not(.active):not(.disabled) {
+    background: var(--tag-bg);
+  }
+  .pagination-wrap .center .page-btn.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+  .pagination-wrap .center .page-btn.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .pagination-wrap .center .page-dots {
+    padding: 6px 4px;
+    color: var(--text-secondary);
+  }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 300;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.2s ease;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border-radius: 24px;
+    width: 95%;
+    max-width: 560px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 24px;
+    animation: slideUp 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    -webkit-overflow-scrolling: touch;
+  }
+  @media (min-width: 768px) {
+    .modal { max-width: 600px; }
+  }
+
+  .modal-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .modal-top-label {
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .modal-close {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+    color: var(--text-secondary);
+  }
+  .modal-close:hover { background: var(--tag-bg); }
+
+  .modal-owner {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  .modal-owner-img {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: var(--tag-bg);
+  }
+  .modal-owner-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .modal-owner-info .name {
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .modal-owner-info .job {
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+  .modal-owner-info .district {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+  }
+
+  .modal-caption {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    padding: 12px 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+
+  .modal-cats {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .modal-cat-item {
+    text-align: center;
+  }
+  .modal-cat-item .cat-img {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--tag-bg);
+    position: relative;
+  }
+  .modal-cat-item .cat-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .modal-cat-item .cat-img.rainbow {
+    filter: grayscale(100%);
+    opacity: 0.7;
+  }
+  .modal-cat-item .rainbow-badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    font-size: 16px;
+    background: rgba(255,255,255,0.9);
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+  }
+  .modal-cat-item .cat-name {
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 4px;
+  }
+  .modal-cat-item .cat-name.rainbow {
+    text-decoration: line-through;
+    color: var(--rainbow);
+  }
+  .modal-cat-item .cat-breed {
+    font-size: 10px;
+    color: var(--text-secondary);
+  }
+  .modal-cat-item .rainbow-date {
+    font-size: 10px;
+    color: var(--rainbow);
+  }
+
+  .modal-contact {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+  .modal-contact a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 20px;
+    transition: color 0.15s;
+  }
+  .modal-contact a:hover {
+    color: var(--accent);
+  }
+
+  /* LIGHTBOX */
+  .lightbox-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.92);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+    cursor: zoom-out;
+  }
+  .lightbox-overlay.open { display: flex; }
+  .lightbox-img {
+    max-width: 90%;
+    max-height: 85vh;
+    border-radius: 12px;
+    object-fit: contain;
+    cursor: default;
+  }
+  .lightbox-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.12);
+    border: none;
+    color: #fff;
+    font-size: 22px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+  }
+  .lightbox-close:hover {
+    background: rgba(255,255,255,0.25);
+  }
+
+  /* NO DATA */
+  .no-data {
+    grid-column: 1/-1;
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-secondary);
+  }
+  .no-data .emoji {
+    font-size: 48px;
+    display: block;
+    margin-bottom: 12px;
+  }
+  .no-data .action-btn {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 10px 28px;
+    background: var(--accent);
+    color: white;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: background 0.15s;
+  }
+  .no-data .action-btn:hover {
+    background: var(--accent-dark);
+  }
+
+  .empty-district {
+    grid-column: 1/-1;
+    text-align: center;
+    padding: 60px 20px;
+    background: var(--surface);
+    border-radius: 16px;
+    box-shadow: var(--card-shadow);
+  }
+  .empty-district .emoji {
+    font-size: 48px;
+    display: block;
+    margin-bottom: 12px;
+  }
+  .empty-district .msg {
+    font-size: 16px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+  }
+  .empty-district .action-btn {
+    display: inline-block;
+    padding: 10px 28px;
+    background: var(--accent);
+    color: white;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: background 0.15s;
+  }
+  .empty-district .action-btn:hover {
+    background: var(--accent-dark);
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  /* LINE VIEW */
+  .grid.line-view {
+    display: block;
+  }
+  .grid.line-view .card {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    border-radius: 12px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  }
+  .grid.line-view .card:hover {
+    transform: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .grid.line-view .card-owner {
+    padding: 0;
+    flex-shrink: 0;
+  }
+  .grid.line-view .card-owner-img {
+    width: 40px;
+    height: 40px;
+  }
+  .grid.line-view .card-owner-info .name {
+    font-size: 13px;
+  }
+  .grid.line-view .card-owner-info .job {
+    font-size: 11px;
+  }
+  .grid.line-view .card-cats {
+    padding: 0;
+    flex: 1;
+    overflow-x: auto;
+    gap: 4px;
+  }
+  .grid.line-view .cat-thumb {
+    flex: 0 0 44px;
+  }
+  .grid.line-view .cat-thumb .cat-img {
+    width: 44px;
+    height: 44px;
+  }
+  .grid.line-view .cat-thumb .cat-name {
+    display: none;
+  }
+  .grid.line-view .card-seemore {
+    flex: 0 0 44px;
+    font-size: 10px;
+  }
+  .grid.line-view .card-seemore .icon {
+    font-size: 16px;
+  }
+  .grid.line-view .card-caption {
+    display: none;
+  }
+  .grid.line-view .card-contact {
+    padding: 0;
+    border: none;
+    flex-shrink: 0;
+    gap: 6px;
+  }
+  .grid.line-view .card-contact a {
+    font-size: 16px;
+  }
+
+  @media (max-width: 768px) {
+    .grid.line-view .card {
+      flex-wrap: wrap;
+    }
+    .grid.line-view .card-cats {
+      flex: 1 1 100%;
+      order: 3;
+    }
+    .grid.line-view .card-contact {
+      order: 4;
+    }
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background: var(--text-primary);
+    color: #F5F5F7;
+    padding: 10px 24px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0;
+    transition: opacity 0.25s, transform 0.25s;
+    z-index: 999;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .header-btn:hover {
+    background: rgba(255,255,255,0.3) !important;
+    transform: translateY(-1px);
+  }
+
+  .header-btn:active {
+    transform: translateY(1px);
+  }
+
+  .action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  }
+  .action-btn:active {
+    transform: translateY(0px);
+  }
+
+  .modal::-webkit-scrollbar { width: 4px; }
+  .modal::-webkit-scrollbar-track { background: transparent; }
+  .modal::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+  <!-- HEADER -->
+  <header class="header">
+    <h1>🐱 KITTIZEN</h1>
+    <p class="slogan">where cat communities live.</p>
+    <p class="caption">ชุมชนคนเลี้ยงเหมียวในกรุงเทพมหานคร</p>
+  </header>
+
+  <!-- DASHBOARD -->
+  <div class="dashboard" id="dashboard">
+    <div class="dash-item">
+      <div class="number" id="totalCats">0</div>
+      <div class="label">🐈 แมวทั้งหมด</div>
+    </div>
+    <div class="dash-item">
+      <div class="number" id="totalOwners">0</div>
+      <div class="label">👤 เจ้าของแมว</div>
+    </div>
+    <div class="dash-item">
+      <div class="number" id="maleOwners">0</div>
+      <div class="label">👦 ชาย</div>
+    </div>
+    <div class="dash-item">
+      <div class="number" id="femaleOwners">0</div>
+      <div class="label">👧 หญิง</div>
+    </div>
+    <div class="dash-item">
+      <div class="number" id="maleCats">0</div>
+      <div class="label">🐱 ตัวผู้</div>
+    </div>
+    <div class="dash-item">
+      <div class="number" id="femaleCats">0</div>
+      <div class="label">🐱 ตัวเมีย</div>
+    </div>
+  </div>
+
+  <!-- SEARCH -->
+  <div class="search-container">
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="ค้นหาชื่อเจ้าของ, ชื่อแมว, สายพันธุ์, เขต..." oninput="applyFilters()">
+    </div>
+    <div style="display: flex; gap: 8px; flex-shrink: 0;">
+      <a href="create.html" class="action-btn" style="background: var(--accent); color: white; padding: 10px 20px; border-radius: 12px; text-decoration: none; font-size: 13px; font-weight: 600; transition: all 0.15s; display: flex; align-items: center; gap: 6px; white-space: nowrap;">➕ Create</a>
+      <a href="edit.html" class="action-btn" style="background: var(--tag-bg); color: var(--text-primary); padding: 10px 20px; border-radius: 12px; text-decoration: none; font-size: 13px; font-weight: 600; transition: all 0.15s; display: flex; align-items: center; gap: 6px; white-space: nowrap;">✏️ Edit</a>
+    </div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="filter-group" id="filterGroup">
+    <!-- เขต -->
+    <select id="filterDistrict" onchange="applyFilters()">
+      <option value="">📍 เขตทั้งหมด</option>
+      <option value="เขตพระนคร">เขตพระนคร</option>
+      <option value="เขตดุสิต">เขตดุสิต</option>
+      <option value="เขตหนองจอก">เขตหนองจอก</option>
+      <option value="เขตบางรัก">เขตบางรัก</option>
+      <option value="เขตบางเขน">เขตบางเขน</option>
+      <option value="เขตบางกะปิ">เขตบางกะปิ</option>
+      <option value="เขตปทุมวัน">เขตปทุมวัน</option>
+      <option value="เขตป้อมปราบศัตรูพ่าย">เขตป้อมปราบศัตรูพ่าย</option>
+      <option value="เขตพระโขนง">เขตพระโขนง</option>
+      <option value="เขตมีนบุรี">เขตมีนบุรี</option>
+      <option value="เขตลาดกระบัง">เขตลาดกระบัง</option>
+      <option value="เขตยานนาวา">เขตยานนาวา</option>
+      <option value="เขตสัมพันธ์วงศ์">เขตสัมพันธ์วงศ์</option>
+      <option value="เขตพญาไท">เขตพญาไท</option>
+      <option value="เขตธนบุรี">เขตธนบุรี</option>
+      <option value="เขตบางกอกใหญ่">เขตบางกอกใหญ่</option>
+      <option value="เขตห้วยขวาง">เขตห้วยขวาง</option>
+      <option value="เขตคลองสาน">เขตคลองสาน</option>
+      <option value="เขตตลิ่งชัน">เขตตลิ่งชัน</option>
+      <option value="เขตบางกอกน้อย">เขตบางกอกน้อย</option>
+      <option value="เขตบางขุนเทียน">เขตบางขุนเทียน</option>
+      <option value="เขตภาษีเจริญ">เขตภาษีเจริญ</option>
+      <option value="เขตหนองแขม">เขตหนองแขม</option>
+      <option value="เขตราษฎร์บูรณะ">เขตราษฎร์บูรณะ</option>
+      <option value="เขตบางพลัด">เขตบางพลัด</option>
+      <option value="เขตดินแดง">เขตดินแดง</option>
+      <option value="เขตบึงกุ่ม">เขตบึงกุ่ม</option>
+      <option value="เขตสาทร">เขตสาทร</option>
+      <option value="เขตบางซื่อ">เขตบางซื่อ</option>
+      <option value="เขตจตุจักร">เขตจตุจักร</option>
+      <option value="เขตบางคอแหลม">เขตบางคอแหลม</option>
+      <option value="เขตประเวศ">เขตประเวศ</option>
+      <option value="เขตคลองเตย">เขตคลองเตย</option>
+      <option value="เขตสวนหลวง">เขตสวนหลวง</option>
+      <option value="เขตจอมทอง">เขตจอมทอง</option>
+      <option value="เขตดอนเมือง">เขตดอนเมือง</option>
+      <option value="เขตราชเทวี">เขตราชเทวี</option>
+      <option value="เขตลาดพร้าว">เขตลาดพร้าว</option>
+      <option value="เขตวัฒนา">เขตวัฒนา</option>
+      <option value="เขตบางแค">เขตบางแค</option>
+      <option value="เขตหลักสี่">เขตหลักสี่</option>
+      <option value="เขตสายไหม">เขตสายไหม</option>
+      <option value="เขตคันนายาว">เขตคันนายาว</option>
+      <option value="เขตสะพานสูง">เขตสะพานสูง</option>
+      <option value="เขตวังทองหลาง">เขตวังทองหลาง</option>
+      <option value="เขตคลองสามวา">เขตคลองสามวา</option>
+      <option value="เขตบางนา">เขตบางนา</option>
+      <option value="เขตทวีวัฒนา">เขตทวีวัฒนา</option>
+      <option value="เขตทุ่งครุ">เขตทุ่งครุ</option>
+      <option value="เขตบางบอน">เขตบางบอน</option>
+    </select>
+
+    <!-- เพศเจ้าของ -->
+    <select id="filterOwnerGender" onchange="applyFilters()">
+      <option value="">👤 เพศเจ้าของทั้งหมด</option>
+      <option value="ชาย">ชาย</option>
+      <option value="หญิง">หญิง</option>
+      <option value="ไม่ระบุ">ไม่ระบุ</option>
+    </select>
+
+    <!-- เพศแมว -->
+    <select id="filterCatGender" onchange="applyFilters()">
+      <option value="">🐱 เพศแมวทั้งหมด </option>
+      <option value="ผู้">ผู้</option>
+      <option value="เมีย">เมีย</option>
+    </select>
+
+    <!-- สายพันธุ์ -->
+    <select id="filterBreed" onchange="applyFilters()">
+      <option value="">🐈 สายพันธ์ทั้งหมด</option>
+      <option value="ABYSSINIAN">ABYSSINIAN (อะบิสซิเนียน)</option>
+      <option value="AMERICAN BOBTAIL">AMERICAN BOBTAIL (อเมริกัน บ็อบเทล)</option>
+      <option value="AMERICAN CURL">AMERICAN CURL (อเมริกัน เคิร์ล)</option>
+      <option value="AMERICAN LONG HAIR">AMERICAN LONG HAIR (อเมริกัน ลองแฮร์)</option>
+      <option value="AMERICAN SHORTHAIR">AMERICAN SHORTHAIR (อเมริกัน ช๊อตแฮร์)</option>
+      <option value="AMERICAN WIREHAIR">AMERICAN WIREHAIR (อเมริกัน ไวร์แฮร์)</option>
+      <option value="APPLEHEAD SIAMESE / WICHIEN MAAT">APPLEHEAD SIAMESE / WICHIEN MAAT (วิเชียรมาศ)</option>
+      <option value="ARABIAN MAU">ARABIAN MAU (อารเบียน มูว์)</option>
+      <option value="BALINESE">BALINESE (บาลินีส)</option>
+      <option value="BAMBINO">BAMBINO (แบมบิโน่)</option>
+      <option value="BENGAL">BENGAL (เบงกอล)</option>
+      <option value="BIRMAN">BIRMAN (เบอร์แมน)</option>
+      <option value="BOMBAY">BOMBAY (บอมเบย์)</option>
+      <option value="BRITISH LONGHAIR">BRITISH LONGHAIR (บริทิช ลองแฮร์)</option>
+      <option value="BRITISH SHORTHAIR">BRITISH SHORTHAIR (บริติชขนสั้น)</option>
+      <option value="BURMESE / Suphalak">BURMESE / Suphalak (ศุภลักษณ์)</option>
+      <option value="BURMILLA">BURMILLA (เบอร์มิลลา)</option>
+      <option value="Canadian Hairless">Canadian Hairless (แคนาเดียน (สฟิงซ์))</option>
+      <option value="CHARTREUX">CHARTREUX (ชาร์ตรู)</option>
+      <option value="CHAUSIE">CHAUSIE (ชอซี)</option>
+      <option value="CHINCHILLA">CHINCHILLA (ชินชิลล่า)</option>
+      <option value="COLORPOINT LONGHAIR">COLORPOINT LONGHAIR (คัลเลอร์พอยนท์ ลองแฮร์)</option>
+      <option value="COLORPOINT SHORTHAIR">COLORPOINT SHORTHAIR (คัลเลอร์พอยนท์ ชอร์ทแฮร์)</option>
+      <option value="CORNISH REX">CORNISH REX (คอร์นิชเรกซ์)</option>
+      <option value="CYMRIC">CYMRIC (ซิมริค)</option>
+      <option value="DEVON REX">DEVON REX (เดวอนเรกซ์)</option>
+      <option value="DOMESTIC LONG HAIR">DOMESTIC LONG HAIR (พื้นเมืองขนยาว)</option>
+      <option value="DOMESTIC MEDIUM HAIR">DOMESTIC MEDIUM HAIR (พื้นเมืองขนปานกลาง)</option>
+      <option value="DOMESTIC SHORT HAIR">DOMESTIC SHORT HAIR (พื้นเมืองขนสั้น)</option>
+      <option value="DRAGON LI">DRAGON LI (ดราก้อนหลี่)</option>
+      <option value="DWELF">DWELF (ดเวลฟ์)</option>
+      <option value="EGYPTIAN MAU">EGYPTIAN MAU (อียิปต์เชี่ยนมัว)</option>
+      <option value="ELF">ELF (เอลฟ์)</option>
+      <option value="EUROPEAN BURMESE">EUROPEAN BURMESE (ยููโรเปียร เบอร์มิส)</option>
+      <option value="EUROPEAN SHORTHAIR">EUROPEAN SHORTHAIR (ยูโรเปียน ชอร์ทแฮร์)</option>
+      <option value="EXOTIC LONGHAIR">EXOTIC LONGHAIR (เอ็กโซติก ลองแฮร์)</option>
+      <option value="EXOTIC SHORTHAIR">EXOTIC SHORTHAIR (เอ็กโซติกชอร์ทแฮร์)</option>
+      <option value="EXTRA-TOES CAT - HEMINGWAY POLYDACTYL">EXTRA-TOES CAT - HEMINGWAY POLYDACTYL (เฮมิงเวย์ โพลีแดกติล)</option>
+      <option value="HAVANA">HAVANA (ฮาวานา)</option>
+      <option value="HIGHLAND FOLD">HIGHLAND FOLD (ไฮแลนด์ โฟลด์)</option>
+      <option value="HIGHLAND STRAIGHT">HIGHLAND STRAIGHT (ไฮแลนด์ สเตรท)</option>
+      <option value="HIMALAYAN">HIMALAYAN (หิมาลายัน)</option>
+      <option value="JAPANESE BOBTAIL">JAPANESE BOBTAIL (เจแพนนิสบ็อบเทล)</option>
+      <option value="JAVANESE">JAVANESE (จาวานีส)</option>
+      <option value="KHAO MANEE">KHAO MANEE (ขาวมณี)</option>
+      <option value="KONJA">KONJA (โกญจา)</option>
+      <option value="KORAT">KORAT (สีสวาด)</option>
+      <option value="KOREAN SHORTHAIR">KOREAN SHORTHAIR (โคเรียน ชอร์ทแฮร์)</option>
+      <option value="LAPERM">LAPERM (ลาเปิร์ม)</option>
+      <option value="LYKOI">LYKOI (ไลคอย)</option>
+      <option value="LYNX">LYNX (ลิงซ์)</option>
+      <option value="MAINE COON">MAINE COON (เมนคูน)</option>
+      <option value="MANX">MANX (แมงซ์)</option>
+      <option value="MINSKIN">MINSKIN (มินสกิน)</option>
+      <option value="MUNCHKIN">MUNCHKIN (มันช์กิ้น)</option>
+      <option value="NEBELUNG">NEBELUNG (เนบีลัง)</option>
+      <option value="NORWEGIAN FOREST">NORWEGIAN FOREST (นอร์วีเจียนฟอเรสต์)</option>
+      <option value="OCICAT">OCICAT (อ็อกซิแคต)</option>
+      <option value="ORIENTAL LONG HAIR">ORIENTAL LONG HAIR (โอเรียนทัลขนยาว)</option>
+      <option value="ORIENTAL SHORT HAIR">ORIENTAL SHORT HAIR (โอเรียนทัลขนสั้น)</option>
+      <option value="ORIENTAL TABBY">ORIENTAL TABBY (โอเรียนทัลแท็บบี้)</option>
+      <option value="PERSIAN">PERSIAN (เปอร์เซีย)</option>
+      <option value="PETERBALD">PETERBALD (เพเทอร์บัลด์)</option>
+      <option value="PIXIEBOB">PIXIEBOB (พิกซีบ็อบ)</option>
+      <option value="RAGAMUFFIN">RAGAMUFFIN (รากามัฟฟิน)</option>
+      <option value="RAGDOLL">RAGDOLL (แร็กดอลล์)</option>
+      <option value="RUSSIAN BLUE">RUSSIAN BLUE (รัสเซียนบลู)</option>
+      <option value="SAND CAT">SAND CAT (แซนด์แคท)</option>
+      <option value="SAVANNAH">SAVANNAH (ซาวันนา)</option>
+      <option value="SCOTTISH FOLD">SCOTTISH FOLD (สก็อตติชโฟลด์)</option>
+      <option value="SCOTTISH STRAIGHT">SCOTTISH STRAIGHT (สก็อตติช สเตรท)</option>
+      <option value="SELKIRK REX">SELKIRK REX (เซลเกิร์กเรกซ์)</option>
+      <option value="SERVAL">SERVAL (เซอร์วัล)</option>
+      <option value="SIAMESE cat">SIAMESE cat (สยามมิส แค็ท)</option>
+      <option value="SIBERIAN">SIBERIAN (ไซบีเรียน)</option>
+      <option value="SINGAPURA">SINGAPURA (สิงคปุระ)</option>
+      <option value="SNOWSHOE">SNOWSHOE (สโนว์ชู)</option>
+      <option value="SOKOKE">SOKOKE (โซโกเก)</option>
+      <option value="SOMALI">SOMALI (โซมาลี)</option>
+      <option value="SPHYNX - HAIRLESS CAT">SPHYNX - HAIRLESS CAT (สฟิงซ์)</option>
+      <option value="TONKINESE">TONKINESE (ท็องกินิส)</option>
+      <option value="TORBIE">TORBIE (ทอร์บี้)</option>
+      <option value="TOYGER">TOYGER (ทอยเกอร์)</option>
+      <option value="TURKISH ANGORA">TURKISH ANGORA (เทอร์คิชแองโกรา)</option>
+      <option value="TURKISH VAN">TURKISH VAN (เตอร์กิชแวน)</option>
+      <option value="YORK CHOCOLATE">YORK CHOCOLATE (ยอร์ค ช็อกโกแลต)</option>
+      <option value="CROSSBRED">CROSSBRED (พันธุ์ผสม)</option>
+      <option value="OTHER CAT">OTHER CAT (สายพันธุ์อื่นๆ)</option>
+    </select>
+
+    <!-- สีแมว -->
+    <select id="filterColor" onchange="applyFilters()">
+      <option value="">🎨 สีแมวทั้งหมด</option>
+      <option value="ขาว">ขาว</option>
+      <option value="ดำ">ดำ</option>
+      <option value="เทา">เทา</option>
+      <option value="ส้ม">ส้ม</option>
+      <option value="แดง">แดง</option>
+      <option value="น้ำตาล">น้ำตาล</option>
+      <option value="ครีม">ครีม</option>
+      <option value="ฟ้า">ฟ้า</option>
+      <option value="ม่วง">ม่วง</option>
+      <option value="ส้มลาย">ส้มลาย</option>
+      <option value="เทาลาย">เทาลาย</option>
+      <option value="แดงลาย">แดงลาย</option>
+      <option value="สีสวาด">สีสวาด</option>
+      <option value="วิเชียรมาศลาย">วิเชียรมาศลาย</option>
+      <option value="สองสี">สองสี</option>
+      <option value="สามสี">สามสี</option>
+      <option value="หลากสี">หลากสี</option>
+      <option value="อื่นๆ">อื่นๆ</option>
+    </select>
+
+    <!-- จำนวนแมว -->
+    <select id="filterCatCount" onchange="applyFilters()">
+      <option value="">🔢 จำนวนแมวทั้งหมด</option>
+      <option value="1">1 ตัว</option>
+      <option value="2">2 ตัว</option>
+      <option value="3">3 ตัว</option>
+      <option value="4">4 ตัว</option>
+      <option value="5">5 ตัว</option>
+      <option value="6">6 ตัว</option>
+      <option value="7">7 ตัว</option>
+      <option value="8">8 ตัว</option>
+      <option value="9">9 ตัว</option>
+      <option value="10">10 ตัว</option>
+      <option value="10+">มากกว่า 10 ตัว</option>
+    </select>
+    <button class="filter-reset" onclick="resetFilters()">✕ รีเซ็ต</button>
+  </div>
+
+  <!-- VIEW TOGGLE -->
+  <div class="view-toggle">
+    <button class="view-toggle-btn active" id="viewCard" onclick="setView('card')">▦ การ์ด</button>
+    <button class="view-toggle-btn" id="viewLine" onclick="setView('line')">≡ รายการ</button>
+  </div>
+
+  <!-- GRID -->
+  <div class="grid card-view" id="grid"></div>
+
+  <!-- PAGINATION -->
+  <div class="pagination-wrap" id="paginationWrap">
+    <div class="left">
+      <span>แสดง</span>
+      <select id="rowsPerPage" onchange="changeRowsPerPage()">
+        <option value="50">50</option>
+        <option value="100">100</option>
+        <option value="300">300</option>
+        <option value="500">500</option>
+      </select>
+      <span>ต่อหน้า</span>
+    </div>
+    <div class="center" id="pageNumbers"></div>
+    <div class="left" style="visibility:hidden;">&nbsp;</div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modal" onclick="event.stopPropagation()">
+    <div class="modal-top">
+      <span class="modal-top-label">🐱 Kittizen</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox-overlay" id="lightboxOverlay" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img class="lightbox-img" id="lightboxImg" src="" alt="รูปแมว">
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+const SHEET_ID = '1FMdtivhm9rG4n9lJ20C_Lt5JsoWdfsgPDzSQnvGwhug';
+const SHEET_NAME = 'Sheet1';
+const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}`;
+
+const BREEDS = [
+  { en: 'ABYSSINIAN', th: 'อะบิสซิเนียน' },
+  { en: 'AMERICAN BOBTAIL', th: 'อเมริกัน บ็อบเทล' },
+  { en: 'AMERICAN CURL', th: 'อเมริกัน เคิร์ล' },
+  { en: 'AMERICAN LONG HAIR', th: 'อเมริกัน ลองแฮร์' },
+  { en: 'AMERICAN SHORTHAIR', th: 'อเมริกัน ช๊อตแฮร์' },
+  { en: 'AMERICAN WIREHAIR', th: 'อเมริกัน ไวร์แฮร์' },
+  { en: 'APPLEHEAD SIAMESE / WICHIEN MAAT', th: 'วิเชียรมาศ' },
+  { en: 'ARABIAN MAU', th: 'อารเบียน มูว์' },
+  { en: 'BALINESE', th: 'บาลินีส' },
+  { en: 'BAMBINO', th: 'แบมบิโน่' },
+  { en: 'BENGAL', th: 'เบงกอล' },
+  { en: 'BIRMAN', th: 'เบอร์แมน' },
+  { en: 'BOMBAY', th: 'บอมเบย์' },
+  { en: 'BRITISH LONGHAIR', th: 'บริทิช ลองแฮร์' },
+  { en: 'BRITISH SHORTHAIR', th: 'บริติชขนสั้น' },
+  { en: 'BURMESE / Suphalak', th: 'ศุภลักษณ์' },
+  { en: 'BURMILLA', th: 'เบอร์มิลลา' },
+  { en: 'Canadian Hairless', th: 'แคนาเดียน (สฟิงซ์)' },
+  { en: 'CHARTREUX', th: 'ชาร์ตรู' },
+  { en: 'CHAUSIE', th: 'ชอซี' },
+  { en: 'CHINCHILLA', th: 'ชินชิลล่า' },
+  { en: 'COLORPOINT LONGHAIR', th: 'คัลเลอร์พอยนท์ ลองแฮร์' },
+  { en: 'COLORPOINT SHORTHAIR', th: 'คัลเลอร์พอยนท์ ชอร์ทแฮร์' },
+  { en: 'CORNISH REX', th: 'คอร์นิชเรกซ์' },
+  { en: 'CYMRIC', th: 'ซิมริค' },
+  { en: 'DEVON REX', th: 'เดวอนเรกซ์' },
+  { en: 'DOMESTIC LONG HAIR', th: 'พื้นเมืองขนยาว' },
+  { en: 'DOMESTIC MEDIUM HAIR', th: 'พื้นเมืองขนปานกลาง' },
+  { en: 'DOMESTIC SHORT HAIR', th: 'พื้นเมืองขนสั้น' },
+  { en: 'DRAGON LI', th: 'ดราก้อนหลี่' },
+  { en: 'DWELF', th: 'ดเวลฟ์' },
+  { en: 'EGYPTIAN MAU', th: 'อียิปต์เชี่ยนมัว' },
+  { en: 'ELF', th: 'เอลฟ์' },
+  { en: 'EUROPEAN BURMESE', th: 'ยููโรเปียร เบอร์มิส' },
+  { en: 'EUROPEAN SHORTHAIR', th: 'ยูโรเปียน ชอร์ทแฮร์' },
+  { en: 'EXOTIC LONGHAIR', th: 'เอ็กโซติก ลองแฮร์' },
+  { en: 'EXOTIC SHORTHAIR', th: 'เอ็กโซติกชอร์ทแฮร์' },
+  { en: 'EXTRA-TOES CAT - HEMINGWAY POLYDACTYL', th: 'เฮมิงเวย์ โพลีแดกติล' },
+  { en: 'HAVANA', th: 'ฮาวานา' },
+  { en: 'HIGHLAND FOLD', th: 'ไฮแลนด์ โฟลด์' },
+  { en: 'HIGHLAND STRAIGHT', th: 'ไฮแลนด์ สเตรท' },
+  { en: 'HIMALAYAN', th: 'หิมาลายัน' },
+  { en: 'JAPANESE BOBTAIL', th: 'เจแพนนิสบ็อบเทล' },
+  { en: 'JAVANESE', th: 'จาวานีส' },
+  { en: 'KHAO MANEE', th: 'ขาวมณี' },
+  { en: 'KONJA', th: 'โกญจา' },
+  { en: 'KORAT', th: 'สีสวาด' },
+  { en: 'KOREAN SHORTHAIR', th: 'โคเรียน ชอร์ทแฮร์' },
+  { en: 'LAPERM', th: 'ลาเปิร์ม' },
+  { en: 'LYKOI', th: 'ไลคอย' },
+  { en: 'LYNX', th: 'ลิงซ์' },
+  { en: 'MAINE COON', th: 'เมนคูน' },
+  { en: 'MANX', th: 'แมงซ์' },
+  { en: 'MINSKIN', th: 'มินสกิน' },
+  { en: 'MUNCHKIN', th: 'มันช์กิ้น' },
+  { en: 'NEBELUNG', th: 'เนบีลัง' },
+  { en: 'NORWEGIAN FOREST', th: 'นอร์วีเจียนฟอเรสต์' },
+  { en: 'OCICAT', th: 'อ็อกซิแคต' },
+  { en: 'ORIENTAL LONG HAIR', th: 'โอเรียนทัลขนยาว' },
+  { en: 'ORIENTAL SHORT HAIR', th: 'โอเรียนทัลขนสั้น' },
+  { en: 'ORIENTAL TABBY', th: 'โอเรียนทัลแท็บบี้' },
+  { en: 'PERSIAN', th: 'เปอร์เซีย' },
+  { en: 'PETERBALD', th: 'เพเทอร์บัลด์' },
+  { en: 'PIXIEBOB', th: 'พิกซีบ็อบ' },
+  { en: 'RAGAMUFFIN', th: 'รากามัฟฟิน' },
+  { en: 'RAGDOLL', th: 'แร็กดอลล์' },
+  { en: 'RUSSIAN BLUE', th: 'รัสเซียนบลู' },
+  { en: 'SAND CAT', th: 'แซนด์แคท' },
+  { en: 'SAVANNAH', th: 'ซาวันนา' },
+  { en: 'SCOTTISH FOLD', th: 'สก็อตติชโฟลด์' },
+  { en: 'SCOTTISH STRAIGHT', th: 'สก็อตติช สเตรท' },
+  { en: 'SELKIRK REX', th: 'เซลเกิร์กเรกซ์' },
+  { en: 'SERVAL', th: 'เซอร์วัล' },
+  { en: 'SIAMESE cat', th: 'สยามมิส แค็ท' },
+  { en: 'SIBERIAN', th: 'ไซบีเรียน' },
+  { en: 'SINGAPURA', th: 'สิงคปุระ' },
+  { en: 'SNOWSHOE', th: 'สโนว์ชู' },
+  { en: 'SOKOKE', th: 'โซโกเก' },
+  { en: 'SOMALI', th: 'โซมาลี' },
+  { en: 'SPHYNX - HAIRLESS CAT', th: 'สฟิงซ์' },
+  { en: 'TONKINESE', th: 'ท็องกินิส' },
+  { en: 'TORBIE', th: 'ทอร์บี้' },
+  { en: 'TOYGER', th: 'ทอยเกอร์' },
+  { en: 'TURKISH ANGORA', th: 'เทอร์คิชแองโกรา' },
+  { en: 'TURKISH VAN', th: 'เตอร์กิชแวน' },
+  { en: 'YORK CHOCOLATE', th: 'ยอร์ค ช็อกโกแลต' },
+  { en: 'CROSSBRED', th: 'พันธุ์ผสม' },
+  { en: 'OTHER CAT', th: 'สายพันธุ์อื่นๆ' }
+];
+
+const DISTRICTS = [
+  'เขตพระนคร', 'เขตดุสิต', 'เขตหนองจอก', 'เขตบางรัก', 'เขตบางเขน',
+  'เขตบางกะปิ', 'เขตปทุมวัน', 'เขตป้อมปราบศัตรูพ่าย', 'เขตพระโขนง', 'เขตมีนบุรี',
+  'เขตลาดกระบัง', 'เขตยานนาวา', 'เขตสัมพันธ์วงศ์', 'เขตพญาไท', 'เขตธนบุรี',
+  'เขตบางกอกใหญ่', 'เขตห้วยขวาง', 'เขตคลองสาน', 'เขตตลิ่งชัน', 'เขตบางกอกน้อย',
+  'เขตบางขุนเทียน', 'เขตภาษีเจริญ', 'เขตหนองแขม', 'เขตราษฎร์บูรณะ', 'เขตบางพลัด',
+  'เขตดินแดง', 'เขตบึงกุ่ม', 'เขตสาทร', 'เขตบางซื่อ', 'เขตจตุจักร',
+  'เขตบางคอแหลม', 'เขตประเวศ', 'เขตคลองเตย', 'เขตสวนหลวง', 'เขตจอมทอง',
+  'เขตดอนเมือง', 'เขตราชเทวี', 'เขตลาดพร้าว', 'เขตวัฒนา', 'เขตบางแค',
+  'เขตหลักสี่', 'เขตสายไหม', 'เขตคันนายาว', 'เขตสะพานสูง', 'เขตวังทองหลาง',
+  'เขตคลองสามวา', 'เขตบางนา', 'เขตทวีวัฒนา', 'เขตทุ่งครุ', 'เขตบางบอน'
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let allData = [];
+let filteredData = [];
+let currentPage = 1;
+let rowsPerPage = 50;
+let currentView = 'card';
+let selectedId = null;
+
+// ============================================================
+// HELPERS
+// ============================================================
+function getCatField(row, idx, field) {
+  const colMap = {
+    1: { name: 'H', image: 'I', breed: 'J' },
+    2: { name: 'K', image: 'L', breed: 'M' },
+    3: { name: 'N', image: 'O', breed: 'P' },
+    4: { name: 'Q', image: 'R', breed: 'S' },
+    5: { name: 'T', image: 'U', breed: 'V' },
+    6: { name: 'W', image: 'X', breed: 'Y' },
+    7: { name: 'Z', image: 'AA', breed: 'AB' },
+    8: { name: 'AC', image: 'AD', breed: 'AE' },
+    9: { name: 'AF', image: 'AG', breed: 'AH' },
+    10: { name: 'AI', image: 'AJ', breed: 'AK' }
+  };
+  const col = colMap[idx];
+  if (!col) return '';
+  const colIndex = {
+    'H':0,'I':1,'J':2,'K':3,'L':4,'M':5,'N':6,'O':7,'P':8,
+    'Q':9,'R':10,'S':11,'T':12,'U':13,'V':14,'W':15,'X':16,'Y':17,
+    'Z':18,'AA':19,'AB':20,'AC':21,'AD':22,'AE':23,'AF':24,'AG':25,'AH':26,
+    'AI':27,'AJ':28,'AK':29
+  };
+  const idx2 = colIndex[col[field]];
+  if (idx2 === undefined) return '';
+  return row[idx2] || '';
+}
+
+function getRainbowData(row) {
+  try {
+    const raw = row[40] || '{}';
+    return JSON.parse(raw);
+  } catch {
+    return {};
+  }
+}
+
+function getCatCount(row) {
+  const raw = row[37] || '0';
+  const count = parseInt(raw, 10);
+  return isNaN(count) ? 0 : count;
+}
+
+function getCatMale(row) {
+  const raw = row[38] || '0';
+  const count = parseInt(raw, 10);
+  return isNaN(count) ? 0 : count;
+}
+
+function getCatFemale(row) {
+  const raw = row[39] || '0';
+  const count = parseInt(raw, 10);
+  return isNaN(count) ? 0 : count;
+}
+
+function parseRow(row) {
+  return {
+    id: row[0] || '',
+    name: row[1] || '',
+    gender: row[2] || '',
+    job: row[3] || '',
+    photo_url: row[4] || '',
+    caption: row[5] || '',
+    district: row[6] || '',
+    cats: [1,2,3,4,5,6,7,8,9,10].map(i => ({
+      name: getCatField(row, i, 'name'),
+      image: getCatField(row, i, 'image'),
+      breed: getCatField(row, i, 'breed')
+    })).filter(c => c.name || c.image),
+    cat_count: getCatCount(row),
+    cat_male: getCatMale(row),
+    cat_female: getCatFemale(row),
+    rainbow: getRainbowData(row),
+    line_id: row[41] || '',
+    youtube: row[42] || '',
+    tiktok: row[43] || '',
+    instagram: row[44] || '',
+    x: row[45] || '',
+    create_date: row[46] || '',
+    edit_code: row[47] || '',
+    status: row[48] || 'FALSE'
+  };
+}
+
+function isRainbow(cats, idx) {
+  const num = idx + 1;
+  return cats.rainbow && cats.rainbow[num] ? true : false;
+}
+
+function getRainbowDate(cats, idx) {
+  const num = idx + 1;
+  return cats.rainbow && cats.rainbow[num] ? cats.rainbow[num] : null;
+}
+
+function getCatColor(cat) {
+  // อนาคตอาจเพิ่มฟิลด์สีแมวใน Sheet
+  return '';
+}
+
+function getBreedDisplay(breed) {
+  if (!breed) return '';
+  const found = BREEDS.find(b => b.en === breed || b.th === breed);
+  if (found) return `${found.en} (${found.th})`;
+  return breed;
+}
+
+function getBreedShort(breed) {
+  if (!breed) return '';
+  const found = BREEDS.find(b => b.en === breed || b.th === breed);
+  if (found) return found.en;
+  return breed;
+}
+
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function openLightbox(url) {
+  if (!url) return;
+  document.getElementById('lightboxImg').src = url;
+  document.getElementById('lightboxOverlay').classList.add('open');
+}
+
+function closeLightbox() {
+  document.getElementById('lightboxOverlay').classList.remove('open');
+}
+
+// ============================================================
+// FETCH DATA
+// ============================================================
+async function fetchData() {
+  try {
+    const resp = await fetch(GVIZ_URL);
+    const text = await resp.text();
+    const json = JSON.parse(text.substring(47, text.length - 2));
+    const rows = json.table.rows || [];
+    
+    allData = rows.map(row => {
+      const values = row.c.map(c => c ? c.v : '');
+      return parseRow(values);
+    }).filter(d => d.id && d.status === 'TRUE');
+    
+    // สุ่มลำดับ
+    allData = shuffleArray(allData);
+    filteredData = [...allData];
+    
+    populateFilters();
+    updateDashboard();
+    applyFilters();
+  } catch (err) {
+    console.error('Error fetching data:', err);
+    document.getElementById('grid').innerHTML = `
+      <div class="no-data">
+        <span class="emoji">😿</span>
+        <p>ไม่สามารถโหลดข้อมูลได้ กรุณาลองใหม่ภายหลัง</p>
+        <p style="font-size:12px;color:var(--text-secondary);margin-top:8px;">${err.message}</p>
+      </div>
+    `;
+  }
+}
+
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function updateDashboard() {
+  const owners = allData.filter(d => d.status === 'TRUE');
+  const totalCats = owners.reduce((sum, d) => sum + d.cat_count, 0);
+  const maleOwners = owners.filter(d => d.gender === 'ชาย').length;
+  const femaleOwners = owners.filter(d => d.gender === 'หญิง').length;
+  const maleCats = owners.reduce((sum, d) => sum + d.cat_male, 0);
+  const femaleCats = owners.reduce((sum, d) => sum + d.cat_female, 0);
+
+  document.getElementById('totalCats').textContent = totalCats;
+  document.getElementById('totalOwners').textContent = owners.length;
+  document.getElementById('maleOwners').textContent = maleOwners;
+  document.getElementById('femaleOwners').textContent = femaleOwners;
+  document.getElementById('maleCats').textContent = maleCats;
+  document.getElementById('femaleCats').textContent = femaleCats;
+}
+
+// ============================================================
+// FILTERS
+// ============================================================
+function applyFilters() {
+  const search = document.getElementById('searchInput').value.toLowerCase().trim();
+  const district = document.getElementById('filterDistrict').value;
+  const ownerGender = document.getElementById('filterOwnerGender').value;
+  const catGender = document.getElementById('filterCatGender').value;
+  const breed = document.getElementById('filterBreed').value;
+  const color = document.getElementById('filterColor').value;
+  const catCount = document.getElementById('filterCatCount').value;
+
+  filteredData = allData.filter(d => {
+    // Search
+    if (search) {
+      const searchable = [
+        d.name, d.job, d.district, d.caption,
+        ...d.cats.map(c => c.name),
+        ...d.cats.map(c => c.breed)
+      ].join(' ').toLowerCase();
+      if (!searchable.includes(search)) return false;
+    }
+
+    // District
+    if (district && d.district !== district) return false;
+
+    // Owner gender
+    if (ownerGender && d.gender !== ownerGender) return false;
+
+    // Cat gender
+    if (catGender) {
+      if (catGender === 'ผู้' && d.cat_male === 0) return false;
+      if (catGender === 'เมีย' && d.cat_female === 0) return false;
+    }
+
+    // Breed
+    if (breed) {
+      const hasBreed = d.cats.some(c => c.breed === breed);
+      if (!hasBreed) return false;
+    }
+
+    // Color
+    if (color) {
+      // ยังไม่ support สีแมวใน Sheet
+      return true;
+    }
+
+    // Cat count
+    if (catCount) {
+      if (catCount === '10+' && d.cat_count <= 10) return false;
+      if (catCount !== '10+' && d.cat_count !== parseInt(catCount, 10)) return false;
+    }
+
+    return true;
+  });
+
+  currentPage = 1;
+  renderGrid();
+}
+
+function resetFilters() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('filterDistrict').value = '';
+  document.getElementById('filterOwnerGender').value = '';
+  document.getElementById('filterCatGender').value = '';
+  document.getElementById('filterBreed').value = '';
+  document.getElementById('filterColor').value = '';
+  document.getElementById('filterCatCount').value = '';
+  applyFilters();
+}
+
+// ============================================================
+// VIEW TOGGLE
+// ============================================================
+function setView(view) {
+  currentView = view;
+  const grid = document.getElementById('grid');
+  const cardBtn = document.getElementById('viewCard');
+  const lineBtn = document.getElementById('viewLine');
+  
+  if (view === 'line') {
+    grid.classList.remove('card-view');
+    grid.classList.add('line-view');
+    lineBtn.classList.add('active');
+    cardBtn.classList.remove('active');
+  } else {
+    grid.classList.remove('line-view');
+    grid.classList.add('card-view');
+    cardBtn.classList.add('active');
+    lineBtn.classList.remove('active');
+  }
+  renderGrid();
+}
+
+// ============================================================
+// ROWS PER PAGE
+// ============================================================
+function changeRowsPerPage() {
+  rowsPerPage = parseInt(document.getElementById('rowsPerPage').value, 10);
+  currentPage = 1;
+  renderGrid();
+}
+
+// ============================================================
+// RENDER GRID
+// ============================================================
+function renderGrid() {
+  const grid = document.getElementById('grid');
+  const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+  if (currentPage > totalPages) currentPage = Math.max(1, totalPages);
+
+  const start = (currentPage - 1) * rowsPerPage;
+  const end = Math.min(start + rowsPerPage, filteredData.length);
+  const pageData = filteredData.slice(start, end);
+
+  // เช็คว่าเป็นเขตที่ไม่มีข้อมูล
+  const selectedDistrict = document.getElementById('filterDistrict').value;
+  if (selectedDistrict && pageData.length === 0) {
+    grid.innerHTML = `
+      <div class="empty-district">
+        <span class="emoji">🏠</span>
+        <div class="msg">📍 ${selectedDistrict} ยังไม่มีสมาชิกมาร่วมชุมชนของเราเลย</div>
+        <div class="msg" style="font-size:14px;">คุณคือคนแรกที่จะทำให้ที่นี่มีชีวิตชีวาขึ้น! 🐱</div>
+        <a href="create.html?district=${encodeURIComponent(selectedDistrict)}" class="action-btn">➕ สร้างโปรไฟล์</a>
+      </div>
+    `;
+    renderPagination(totalPages);
+    return;
+  }
+
+  if (pageData.length === 0) {
+    grid.innerHTML = `
+      <div class="no-data">
+        <span class="emoji">😿</span>
+        <p>ไม่พบข้อมูลที่ตรงกับการค้นหา</p>
+        <a href="#" onclick="resetFilters();return false;" style="color:var(--accent);text-decoration:underline;">รีเซ็ตตัวกรอง</a>
+      </div>
+    `;
+    renderPagination(totalPages);
+    return;
+  }
+
+  const isCard = currentView === 'card';
+  grid.innerHTML = pageData.map(d => renderCard(d, isCard)).join('');
+  renderPagination(totalPages);
+}
+
+function renderCard(d, isCard) {
+  const cats = d.cats || [];
+  const showCats = cats.slice(0, 5);
+  const hasMore = cats.length > 5;
+
+  // Owner photo
+  const ownerPhoto = d.photo_url ? `<img src="${d.photo_url}" alt="${d.name}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2248%22 height=%2248%22%3E%3Crect width=%2248%22 height=%2248%22 fill=%22%23E8E8ED%22/%3E%3Ctext x=%2224%22 y=%2230%22 text-anchor=%22middle%22 font-size=%2220%22 fill=%22%23999%22%3E🐱%3C/text%3E%3C/svg%3E'">` : '';
+
+  // Cats
+  const catsHTML = showCats.map((cat, idx) => {
+    const rainbow = isRainbow(d, idx);
+    const rainbowDate = getRainbowDate(d, idx);
+    const img = cat.image ? `<img src="${cat.image}" alt="${cat.name}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2260%22 height=%2260%22%3E%3Crect width=%2260%22 height=%2260%22 fill=%22%23E8E8ED%22/%3E%3Ctext x=%2230%22 y=%2238%22 text-anchor=%22middle%22 font-size=%2224%22 fill=%22%23999%22%3E🐱%3C/text%3E%3C/svg%3E'">` : '';
+    
+    return `
+      <div class="cat-thumb">
+        <div class="cat-img ${rainbow ? 'rainbow' : ''}" onclick="event.stopPropagation();openLightbox('${cat.image || ''}')">
+          ${img}
+          ${rainbow ? '<span class="rainbow-badge">🌈</span>' : ''}
+        </div>
+        <div class="cat-name ${rainbow ? 'rainbow' : ''}">${cat.name || 'น้องเหมียว'}</div>
+        ${rainbow && rainbowDate ? `<span class="rainbow-date">กลับดาว ${rainbowDate}</span>` : ''}
+      </div>
+    `;
+  }).join('');
+
+  // See more button
+  const seeMoreHTML = hasMore ? `
+    <div class="card-seemore" onclick="event.stopPropagation();openModal('${d.id}')">
+      <span class="icon">👀</span>
+      See More
+    </div>
+  ` : '';
+
+  // Contacts
+  const contacts = [];
+  if (d.line_id) contacts.push(`<a href="https://line.me/ti/p/${d.line_id}" target="_blank" title="LINE">💬</a>`);
+  if (d.youtube) contacts.push(`<a href="${d.youtube}" target="_blank" title="YouTube">▶️</a>`);
+  if (d.tiktok) contacts.push(`<a href="https://tiktok.com/@${d.tiktok.replace('@','')}" target="_blank" title="TikTok">🎵</a>`);
+  if (d.instagram) contacts.push(`<a href="https://instagram.com/${d.instagram.replace('@','')}" target="_blank" title="Instagram">📷</a>`);
+  if (d.x) contacts.push(`<a href="https://x.com/${d.x.replace('@','')}" target="_blank" title="X">🐦</a>`);
+
+  const contactsHTML = contacts.length ? contacts.join('') : '';
+
+  if (isCard) {
+    return `
+      <div class="card" onclick="openModal('${d.id}')">
+        <div class="card-owner">
+          <div class="card-owner-img">${ownerPhoto}</div>
+          <div class="card-owner-info">
+            <div class="name">${d.name || 'ไม่ระบุชื่อ'}</div>
+            <div class="job">${d.job || ''}</div>
+          </div>
+        </div>
+        <div class="card-cats">
+          ${catsHTML}
+          ${seeMoreHTML}
+        </div>
+        ${d.caption ? `<div class="card-caption">${d.caption}</div>` : ''}
+        ${contactsHTML ? `<div class="card-contact">${contactsHTML}</div>` : ''}
+      </div>
+    `;
+  } else {
+    // Line view
+    return `
+      <div class="card" onclick="openModal('${d.id}')">
+        <div class="card-owner">
+          <div class="card-owner-img">${ownerPhoto}</div>
+          <div class="card-owner-info">
+            <div class="name">${d.name || 'ไม่ระบุชื่อ'}</div>
+            <div class="job">${d.job || ''}</div>
+          </div>
+        </div>
+        <div class="card-cats">
+          ${catsHTML}
+          ${seeMoreHTML}
+        </div>
+        ${contactsHTML ? `<div class="card-contact">${contactsHTML}</div>` : ''}
+      </div>
+    `;
+  }
+}
+
+// ============================================================
+// PAGINATION
+// ============================================================
+function renderPagination(totalPages) {
+  const container = document.getElementById('pageNumbers');
+  if (totalPages <= 1) {
+    container.innerHTML = '';
+    return;
+  }
+
+  let html = '';
+  const maxVisible = 7;
+  let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+  let end = Math.min(totalPages, start + maxVisible - 1);
+  if (end - start + 1 < maxVisible) {
+    start = Math.max(1, end - maxVisible + 1);
+  }
+
+  // Prev
+  html += `<button class="page-btn ${currentPage === 1 ? 'disabled' : ''}" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>‹</button>`;
+
+  // First
+  if (start > 1) {
+    html += `<button class="page-btn" onclick="goToPage(1)">1</button>`;
+    if (start > 2) html += `<span class="page-dots">…</span>`;
+  }
+
+  // Pages
+  for (let i = start; i <= end; i++) {
+    html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+  }
+
+  // Last
+  if (end < totalPages) {
+    if (end < totalPages - 1) html += `<span class="page-dots">…</span>`;
+    html += `<button class="page-btn" onclick="goToPage(${totalPages})">${totalPages}</button>`;
+  }
+
+  // Next
+  html += `<button class="page-btn ${currentPage === totalPages ? 'disabled' : ''}" onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>›</button>`;
+
+  container.innerHTML = html;
+}
+
+function goToPage(page) {
+  const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+  if (page < 1 || page > totalPages) return;
+  currentPage = page;
+  renderGrid();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ============================================================
+// MODAL
+// ============================================================
+function openModal(id) {
+  const d = allData.find(item => item.id === id);
+  if (!d) return;
+  selectedId = id;
+
+  const cats = d.cats || [];
+  const modal = document.getElementById('modalBody');
+  
+  // Owner
+  const ownerPhoto = d.photo_url ? `<img src="${d.photo_url}" alt="${d.name}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2272%22 height=%2272%22%3E%3Crect width=%2272%22 height=%2272%22 fill=%22%23E8E8ED%22/%3E%3Ctext x=%2236%22 y=%2244%22 text-anchor=%22middle%22 font-size=%2230%22 fill=%22%23999%22%3E🐱%3C/text%3E%3C/svg%3E'">` : '';
+
+  // Cats grid (แถวละ 5)
+  const catsHTML = cats.map((cat, idx) => {
+    const rainbow = isRainbow(d, idx);
+    const rainbowDate = getRainbowDate(d, idx);
+    const img = cat.image ? `<img src="${cat.image}" alt="${cat.name}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect width=%22100%22 height=%22100%22 fill=%22%23E8E8ED%22/%3E%3Ctext x=%2250%22 y=%2260%22 text-anchor=%22middle%22 font-size=%2240%22 fill=%22%23999%22%3E🐱%3C/text%3E%3C/svg%3E'">` : '';
+    
+    return `
+      <div class="modal-cat-item">
+        <div class="cat-img ${rainbow ? 'rainbow' : ''}" onclick="event.stopPropagation();openLightbox('${cat.image || ''}')">
+          ${img}
+          ${rainbow ? '<span class="rainbow-badge">🌈</span>' : ''}
+        </div>
+        <div class="cat-name ${rainbow ? 'rainbow' : ''}">${cat.name || 'น้องเหมียว'}</div>
+        <div class="cat-breed">${getBreedShort(cat.breed)}</div>
+        ${rainbow && rainbowDate ? `<div class="rainbow-date">กลับดาว ${rainbowDate}</div>` : ''}
+      </div>
+    `;
+  }).join('');
+
+  // Contacts
+  const contacts = [];
+  if (d.line_id) contacts.push(`<a href="https://line.me/ti/p/${d.line_id}" target="_blank" title="LINE">💬</a>`);
+  if (d.youtube) contacts.push(`<a href="${d.youtube}" target="_blank" title="YouTube">▶️</a>`);
+  if (d.tiktok) contacts.push(`<a href="https://tiktok.com/@${d.tiktok.replace('@','')}" target="_blank" title="TikTok">🎵</a>`);
+  if (d.instagram) contacts.push(`<a href="https://instagram.com/${d.instagram.replace('@','')}" target="_blank" title="Instagram">📷</a>`);
+  if (d.x) contacts.push(`<a href="https://x.com/${d.x.replace('@','')}" target="_blank" title="X">🐦</a>`);
+
+  modal.innerHTML = `
+    <div class="modal-owner">
+      <div class="modal-owner-img">${ownerPhoto}</div>
+      <div class="modal-owner-info">
+        <div class="name">${d.name || 'ไม่ระบุชื่อ'}</div>
+        <div class="job">${d.job || ''}</div>
+        <div class="district">📍 ${d.district || ''}</div>
+      </div>
+    </div>
+    ${d.caption ? `<div class="modal-caption">${d.caption}</div>` : ''}
+    ${cats.length ? `<div class="modal-cats">${catsHTML}</div>` : ''}
+    ${contacts.length ? `<div class="modal-contact">${contacts.join('')}</div>` : ''}
+  `;
+
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(e) {
+  if (e && e.target !== document.getElementById('modalOverlay') && e.target !== document.querySelector('.modal-close')) return;
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+  selectedId = null;
+}
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  fetchData();
+  
+  // Handle district from URL (for create button)
+  const params = new URLSearchParams(window.location.search);
+  const district = params.get('district');
+  if (district) {
+    document.getElementById('filterDistrict').value = district;
+    setTimeout(applyFilters, 500);
+  }
+});
+</script>
+
+  <!-- FOOTER -->
+  <footer style="background: linear-gradient(135deg, #E8734A 0%, #D4623A 50%, #C0502A 100%); color: #fff; padding: 48px 24px 32px; margin-top: 60px;">
+    <div style="max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start;">
+    
+      <!-- LEFT -->
+      <div>
+        <div style="font-size: 20px; font-weight: 700; letter-spacing: 3px; margin-bottom: 8px;">🐱 KITTIZEN </div>
+        <div style="font-size: 13px; color: rgba(255,255,255,0.8); margin-bottom: 24px;">where cat communities live</div>
+
+      <!-- Social Icons -->
+      <div style="display: flex; gap: 16px; margin-bottom: 24px;">
+        <a href="https://tiktok.com/@kittizen" target="_blank" style="color: #fff; text-decoration: none; font-size: 22px;" title="TikTok">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.79 1.53V6.78a4.85 4.85 0 01-1.02-.09z"/></svg>
+        </a>
+        <a href="https://instagram.com/kittizen" target="_blank" style="color: #fff; text-decoration: none;" title="Instagram">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+        </a>
+        <a href="https://facebook.com/kittizen" target="_blank" style="color: #fff; text-decoration: none;" title="Facebook">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+        </a>
+      </div>
+
+      <!-- Contact via Line -->
+      <a href="https://line.me/ti/p/@kittizen" target="_blank"
+        style="display: inline-flex; align-items: center; gap: 8px; background: #06C755; color: #fff; padding: 10px 20px; border-radius: 24px; text-decoration: none; font-size: 14px; font-weight: 600;">
+        💬 Contact via LINE
+      </a>
+    </div>
+
+    <!-- RIGHT -->
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
+      <!-- QR Placeholder -->
+      <div style="width: 120px; height: 120px; background: rgba(255,255,255,0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 12px; color: rgba(255,255,255,0.6); border: 1px dashed rgba(255,255,255,0.3);">
+        QR Code<br>LINE OA
+      </div>
+      <div style="font-size: 12px; color: rgba(255,255,255,0.5);">Scan to follow us on LINE</div>
+    </div>
+
+  </div>
+
+  <!-- Bottom Links -->
+  <div style="max-width: 900px; margin: 32px auto 0; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.15); display: flex; gap: 24px; flex-wrap: wrap; align-items: center;">
+    <a href="https://aromatic-equinox-5e8.notion.site/About-Us-37905e072cdf80969b70f597d7ed2d46" target="_blank" style="color:rgba(255,255,255,0.6);text-decoration:none;font-size:13px;">About
+    </a>
+    <a href="https://aromatic-equinox-5e8.notion.site/Terms-of-Services-37905e072cdf80c6a138c3d9b15debce" target="_blank" style="color:rgba(255,255,255,0.6);text-decoration:none;font-size:13px;">Terms
+    </a>
+    <a href="https://aromatic-equinox-5e8.notion.site/Privacy-Policy-37905e072cdf80f9bf83fc7b5da1992d" target="_blank" style="color:rgba(255,255,255,0.6);text-decoration:none;font-size:13px;">Privacy
+    </a>
+    <span style="color: rgba(255,255,255,0.3); font-size: 13px; margin-left: auto;">© 2026 KITTIZEN</span>
+  </div>
+</footer>
+
+</body>
+</html>
