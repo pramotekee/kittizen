@@ -256,6 +256,10 @@
           <label>ชื่อเจ้าของ <span class="required">*</span></label>
           <input type="text" id="searchName" placeholder="ชื่อของคุณ" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
         </div>
+        <div class="form-group">
+          <label>อาชีพ <span class="required">*</span></label>
+          <input type="text" id="editOwnerJob" required>
+        </div>
       </div>
       <button class="btn-submit" id="searchBtn" style="margin-top:0;">🔍 ค้นหาโปรไฟล์</button>
     </div>
@@ -812,6 +816,7 @@
         currentProfile = result.data;
         fillEditForm(result.data);
         document.getElementById('editSection').classList.add('show');
+        document.getElementById('editOwnerJob').value = data.job || '';
         showAlert('พบโปรไฟล์แล้ว', 'success');
       } else {
         showAlert(result.error || 'ไม่พบโปรไฟล์ ตรวจสอบข้อมูลอีกครั้ง', 'error');
@@ -871,6 +876,7 @@
     }
 
     const name = document.getElementById('editOwnerName').value.trim();
+    const job = document.getElementById('editOwnerJob').value.trim();
     const gender = document.getElementById('editOwnerGender').value;
     const district = document.getElementById('editDistrict').value;
     const photo_url = document.getElementById('editOwnerPhoto').value.trim();
@@ -961,6 +967,7 @@
     if (!confirm('⚠️ คุณแน่ใจว่าต้องการลบโปรไฟล์นี้? การลบไม่สามารถกู้คืนได้')) return;
 
     const name = document.getElementById('editOwnerName').value.trim();
+    const job = document.getElementById('editOwnerJob').value.trim();
 
     this.disabled = true;
     this.textContent = '⏳ กำลังลบ...';
@@ -972,6 +979,7 @@
           action: 'delete',
           edit_code: currentEditCode,
           name: name,
+          job: job
         })
       });
       const result = await res.json();
