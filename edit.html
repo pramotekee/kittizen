@@ -816,7 +816,6 @@
         currentProfile = result.data;
         fillEditForm(result.data);
         document.getElementById('editSection').classList.add('show');
-        document.getElementById('editOwnerJob').value = data.job || '';
         showAlert('พบโปรไฟล์แล้ว', 'success');
       } else {
         showAlert(result.error || 'ไม่พบโปรไฟล์ ตรวจสอบข้อมูลอีกครั้ง', 'error');
@@ -833,7 +832,7 @@
   // FILL FORM
   // ============================================================
   function fillEditForm(data) {
-    document.getElementById('editOwnerName').value = data.name.toLowerCase() || '';
+    document.getElementById('editOwnerName').value = data.name || '';
     document.getElementById('editOwnerGender').value = data.gender || '';
     document.getElementById('editDistrict').value = data.district || '';
     document.getElementById('editOwnerPhoto').value = data.photo_url || '';
@@ -876,6 +875,7 @@
     }
 
     const name = document.getElementById('editOwnerName').value.trim();
+    const job = document.getElementById('editOwnerJob').value.trim();
     const gender = document.getElementById('editOwnerGender').value;
     const district = document.getElementById('editDistrict').value;
     const photo_url = document.getElementById('editOwnerPhoto').value.trim();
@@ -971,7 +971,6 @@
     if (!confirm('⚠️ คุณแน่ใจว่าต้องการลบโปรไฟล์นี้? การลบไม่สามารถกู้คืนได้')) return;
 
     const name = document.getElementById('editOwnerName').value.trim();
-    const job = document.getElementById('editOwnerJob').value.trim();
 
     this.disabled = true;
     this.textContent = '⏳ กำลังลบ...';
@@ -1028,12 +1027,7 @@
       document.getElementById('searchBtn').click();
     }
   });
-  document.getElementById('searchJob').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      document.getElementById('searchBtn').click();
-    }
-  });
+  
 </script>
 
 </body>
