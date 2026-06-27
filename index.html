@@ -586,7 +586,6 @@
     line-height: 1.7;
     padding: 12px 0;
     border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
     margin-bottom: 16px;
   }
 
@@ -1735,11 +1734,15 @@ async function shareProfile(id) {
   if (!d) return;
   
   const shareURL = `${window.location.origin}${window.location.pathname}?id=${id}`;
-  const shareText = `🐱 พบโปรไฟล์น่ารักจาก Kittizen!\nชื่อ: ${d.name}\nแมว: ${d.cats.map(c => c.name).join(', ')}`;
+  const shareText = `🐱 พบโปรไฟล์น่ารักจาก Kittizen!\nเจ้าของ: ${d.name}\nเจ้าเหมียว: ${d.cats.map(c => c.name).join(', ')}`;
   
   if (navigator.share) {
     try {
-      await navigator.share({ title: `${d.name} - Kittizen`, text: shareText, url: shareURL });
+      await navigator.share({ 
+        title: `${d.name} - Kittizen`, 
+        text: shareText, 
+        url: shareURL 
+      });
     } catch (e) {}
   } else {
     try {
