@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kittizen — แก้ไขโปรไฟล์</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F5F5F7;
+    --surface: #FFFFFF;
+    --accent: #E8734A;
+    --accent-dark: #D4623A;
+    --text-primary: #1D1D1F;
+    --text-secondary: #6E6E73;
+    --tag-bg: #E8E8ED;
+    --border: #D2D2D7;
+    --error: #e74c3c;
+    --success: #2ecc71;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    padding: 32px 20px;
+  }
+  .container { max-width: 720px; margin: 0 auto; }
+  .card {
+    background: var(--surface);
+    border-radius: 28px;
+    padding: 32px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+  h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .sub {
+    color: var(--text-secondary);
+    margin-bottom: 28px;
+    font-size: 14px;
+  }
+  .form-group { margin-bottom: 22px; }
+  .form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .form-group label .required { color: var(--error); margin-left: 2px; }
+  .form-group small {
+    font-size: 11px;
+    color: var(--text-secondary);
+    display: block;
+    margin-top: 4px;
+  }
+  input, select, textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    transition: all 0.15s;
+    background: var(--surface);
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(232,115,74,0.12);
+  }
+  textarea { resize: vertical; min-height: 80px; }
+  .char-counter { text-align: right; font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
+  .form-row { display: flex; gap: 16px; flex-wrap: wrap; }
+  .form-row .form-group { flex: 1; min-width: 140px; }
+  .hint { font-size: 11px; color: var(--text-secondary); margin-bottom: 6px; line-height: 1.5; }
+
+  .cat-group {
+    background: var(--bg);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+    position: relative;
+  }
+  .cat-group .cat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .cat-group .cat-header .cat-label { font-weight: 600; font-size: 14px; }
+  .cat-group .cat-header .cat-actions { display: flex; gap: 8px; }
+  .cat-group .cat-header .cat-actions button {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 8px;
+    color: var(--text-secondary);
+    transition: background 0.15s;
+  }
+  .cat-group .cat-header .cat-actions button:hover { background: var(--tag-bg); }
+  .cat-group .cat-header .cat-actions .btn-remove { color: var(--error); }
+  .cat-group .cat-header .cat-actions .btn-remove:hover { background: #fdecea; }
+  .cat-group .cat-header .cat-actions .btn-rainbow { color: #7B61FF; }
+  .cat-group .cat-header .cat-actions .btn-rainbow:hover { background: #EDE7FF; }
+  .cat-group .cat-header .cat-actions .btn-rainbow.active { background: #7B61FF; color: white; }
+  .cat-group .cat-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .cat-group .cat-fields .full-width { grid-column: 1 / -1; }
+  @media (max-width: 600px) {
+    .cat-group .cat-fields { grid-template-columns: 1fr; }
+    .cat-group .cat-fields .full-width { grid-column: 1; }
+  }
+  .cat-group .rainbow-info {
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: #F0EEFF;
+    border-radius: 8px;
+    font-size: 12px;
+    color: #5B4B9E;
+    display: none;
+  }
+  .cat-group .rainbow-info.show { display: block; }
+
+  .add-cat-btn {
+    background: var(--tag-bg);
+    border: 2px dashed var(--border);
+    border-radius: 16px;
+    padding: 16px;
+    width: 100%;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.15s;
+    font-family: 'Inter', sans-serif;
+  }
+  .add-cat-btn:hover {
+    background: #fde8e0;
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .btn-submit {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 14px 24px;
+    border-radius: 40px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 16px;
+    transition: background 0.15s;
+  }
+  .btn-submit:hover { background: var(--accent-dark); }
+  .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .btn-danger {
+    background: var(--error);
+    color: white;
+    border: none;
+    padding: 14px 24px;
+    border-radius: 40px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 12px;
+    transition: background 0.15s;
+  }
+  .btn-danger:hover { background: #c0392b; }
+
+  .search-section {
+    background: var(--bg);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .search-section .form-row { margin-bottom: 12px; }
+
+  .edit-section { display: none; }
+  .edit-section.show { display: block; }
+
+  .alert {
+    padding: 12px 16px;
+    border-radius: 14px;
+    margin-bottom: 16px;
+    font-size: 13px;
+  }
+  .alert-error { background: #fdecea; color: var(--error); border-left: 4px solid var(--error); }
+  .alert-success { background: #e8f8f0; color: var(--success); border-left: 4px solid var(--success); }
+
+  .breadcrumb { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; }
+  .breadcrumb a { color: var(--accent); text-decoration: none; }
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  .button-group {
+    display: flex;
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .button-group .btn-submit { width: auto; flex: 1; }
+  .button-group .btn-danger { width: auto; flex: 0 0 auto; }
+
+  hr { margin: 20px 0; border-color: var(--border); }
+
+  .toast {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background: var(--text-primary);
+    color: #F5F5F7;
+    padding: 10px 24px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0;
+    transition: opacity 0.25s, transform 0.25s;
+    z-index: 999;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="breadcrumb"><a href="index.html">🏠 หน้าแรก</a> &gt; แก้ไขโปรไฟล์</div>
+
+  <div class="card">
+    <h1>✏️ แก้ไขโปรไฟล์</h1>
+    <div class="sub">กรอกรหัสแก้ไขเพื่อค้นหาและแก้ไขข้อมูลของคุณ</div>
+
+    <!-- SEARCH -->
+    <div class="search-section">
+      <div class="form-group">
+        <label>รหัสแก้ไข <span class="required">*</span></label>
+        <input type="text" id="editCode" placeholder="เช่น 57f3k9mu">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>ชื่อเจ้าของ <span class="required">*</span></label>
+          <input type="text" id="searchName" placeholder="ชื่อของคุณ">
+        </div>
+      </div>
+      <button class="btn-submit" id="searchBtn" style="margin-top:0;">🔍 ค้นหาโปรไฟล์</button>
+    </div>
+
+    <div id="alertContainer"></div>
+
+    <!-- EDIT FORM -->
+    <div id="editSection" class="edit-section">
+      <h3 style="margin-bottom:20px;">📝 แก้ไขข้อมูล</h3>
+      <form id="editForm">
+        <!-- OWNER -->
+        <div class="form-row">
+          <div class="form-group">
+            <label>ชื่อเจ้าของ <span class="required">*</span></label>
+            <input type="text" id="editOwnerName" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>เพศเจ้าของ <span class="required">*</span></label>
+            <select id="editOwnerGender" required>
+              <option value="">เลือก</option>
+              <option value="ชาย">ชาย</option>
+              <option value="หญิง">หญิง</option>
+              <option value="ไม่ระบุ">ไม่ระบุ</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>เขตที่อยู่ <span class="required">*</span></label>
+            <select id="editDistrict" required>
+              <option value="">เลือกเขต</option>
+              <option value="เขตพระนคร">เขตพระนคร</option>
+              <option value="เขตดุสิต">เขตดุสิต</option>
+              <option value="เขตหนองจอก">เขตหนองจอก</option>
+              <option value="เขตบางรัก">เขตบางรัก</option>
+              <option value="เขตบางเขน">เขตบางเขน</option>
+              <option value="เขตบางกะปิ">เขตบางกะปิ</option>
+              <option value="เขตปทุมวัน">เขตปทุมวัน</option>
+              <option value="เขตป้อมปราบศัตรูพ่าย">เขตป้อมปราบศัตรูพ่าย</option>
+              <option value="เขตพระโขนง">เขตพระโขนง</option>
+              <option value="เขตมีนบุรี">เขตมีนบุรี</option>
+              <option value="เขตลาดกระบัง">เขตลาดกระบัง</option>
+              <option value="เขตยานนาวา">เขตยานนาวา</option>
+              <option value="เขตสัมพันธ์วงศ์">เขตสัมพันธ์วงศ์</option>
+              <option value="เขตพญาไท">เขตพญาไท</option>
+              <option value="เขตธนบุรี">เขตธนบุรี</option>
+              <option value="เขตบางกอกใหญ่">เขตบางกอกใหญ่</option>
+              <option value="เขตห้วยขวาง">เขตห้วยขวาง</option>
+              <option value="เขตคลองสาน">เขตคลองสาน</option>
+              <option value="เขตตลิ่งชัน">เขตตลิ่งชัน</option>
+              <option value="เขตบางกอกน้อย">เขตบางกอกน้อย</option>
+              <option value="เขตบางขุนเทียน">เขตบางขุนเทียน</option>
+              <option value="เขตภาษีเจริญ">เขตภาษีเจริญ</option>
+              <option value="เขตหนองแขม">เขตหนองแขม</option>
+              <option value="เขตราษฎร์บูรณะ">เขตราษฎร์บูรณะ</option>
+              <option value="เขตบางพลัด">เขตบางพลัด</option>
+              <option value="เขตดินแดง">เขตดินแดง</option>
+              <option value="เขตบึงกุ่ม">เขตบึงกุ่ม</option>
+              <option value="เขตสาทร">เขตสาทร</option>
+              <option value="เขตบางซื่อ">เขตบางซื่อ</option>
+              <option value="เขตจตุจักร">เขตจตุจักร</option>
+              <option value="เขตบางคอแหลม">เขตบางคอแหลม</option>
+              <option value="เขตประเวศ">เขตประเวศ</option>
+              <option value="เขตคลองเตย">เขตคลองเตย</option>
+              <option value="เขตสวนหลวง">เขตสวนหลวง</option>
+              <option value="เขตจอมทอง">เขตจอมทอง</option>
+              <option value="เขตดอนเมือง">เขตดอนเมือง</option>
+              <option value="เขตราชเทวี">เขตราชเทวี</option>
+              <option value="เขตลาดพร้าว">เขตลาดพร้าว</option>
+              <option value="เขตวัฒนา">เขตวัฒนา</option>
+              <option value="เขตบางแค">เขตบางแค</option>
+              <option value="เขตหลักสี่">เขตหลักสี่</option>
+              <option value="เขตสายไหม">เขตสายไหม</option>
+              <option value="เขตคันนายาว">เขตคันนายาว</option>
+              <option value="เขตสะพานสูง">เขตสะพานสูง</option>
+              <option value="เขตวังทองหลาง">เขตวังทองหลาง</option>
+              <option value="เขตคลองสามวา">เขตคลองสามวา</option>
+              <option value="เขตบางนา">เขตบางนา</option>
+              <option value="เขตทวีวัฒนา">เขตทวีวัฒนา</option>
+              <option value="เขตทุ่งครุ">เขตทุ่งครุ</option>
+              <option value="เขตบางบอน">เขตบางบอน</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>รูปโปรไฟล์เจ้าของ (URL) <span class="required">*</span></label>
+          <input type="url" id="editOwnerPhoto" required>
+          <small>⚠️ อย่าลืมตั้งค่าลิงก์รูปภาพนี้เป็น Share to public</small>
+        </div>
+
+        <div class="form-group">
+          <label>คำอธิบาย <span class="required">*</span></label>
+          <div class="hint">📝 เล่าเรื่องราวของคุณ (สูงสุด 500 ตัวอักษร)</div>
+          <textarea id="editCaption" maxlength="500" rows="3" required></textarea>
+          <div class="char-counter"><span id="editCaptionCounter">0</span>/500</div>
+        </div>
+
+        <hr>
+
+        <!-- CATS -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <h3 style="font-size:18px;">🐈 แมวของคุณ</h3>
+          <span style="font-size:12px;color:var(--text-secondary);">สูงสุด 10 ตัว</span>
+        </div>
+
+        <div id="editCatsContainer"></div>
+
+        <button type="button" class="add-cat-btn" id="editAddCatBtn">➕ เพิ่มแมว</button>
+
+        <hr>
+
+        <!-- CONTACT -->
+        <div style="margin-bottom:16px;">
+          <h3 style="font-size:18px;margin-bottom:8px;">📱 ช่องทางติดต่อ</h3>
+          <div style="font-size:12px;color:var(--text-secondary);">(ไม่บังคับ)</div>
+        </div>
+
+        <div class="form-group">
+          <label>LINE ID</label>
+          <input type="text" id="editLineId" placeholder="@username">
+        </div>
+        <div class="form-group">
+          <label>YouTube</label>
+          <input type="url" id="editYoutube" placeholder="https://youtube.com/@...">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>TikTok</label>
+            <input type="text" id="editTiktok" placeholder="username (ไม่ต้องใส่ @)">
+          </div>
+          <div class="form-group">
+            <label>Instagram</label>
+            <input type="text" id="editInstagram" placeholder="username (ไม่ต้องใส่ @)">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>X (Twitter)</label>
+          <input type="text" id="editX" placeholder="username (ไม่ต้องใส่ @)">
+        </div>
+
+        <div class="button-group">
+          <button type="button" class="btn-danger" id="deleteBtn">🗑️ ลบโปรไฟล์</button>
+          <button type="submit" class="btn-submit" id="updateBtn">💾 อัปเดตข้อมูล</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxBSKtA-RW4vy7HPqFairWgDHyG-1s2PkjpKWCtR_yc5anTt2AxaOz_hIaA96U27c0U/exec';
+  const MAX_CATS = 10;
+  const catsContainer = document.getElementById('editCatsContainer');
+  let currentEditCode = '';
+  let currentProfile = null;
+
+  // ============================================================
+  // TOAST
+  // ============================================================
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  // ============================================================
+  // ALERT
+  // ============================================================
+  function showAlert(msg, type) {
+    const container = document.getElementById('alertContainer');
+    container.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+    setTimeout(() => { if (container.firstChild) container.innerHTML = ''; }, 5000);
+  }
+
+  // ============================================================
+  // CAT MANAGEMENT
+  // ============================================================
+  function getCatCount() {
+    return catsContainer.querySelectorAll('.cat-group').length;
+  }
+
+  function updateCatLabels() {
+    const groups = catsContainer.querySelectorAll('.cat-group');
+    groups.forEach((g, i) => {
+      g.querySelector('.cat-label').textContent = `🐱 แมวตัวที่ ${i+1}`;
+      const btn = g.querySelector('.btn-remove');
+      if (btn) btn.style.display = groups.length > 1 ? 'inline-block' : 'none';
+    });
+  }
+
+  function createCatGroup(catData, index, rainbowData) {
+    const div = document.createElement('div');
+    div.className = 'cat-group';
+    div.dataset.catIndex = index;
+
+    const isRainbow = rainbowData && rainbowData[index+1];
+    const rainbowDate = isRainbow ? rainbowData[index+1] : null;
+
+    div.innerHTML = `
+      <div class="cat-header">
+        <span class="cat-label">🐱 แมวตัวที่ ${index+1}</span>
+        <div class="cat-actions">
+          <button type="button" class="btn-rainbow ${isRainbow ? 'active' : ''}" onclick="toggleRainbow(this)" title="🌈 กลับดาวแล้ว">
+            ${isRainbow ? '🌈' : '🌈'}
+          </button>
+          <button type="button" class="btn-remove" onclick="removeCat(this)" style="${getCatCount() <= 1 ? 'display:none;' : ''}">🗑️</button>
+        </div>
+      </div>
+      <div class="cat-fields">
+        <div class="full-width">
+          <label>ชื่อแมว <span class="required">*</span></label>
+          <input type="text" class="cat-name" value="${escapeHtml(catData?.name || '')}" placeholder="เช่น ข้าวเหนียว" required>
+        </div>
+        <div class="full-width">
+          <label>รูปแมว (URL) <span class="required">*</span></label>
+          <input type="url" class="cat-image" value="${escapeHtml(catData?.image || '')}" placeholder="https://drive.google.com/thumbnail?id=..." required>
+          <small style="display:block;margin-top:4px;font-size:11px;color:var(--text-secondary);">⚠️ อย่าลืมตั้งค่าลิงก์รูปภาพนี้เป็น Share to public</small>
+        </div>
+        <div class="full-width">
+          <label>สายพันธุ์ <span class="required">*</span></label>
+          <select class="cat-breed" required onchange="toggleOtherBreedEdit(this)">
+            <option value="">เลือกสายพันธุ์</option>
+            ${breedOptions(catData?.breed || '')}
+          </select>
+          <input type="text" class="cat-breed-other" placeholder="ระบุสายพันธุ์" style="display:none;margin-top:6px;" value="${isOtherBreed(catData?.breed) ? escapeHtml(catData.breed) : ''}">
+        </div>
+        <div>
+          <label>เพศ <span class="required">*</span></label>
+          <select class="cat-gender" required>
+            <option value="">เลือก</option>
+            <option value="ผู้" ${catData?.gender === 'ผู้' ? 'selected' : ''}>ผู้</option>
+            <option value="เมีย" ${catData?.gender === 'เมีย' ? 'selected' : ''}>เมีย</option>
+          </select>
+        </div>
+        <div>
+          <label>สี <span class="required">*</span></label>
+          <select class="cat-color" required>
+            <option value="">เลือกสี</option>
+            ${colorOptions(catData?.color || '')}
+          </select>
+        </div>
+      </div>
+      <div class="rainbow-info ${isRainbow ? 'show' : ''}">
+        🌈 กลับดาวแล้ว: ${rainbowDate || ''}
+      </div>
+    `;
+
+    // ถ้าเลือก other ให้แสดง input
+    const breedSelect = div.querySelector('.cat-breed');
+    if (breedSelect.value === 'other') {
+      div.querySelector('.cat-breed-other').style.display = 'block';
+    }
+
+    return div;
+  }
+
+  function breedOptions(selected) {
+    const breeds = [
+      'ABYSSINIAN', 'AMERICAN BOBTAIL', 'AMERICAN CURL', 'AMERICAN LONG HAIR',
+      'AMERICAN SHORTHAIR', 'AMERICAN WIREHAIR', 'APPLEHEAD SIAMESE / WICHIEN MAAT',
+      'ARABIAN MAU', 'BALINESE', 'BAMBINO', 'BENGAL', 'BIRMAN', 'BOMBAY',
+      'BRITISH LONGHAIR', 'BRITISH SHORTHAIR', 'BURMESE / Suphalak', 'BURMILLA',
+      'Canadian Hairless', 'CHARTREUX', 'CHAUSIE', 'CHINCHILLA',
+      'COLORPOINT LONGHAIR', 'COLORPOINT SHORTHAIR', 'CORNISH REX', 'CYMRIC',
+      'DEVON REX', 'DOMESTIC LONG HAIR', 'DOMESTIC MEDIUM HAIR', 'DOMESTIC SHORT HAIR',
+      'DRAGON LI', 'DWELF', 'EGYPTIAN MAU', 'ELF', 'EUROPEAN BURMESE',
+      'EUROPEAN SHORTHAIR', 'EXOTIC LONGHAIR', 'EXOTIC SHORTHAIR',
+      'EXTRA-TOES CAT - HEMINGWAY POLYDACTYL', 'HAVANA', 'HIGHLAND FOLD',
+      'HIGHLAND STRAIGHT', 'HIMALAYAN', 'JAPANESE BOBTAIL', 'JAVANESE',
+      'KHAO MANEE', 'KONJA', 'KORAT', 'KOREAN SHORTHAIR', 'LAPERM', 'LYKOI',
+      'LYNX', 'MAINE COON', 'MANX', 'MINSKIN', 'MUNCHKIN', 'NEBELUNG',
+      'NORWEGIAN FOREST', 'OCICAT', 'ORIENTAL LONG HAIR', 'ORIENTAL SHORT HAIR',
+      'ORIENTAL TABBY', 'PERSIAN', 'PETERBALD', 'PIXIEBOB', 'RAGAMUFFIN',
+      'RAGDOLL', 'RUSSIAN BLUE', 'SAND CAT', 'SAVANNAH', 'SCOTTISH FOLD',
+      'SCOTTISH STRAIGHT', 'SELKIRK REX', 'SERVAL', 'SIAMESE cat', 'SIBERIAN',
+      'SINGAPURA', 'SNOWSHOE', 'SOKOKE', 'SOMALI', 'SPHYNX - HAIRLESS CAT',
+      'TONKINESE', 'TORBIE', 'TOYGER', 'TURKISH ANGORA', 'TURKISH VAN',
+      'YORK CHOCOLATE', 'CROSSBRED'
+    ];
+    const names = {
+      'ABYSSINIAN': 'อะบิสซิเนียน',
+      'AMERICAN BOBTAIL': 'อเมริกัน บ็อบเทล',
+      'AMERICAN CURL': 'อเมริกัน เคิร์ล',
+      'AMERICAN LONG HAIR': 'อเมริกัน ลองแฮร์',
+      'AMERICAN SHORTHAIR': 'อเมริกัน ช๊อตแฮร์',
+      'AMERICAN WIREHAIR': 'อเมริกัน ไวร์แฮร์',
+      'APPLEHEAD SIAMESE / WICHIEN MAAT': 'วิเชียรมาศ',
+      'ARABIAN MAU': 'อารเบียน มูว์',
+      'BALINESE': 'บาลินีส',
+      'BAMBINO': 'แบมบิโน่',
+      'BENGAL': 'เบงกอล',
+      'BIRMAN': 'เบอร์แมน',
+      'BOMBAY': 'บอมเบย์',
+      'BRITISH LONGHAIR': 'บริทิช ลองแฮร์',
+      'BRITISH SHORTHAIR': 'บริติชขนสั้น',
+      'BURMESE / Suphalak': 'ศุภลักษณ์',
+      'BURMILLA': 'เบอร์มิลลา',
+      'Canadian Hairless': 'แคนาเดียน (สฟิงซ์)',
+      'CHARTREUX': 'ชาร์ตรู',
+      'CHAUSIE': 'ชอซี',
+      'CHINCHILLA': 'ชินชิลล่า',
+      'COLORPOINT LONGHAIR': 'คัลเลอร์พอยนท์ ลองแฮร์',
+      'COLORPOINT SHORTHAIR': 'คัลเลอร์พอยนท์ ชอร์ทแฮร์',
+      'CORNISH REX': 'คอร์นิชเรกซ์',
+      'CYMRIC': 'ซิมริค',
+      'DEVON REX': 'เดวอนเรกซ์',
+      'DOMESTIC LONG HAIR': 'พื้นเมืองขนยาว',
+      'DOMESTIC MEDIUM HAIR': 'พื้นเมืองขนปานกลาง',
+      'DOMESTIC SHORT HAIR': 'พื้นเมืองขนสั้น',
+      'DRAGON LI': 'ดราก้อนหลี่',
+      'DWELF': 'ดเวลฟ์',
+      'EGYPTIAN MAU': 'อียิปต์เชี่ยนมัว',
+      'ELF': 'เอลฟ์',
+      'EUROPEAN BURMESE': 'ยููโรเปียร เบอร์มิส',
+      'EUROPEAN SHORTHAIR': 'ยูโรเปียน ชอร์ทแฮร์',
+      'EXOTIC LONGHAIR': 'เอ็กโซติก ลองแฮร์',
+      'EXOTIC SHORTHAIR': 'เอ็กโซติกชอร์ทแฮร์',
+      'EXTRA-TOES CAT - HEMINGWAY POLYDACTYL': 'เฮมิงเวย์ โพลีแดกติล',
+      'HAVANA': 'ฮาวานา',
+      'HIGHLAND FOLD': 'ไฮแลนด์ โฟลด์',
+      'HIGHLAND STRAIGHT': 'ไฮแลนด์ สเตรท',
+      'HIMALAYAN': 'หิมาลายัน',
+      'JAPANESE BOBTAIL': 'เจแพนนิสบ็อบเทล',
+      'JAVANESE': 'จาวานีส',
+      'KHAO MANEE': 'ขาวมณี',
+      'KONJA': 'โกญจา',
+      'KORAT': 'สีสวาด',
+      'KOREAN SHORTHAIR': 'โคเรียน ชอร์ทแฮร์',
+      'LAPERM': 'ลาเปิร์ม',
+      'LYKOI': 'ไลคอย',
+      'LYNX': 'ลิงซ์',
+      'MAINE COON': 'เมนคูน',
+      'MANX': 'แมงซ์',
+      'MINSKIN': 'มินสกิน',
+      'MUNCHKIN': 'มันช์กิ้น',
+      'NEBELUNG': 'เนบีลัง',
+      'NORWEGIAN FOREST': 'นอร์วีเจียนฟอเรสต์',
+      'OCICAT': 'อ็อกซิแคต',
+      'ORIENTAL LONG HAIR': 'โอเรียนทัลขนยาว',
+      'ORIENTAL SHORT HAIR': 'โอเรียนทัลขนสั้น',
+      'ORIENTAL TABBY': 'โอเรียนทัลแท็บบี้',
+      'PERSIAN': 'เปอร์เซีย',
+      'PETERBALD': 'เพเทอร์บัลด์',
+      'PIXIEBOB': 'พิกซีบ็อบ',
+      'RAGAMUFFIN': 'รากามัฟฟิน',
+      'RAGDOLL': 'แร็กดอลล์',
+      'RUSSIAN BLUE': 'รัสเซียนบลู',
+      'SAND CAT': 'แซนด์แคท',
+      'SAVANNAH': 'ซาวันนา',
+      'SCOTTISH FOLD': 'สก็อตติชโฟลด์',
+      'SCOTTISH STRAIGHT': 'สก็อตติช สเตรท',
+      'SELKIRK REX': 'เซลเกิร์กเรกซ์',
+      'SERVAL': 'เซอร์วัล',
+      'SIAMESE cat': 'สยามมิส แค็ท',
+      'SIBERIAN': 'ไซบีเรียน',
+      'SINGAPURA': 'สิงคปุระ',
+      'SNOWSHOE': 'สโนว์ชู',
+      'SOKOKE': 'โซโกเก',
+      'SOMALI': 'โซมาลี',
+      'SPHYNX - HAIRLESS CAT': 'สฟิงซ์',
+      'TONKINESE': 'ท็องกินิส',
+      'TORBIE': 'ทอร์บี้',
+      'TOYGER': 'ทอยเกอร์',
+      'TURKISH ANGORA': 'เทอร์คิชแองโกรา',
+      'TURKISH VAN': 'เตอร์กิชแวน',
+      'YORK CHOCOLATE': 'ยอร์ค ช็อกโกแลต',
+      'CROSSBRED': 'พันธุ์ผสม'
+    };
+
+    let html = '';
+    breeds.forEach(b => {
+      const th = names[b] || b;
+      const sel = (selected === b) ? 'selected' : '';
+      html += `<option value="${b}" ${sel}>${b} (${th})</option>`;
+    });
+    const selOther = (selected && !breeds.includes(selected)) ? 'selected' : '';
+    html += `<option value="other" ${selOther}>อื่นๆ (ระบุเอง)</option>`;
+    return html;
+  }
+
+  function colorOptions(selected) {
+    const colors = [
+      'ขาว', 'ดำ', 'เทา', 'ส้ม', 'แดง', 'น้ำตาล', 'ครีม', 'ฟ้า', 'ม่วง',
+      'ส้มลาย', 'เทาลาย', 'แดงลาย', 'สีสวาด', 'วิเชียรมาศลาย', 'สองสี',
+      'สามสี', 'หลากสี', 'อื่นๆ'
+    ];
+    return colors.map(c => `<option value="${c}" ${c === selected ? 'selected' : ''}>${c}</option>`).join('');
+  }
+
+  function isOtherBreed(breed) {
+    const breeds = [
+      'ABYSSINIAN', 'AMERICAN BOBTAIL', 'AMERICAN CURL', 'AMERICAN LONG HAIR',
+      'AMERICAN SHORTHAIR', 'AMERICAN WIREHAIR', 'APPLEHEAD SIAMESE / WICHIEN MAAT',
+      'ARABIAN MAU', 'BALINESE', 'BAMBINO', 'BENGAL', 'BIRMAN', 'BOMBAY',
+      'BRITISH LONGHAIR', 'BRITISH SHORTHAIR', 'BURMESE / Suphalak', 'BURMILLA',
+      'Canadian Hairless', 'CHARTREUX', 'CHAUSIE', 'CHINCHILLA',
+      'COLORPOINT LONGHAIR', 'COLORPOINT SHORTHAIR', 'CORNISH REX', 'CYMRIC',
+      'DEVON REX', 'DOMESTIC LONG HAIR', 'DOMESTIC MEDIUM HAIR', 'DOMESTIC SHORT HAIR',
+      'DRAGON LI', 'DWELF', 'EGYPTIAN MAU', 'ELF', 'EUROPEAN BURMESE',
+      'EUROPEAN SHORTHAIR', 'EXOTIC LONGHAIR', 'EXOTIC SHORTHAIR',
+      'EXTRA-TOES CAT - HEMINGWAY POLYDACTYL', 'HAVANA', 'HIGHLAND FOLD',
+      'HIGHLAND STRAIGHT', 'HIMALAYAN', 'JAPANESE BOBTAIL', 'JAVANESE',
+      'KHAO MANEE', 'KONJA', 'KORAT', 'KOREAN SHORTHAIR', 'LAPERM', 'LYKOI',
+      'LYNX', 'MAINE COON', 'MANX', 'MINSKIN', 'MUNCHKIN', 'NEBELUNG',
+      'NORWEGIAN FOREST', 'OCICAT', 'ORIENTAL LONG HAIR', 'ORIENTAL SHORT HAIR',
+      'ORIENTAL TABBY', 'PERSIAN', 'PETERBALD', 'PIXIEBOB', 'RAGAMUFFIN',
+      'RAGDOLL', 'RUSSIAN BLUE', 'SAND CAT', 'SAVANNAH', 'SCOTTISH FOLD',
+      'SCOTTISH STRAIGHT', 'SELKIRK REX', 'SERVAL', 'SIAMESE cat', 'SIBERIAN',
+      'SINGAPURA', 'SNOWSHOE', 'SOKOKE', 'SOMALI', 'SPHYNX - HAIRLESS CAT',
+      'TONKINESE', 'TORBIE', 'TOYGER', 'TURKISH ANGORA', 'TURKISH VAN',
+      'YORK CHOCOLATE', 'CROSSBRED'
+    ];
+    return breed && !breeds.includes(breed);
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function toggleOtherBreedEdit(select) {
+    const parent = select.closest('.full-width');
+    const otherInput = parent.querySelector('.cat-breed-other');
+    if (select.value === 'other') {
+      otherInput.style.display = 'block';
+      otherInput.required = true;
+    } else {
+      otherInput.style.display = 'none';
+      otherInput.required = false;
+      otherInput.value = '';
+    }
+  }
+
+  function toggleRainbow(btn) {
+    const group = btn.closest('.cat-group');
+    const info = group.querySelector('.rainbow-info');
+    const isActive = btn.classList.contains('active');
+
+    if (isActive) {
+      // กลับดาวแล้ว -> ยกเลิก
+      if (!confirm('ยกเลิกสถานะ "กลับดาวแล้ว" ใช่หรือไม่?')) return;
+      btn.classList.remove('active');
+      info.classList.remove('show');
+      info.textContent = '';
+      // ลบ rainbow date
+      const idx = parseInt(group.dataset.catIndex);
+      if (currentProfile && currentProfile.rainbow) {
+        delete currentProfile.rainbow[idx+1];
+        if (Object.keys(currentProfile.rainbow).length === 0) {
+          currentProfile.rainbow = {};
+        }
+      }
+      showToast('ยกเลิกสถานะกลับดาวแล้ว');
+    } else {
+      // ตั้งค่ากลับดาว
+      const now = new Date().toLocaleDateString('th-TH', { year:'numeric', month:'2-digit', day:'2-digit' });
+      if (!confirm(`ตั้งค่าแมวตัวนี้เป็น "กลับดาวแล้ว" วันที่ ${now} ?`)) return;
+      btn.classList.add('active');
+      info.textContent = `🌈 กลับดาวแล้ว: ${now}`;
+      info.classList.add('show');
+      const idx = parseInt(group.dataset.catIndex);
+      if (!currentProfile.rainbow) currentProfile.rainbow = {};
+      currentProfile.rainbow[idx+1] = now;
+      showToast(`ตั้งค่ากลับดาวแล้ว: ${now}`);
+    }
+  }
+
+  function removeCat(btn) {
+    const group = btn.closest('.cat-group');
+    if (getCatCount() <= 1) {
+      showAlert('ต้องมีแมวอย่างน้อย 1 ตัว', 'error');
+      return;
+    }
+    if (!confirm('ลบแมวตัวนี้ออกจากโปรไฟล์?')) return;
+    group.remove();
+    updateCatLabels();
+    // Update rainbow data
+    if (currentProfile) {
+      const idx = parseInt(group.dataset.catIndex);
+      if (currentProfile.rainbow) {
+        delete currentProfile.rainbow[idx+1];
+      }
+    }
+  }
+
+  function addCat() {
+    const count = getCatCount();
+    if (count >= MAX_CATS) {
+      showAlert('สูงสุด 10 ตัว', 'error');
+      return;
+    }
+
+    const group = createCatGroup(null, count, currentProfile?.rainbow || {});
+    catsContainer.appendChild(group);
+    updateCatLabels();
+  }
+
+  // ============================================================
+  // SEARCH
+  // ============================================================
+  document.getElementById('searchBtn').addEventListener('click', async function() {
+    const editCode = document.getElementById('editCode').value.trim();
+    const name = document.getElementById('searchName').value.trim();
+    const job = document.getElementById('searchJob').value.trim();
+
+    if (!editCode || !name) {
+      showAlert('กรุณากรอกรหัสแก้ไข ชื่อ และอาชีพให้ครบ', 'error');
+      return;
+    }
+
+    this.disabled = true;
+    this.textContent = '⏳ กำลังค้นหา...';
+
+    try {
+      const res = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'fetch',
+          edit_code: editCode,
+          name: name,
+          job: job
+        })
+      });
+
+      const result = await res.json();
+
+      if (result.success && result.data) {
+        currentEditCode = editCode;
+        currentProfile = result.data;
+        fillEditForm(result.data);
+        document.getElementById('editSection').classList.add('show');
+        showAlert('พบโปรไฟล์แล้ว', 'success');
+      } else {
+        showAlert(result.error || 'ไม่พบโปรไฟล์ ตรวจสอบข้อมูลอีกครั้ง', 'error');
+      }
+    } catch (err) {
+      showAlert('เกิดข้อผิดพลาด: ' + err.message, 'error');
+    } finally {
+      this.disabled = false;
+      this.textContent = '🔍 ค้นหาโปรไฟล์';
+    }
+  });
+
+  // ============================================================
+  // FILL FORM
+  // ============================================================
+  function fillEditForm(data) {
+    document.getElementById('editOwnerName').value = data.name || '';
+    document.getElementById('editOwnerJob').value = data.job || '';
+    document.getElementById('editOwnerGender').value = data.gender || '';
+    document.getElementById('editDistrict').value = data.district || '';
+    document.getElementById('editOwnerPhoto').value = data.photo_url || '';
+    document.getElementById('editCaption').value = data.caption || '';
+    document.getElementById('editCaptionCounter').textContent = (data.caption || '').length;
+
+    document.getElementById('editLineId').value = data.line_id || '';
+    document.getElementById('editYoutube').value = data.youtube || '';
+    document.getElementById('editTiktok').value = data.tiktok || '';
+    document.getElementById('editInstagram').value = data.instagram || '';
+    document.getElementById('editX').value = data.x || '';
+
+    // Cats
+    catsContainer.innerHTML = '';
+    const cats = data.cats || [];
+    const rainbowData = data.rainbow || {};
+
+    if (cats.length === 0) {
+      // สร้าง 1 ตัว default
+      const group = createCatGroup({ name: '', image: '', breed: '', gender: '', color: '' }, 0, {});
+      catsContainer.appendChild(group);
+    } else {
+      cats.forEach((cat, i) => {
+        const group = createCatGroup(cat, i, rainbowData);
+        catsContainer.appendChild(group);
+      });
+    }
+    updateCatLabels();
+  }
+
+  // ============================================================
+  // UPDATE
+  // ============================================================
+  document.getElementById('editForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    if (!currentEditCode) {
+      showAlert('กรุณาค้นหาโปรไฟล์ก่อน', 'error');
+      return;
+    }
+
+    const name = document.getElementById('editOwnerName').value.trim();
+    const job = document.getElementById('editOwnerJob').value.trim();
+    const gender = document.getElementById('editOwnerGender').value;
+    const district = document.getElementById('editDistrict').value;
+    const photo_url = document.getElementById('editOwnerPhoto').value.trim();
+    const caption = document.getElementById('editCaption').value.trim();
+
+    if (!name || !job || !gender || !district || !photo_url || !caption) {
+      showAlert('กรุณากรอกข้อมูลให้ครบทุกช่องที่มี *', 'error');
+      return;
+    }
+
+    const cats = [];
+    let catCount = 0, catMale = 0, catFemale = 0;
+
+    document.querySelectorAll('#editCatsContainer .cat-group').forEach(g => {
+      const catName = g.querySelector('.cat-name').value.trim();
+      const catImage = g.querySelector('.cat-image').value.trim();
+      let breed = g.querySelector('.cat-breed').value;
+      if (breed === 'other') {
+        breed = g.querySelector('.cat-breed-other').value.trim() || 'อื่นๆ';
+      }
+      const catGender = g.querySelector('.cat-gender').value;
+      const color = g.querySelector('.cat-color').value;
+
+      if (catName && catImage && breed && catGender && color) {
+        cats.push({ name: catName, image: catImage, breed, gender: catGender, color });
+        catCount++;
+        if (catGender === 'ผู้') catMale++;
+        if (catGender === 'เมีย') catFemale++;
+      }
+    });
+
+    if (cats.length < 1) {
+      showAlert('กรุณากรอกข้อมูลแมวอย่างน้อย 1 ตัว', 'error');
+      return;
+    }
+
+    const payload = {
+      action: 'update',
+      edit_code: currentEditCode,
+      name, job, gender, district, photo_url, caption,
+      cats,
+      cat_count: catCount,
+      cat_male: catMale,
+      cat_female: catFemale,
+      rainbow: currentProfile?.rainbow || {},
+      line_id: document.getElementById('editLineId').value.trim(),
+      youtube: document.getElementById('editYoutube').value.trim(),
+      tiktok: document.getElementById('editTiktok').value.trim().replace('@', ''),
+      instagram: document.getElementById('editInstagram').value.trim().replace('@', ''),
+      x: document.getElementById('editX').value.trim().replace('@', '')
+    };
+
+    const btn = document.getElementById('updateBtn');
+    btn.disabled = true;
+    btn.textContent = '⏳ กำลังอัปเดต...';
+
+    try {
+      const res = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const result = await res.json();
+
+      if (result.success) {
+        showAlert('✅ อัปเดตข้อมูลสำเร็จ!', 'success');
+        setTimeout(() => window.location.href = 'index.html', 1500);
+      } else {
+        showAlert(result.error || 'เกิดข้อผิดพลาด', 'error');
+      }
+    } catch (err) {
+      showAlert('เกิดข้อผิดพลาด: ' + err.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '💾 อัปเดตข้อมูล';
+    }
+  });
+
+  // ============================================================
+  // DELETE
+  // ============================================================
+  document.getElementById('deleteBtn').addEventListener('click', async function() {
+    if (!currentEditCode) {
+      showAlert('กรุณาค้นหาโปรไฟล์ก่อน', 'error');
+      return;
+    }
+
+    if (!confirm('⚠️ คุณแน่ใจว่าต้องการลบโปรไฟล์นี้? การลบไม่สามารถกู้คืนได้')) return;
+
+    const name = document.getElementById('editOwnerName').value.trim();
+    const job = document.getElementById('editOwnerJob').value.trim();
+
+    this.disabled = true;
+    this.textContent = '⏳ กำลังลบ...';
+
+    try {
+      const res = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'delete',
+          edit_code: currentEditCode,
+          name: name,
+          job: job
+        })
+      });
+      const result = await res.json();
+
+      if (result.success) {
+        showAlert('🗑️ ลบโปรไฟล์สำเร็จ!', 'success');
+        setTimeout(() => window.location.href = 'index.html', 1500);
+      } else {
+        showAlert(result.error || 'เกิดข้อผิดพลาด', 'error');
+      }
+    } catch (err) {
+      showAlert('เกิดข้อผิดพลาด: ' + err.message, 'error');
+    } finally {
+      this.disabled = false;
+      this.textContent = '🗑️ ลบโปรไฟล์';
+    }
+  });
+
+  // ============================================================
+  // ADD CAT BUTTON
+  // ============================================================
+  document.getElementById('editAddCatBtn').addEventListener('click', addCat);
+
+  // ============================================================
+  // CHAR COUNTER
+  // ============================================================
+  document.getElementById('editCaption').addEventListener('input', function() {
+    document.getElementById('editCaptionCounter').textContent = this.value.length;
+  });
+
+  // ============================================================
+  // ENTER KEY
+  // ============================================================
+  document.getElementById('editCode').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      document.getElementById('searchBtn').click();
+    }
+  });
+  document.getElementById('searchName').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      document.getElementById('searchBtn').click();
+    }
+  });
+  document.getElementById('searchJob').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      document.getElementById('searchBtn').click();
+    }
+  });
+</script>
+
+</body>
+</html>
