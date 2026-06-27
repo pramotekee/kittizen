@@ -778,7 +778,6 @@
     try {
       const res = await fetch(SCRIPT_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'fetch',
           edit_code: editCode,
@@ -953,7 +952,6 @@
     try {
       const res = await fetch(SCRIPT_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'delete',
           edit_code: currentEditCode,
