@@ -1280,12 +1280,12 @@ function getCatField(row, idx, field) {
   const fieldOffset = { name: 0, image: 1, breed: 2, gender: 3, color: 4 };
   const offset = fieldOffset[field];
   if (offset === undefined) return '';
-  return row[base + offset]?.v || '';
+  return row[base + offset] || '';
 }
 
 function getRainbowData(row) {
   try {
-    const raw = row[60]?.v || '{}';
+    const raw = row[60] || '{}';
     return JSON.parse(raw);
   } catch {
     return {};
@@ -1293,29 +1293,26 @@ function getRainbowData(row) {
 }
 
 function getCatCount(row) {
-  const raw = row[57]?.v || 0;
-  return isNaN(parseInt(raw)) ? 0 : parseInt(raw);
+  return isNaN(parseInt(row[57])) ? 0 : parseInt(row[57]);
 }
 
 function getCatMale(row) {
-  const raw = row[58]?.v || 0;
-  return isNaN(parseInt(raw)) ? 0 : parseInt(raw);
+  return isNaN(parseInt(row[58])) ? 0 : parseInt(row[58]);
 }
 
 function getCatFemale(row) {
-  const raw = row[59]?.v || 0;
-  return isNaN(parseInt(raw)) ? 0 : parseInt(raw);
+  return isNaN(parseInt(row[59])) ? 0 : parseInt(row[59]);
 }
 
 function parseRow(row) {
   return {
-    id:         row[0]?.v  || '',
-    name:       row[1]?.v  || '',
-    gender:     row[2]?.v  || '',
-    job:        row[3]?.v  || '',
-    photo_url:  row[4]?.v  || '',
-    caption:    row[5]?.v  || '',
-    district:   row[6]?.v  || '',
+    id:         row[0]  || '',
+    name:       row[1]  || '',
+    gender:     row[2]  || '',
+    job:        row[3]  || '',
+    photo_url:  row[4]  || '',
+    caption:    row[5]  || '',
+    district:   row[6]  || '',
     cats: [1,2,3,4,5,6,7,8,9,10].map(i => ({
       name:   getCatField(row, i, 'name'),
       image:  getCatField(row, i, 'image'),
@@ -1327,16 +1324,17 @@ function parseRow(row) {
     cat_male:    getCatMale(row),
     cat_female:  getCatFemale(row),
     rainbow:     getRainbowData(row),
-    line_id:     row[61]?.v || '',
-    youtube:     row[62]?.v || '',
-    tiktok:      row[63]?.v || '',
-    instagram:   row[64]?.v || '',
-    x:           row[65]?.v || '',
-    create_date: row[66]?.v || '',
-    edit_code:   row[67]?.v || '',
-    status: (row[68]?.v === true || row[68]?.v === 'TRUE') ? 'TRUE' : 'FALSE'
+    line_id:     row[61] || '',
+    youtube:     row[62] || '',
+    tiktok:      row[63] || '',
+    instagram:   row[64] || '',
+    x:           row[65] || '',
+    create_date: row[66] || '',
+    edit_code:   row[67] || '',
+    status: (row[68] === true || row[68] === 'TRUE') ? 'TRUE' : 'FALSE'
   };
 }
+
 function isRainbow(cats, idx) {
   const num = idx + 1;
   return cats.rainbow && cats.rainbow[num] ? true : false;
