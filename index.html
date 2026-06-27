@@ -380,8 +380,6 @@
   }
 
   .card-caption {
-    position: relative;
-    z-index: 1;
     padding: 0 16px 8px;
     font-size: 12px;
     color: var(--text-secondary);
@@ -392,6 +390,8 @@
     overflow: hidden;
     min-height: 36px;
     background: var(--surface);
+    position: relative;
+    z-index: 1;
   }
 
   .card {
@@ -423,7 +423,7 @@
     background: var(--tag-bg);
     color: var(--text-primary);
     text-decoration: none;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 500;
     transition: all 0.15s;
     border: none;
@@ -1712,7 +1712,6 @@ if (d.x) contacts.push(`<a href="https://x.com/${d.x.replace('@','')}" target="_
 // ปุ่ม Share
 contacts.push(`<button class="contact-pill share-btn" onclick="event.stopPropagation();shareProfile('${d.id}')">🔗 Share</button>`);
 
-  const contactsHTML = contacts.length ? contacts.join('') : '';
 
   if (isCard) {
     return `
@@ -1859,15 +1858,6 @@ function openModal(id) {
       </div>
     `;
   }).join('');
-
-  // Contacts
-  const contacts = [];
-if (d.line_id) contacts.push(`<a href="https://line.me/ti/p/${d.line_id}" target="_blank" class="contact-pill" title="LINE">💬 LINE</a>`);
-if (d.youtube) contacts.push(`<a href="${d.youtube}" target="_blank" class="contact-pill" title="YouTube">▶️ YouTube</a>`);
-if (d.tiktok) contacts.push(`<a href="https://tiktok.com/@${d.tiktok.replace('@','')}" target="_blank" class="contact-pill" title="TikTok">🎵 TikTok</a>`);
-if (d.instagram) contacts.push(`<a href="https://instagram.com/${d.instagram.replace('@','')}" target="_blank" class="contact-pill" title="Instagram">📷 Instagram</a>`);
-if (d.x) contacts.push(`<a href="https://x.com/${d.x.replace('@','')}" target="_blank" class="contact-pill" title="X">🐦 X</a>`);
-contacts.push(`<button class="contact-pill share-btn" onclick="shareProfile('${d.id}')">🔗 Share</button>`);
 
   modal.innerHTML = `
     <div class="modal-owner">
