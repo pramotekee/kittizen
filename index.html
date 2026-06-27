@@ -915,10 +915,6 @@
   <!-- DASHBOARD -->
   <div class="dashboard" id="dashboard">
     <div class="dash-item">
-      <div class="number" id="totalCats">0</div>
-      <div class="label">🐈 แมวทั้งหมด</div>
-    </div>
-    <div class="dash-item">
       <div class="number" id="totalOwners">0</div>
       <div class="label">👤 เจ้าของแมว</div>
     </div>
@@ -929,6 +925,10 @@
     <div class="dash-item">
       <div class="number" id="femaleOwners">0</div>
       <div class="label">👧 หญิง</div>
+    </div>
+    <div class="dash-item">
+      <div class="number" id="totalCats">0</div>
+      <div class="label">🐈 แมวทั้งหมด</div>
     </div>
     <div class="dash-item">
       <div class="number" id="maleCats">0</div>
@@ -1159,8 +1159,8 @@
 
   <!-- VIEW TOGGLE -->
   <div class="view-toggle">
-    <button class="view-toggle-btn active" id="viewCard" onclick="setView('card')">▦ การ์ด</button>
-    <button class="view-toggle-btn" id="viewLine" onclick="setView('line')">≡ รายการ</button>
+    <button class="view-toggle-btn active" id="viewCard" onclick="setView('card')">▦ Card</button>
+    <button class="view-toggle-btn" id="viewLine" onclick="setView('line')">≡ List</button>
   </div>
 
   <!-- GRID -->
@@ -1736,7 +1736,7 @@ async function shareProfile(id) {
   if (!d) return;
   
   const shareURL = `${window.location.origin}${window.location.pathname}?id=${id}`;
-  const shareText = `🐱 พบโปรไฟล์น่ารักจาก Kittizen!\nเจ้าของ: ${d.name}\nเจ้าเหมียว: ${d.cats.map(c => c.name).join(', ')}`;
+  const shareText = `🐱 มาดูแมวของเรามั้ย?\nเจ้าของ: ${d.name}\nเจ้าเหมียว: ${d.cats.map(c => c.name).join(', ')}`;
   const fullMessage = `${shareText}\n\n${shareURL}`;
   
   if (navigator.share) {
