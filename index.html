@@ -1672,7 +1672,7 @@ function renderCard(d, isCard) {
     
     return `
       <div class="cat-thumb">
-        <div class="cat-img ${rainbow ? 'rainbow' : ''}">
+        <div class="cat-img ${rainbow ? 'rainbow' : ''}" onclick="event.stopPropagation();openLightbox('${cat.image || ''}')">
           ${img}
           ${rainbow ? '<span class="rainbow-badge">🌈</span>' : ''}
         </div>
@@ -1819,22 +1819,22 @@ function openModal(id) {
 
   // Cats grid (แถวละ 5)
   const catsHTML = cats.map((cat, idx) => {
-    const rainbow = isRainbow(d, idx);
-    const rainbowDate = getRainbowDate(d, idx);
-    const img = cat.image ? `<img src="${cat.image}" alt="${cat.name}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect width=%22100%22 height=%22100%22 fill=%22%23E8E8ED%22/%3E%3Ctext x=%2250%22 y=%2260%22 text-anchor=%22middle%22 font-size=%2240%22 fill=%22%23999%22%3E🐱%3C/text%3E%3C/svg%3E'">` : '';
-    
-    return `
-      <div class="modal-cat-item">
-        <div class="cat-img ${rainbow ? 'rainbow' : ''}">
-          ${img}
-          ${rainbow ? '<span class="rainbow-badge">🌈</span>' : ''}
-        </div>
-        <div class="cat-name ${rainbow ? 'rainbow' : ''}">${cat.name || 'น้องเหมียว'}</div>
-        <div class="cat-breed">${getBreedShort(cat.breed)}</div>
-        ${rainbow && rainbowDate ? `<div class="rainbow-date">กลับดาว ${rainbowDate}</div>` : ''}
+  const rainbow = isRainbow(d, idx);
+  const rainbowDate = getRainbowDate(d, idx);
+  const img = cat.image ? `<img src="${cat.image}" alt="${cat.name}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect width=%22100%22 height=%22100%22 fill=%22%23E8E8ED%22/%3E%3Ctext x=%2250%22 y=%2260%22 text-anchor=%22middle%22 font-size=%2240%22 fill=%22%23999%22%3E🐱%3C/text%3E%3C/svg%3E'">` : '';
+  
+  return `
+    <div class="modal-cat-item">
+      <div class="cat-img ${rainbow ? 'rainbow' : ''}" onclick="event.stopPropagation();openLightbox('${cat.image || ''}')">
+        ${img}
+        ${rainbow ? '<span class="rainbow-badge">🌈</span>' : ''}
       </div>
-    `;
-  }).join('');
+      <div class="cat-name ${rainbow ? 'rainbow' : ''}">${cat.name || 'น้องเหมียว'}</div>
+      <div class="cat-breed">${getBreedShort(cat.breed)}</div>
+      ${rainbow && rainbowDate ? `<div class="rainbow-date">กลับดาว ${rainbowDate}</div>` : ''}
+    </div>
+  `;
+}).join('');
 
   const contacts = [];
   if (d.line_id) contacts.push(`<a href="https://line.me/ti/p/${d.line_id}" target="_blank" class="contact-pill" title="LINE">💬 LINE</a>`);
@@ -1853,8 +1853,8 @@ contacts.push(`<button class="contact-pill share-btn" onclick="shareProfile('${d
         <div class="district">📍 ${d.district || ''}</div>
       </div>
     </div>
-    ${d.caption ? `<div class="modal-caption">${d.caption}</div>` : ''}
     ${cats.length ? `<div class="modal-cats">${catsHTML}</div>` : ''}
+    ${d.caption ? `<div class="modal-caption">${d.caption}</div>` : ''}
     ${contacts.length ? `<div class="modal-contact">${contacts.join('')}</div>` : ''}
   `;
 
