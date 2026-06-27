@@ -946,8 +946,7 @@
       const result = await res.json();
 
       if (result.success) {
-        showAlert('✅ อัปเดตข้อมูลสำเร็จ!', 'success');
-        setTimeout(() => window.location.href = 'index.html', 1500);
+        showSuccessModal();
       } else {
         showAlert(result.error || 'เกิดข้อผิดพลาด', 'error');
       }
@@ -1028,6 +1027,24 @@
     }
   });
   
+</script>
+
+<!-- SUCCESS MODAL -->
+<div id="successModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:1000;display:flex;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:24px;padding:36px 32px;text-align:center;max-width:320px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+    <div style="font-size:56px;margin-bottom:12px;">✅</div>
+    <h2 style="font-size:20px;font-weight:700;margin-bottom:8px;">อัปเดตสำเร็จ!</h2>
+    <p style="color:#6E6E73;font-size:14px;margin-bottom:24px;">ข้อมูลของคุณถูกบันทึกแล้ว</p>
+    <button onclick="window.location.href='index.html'" style="background:#E8734A;color:white;border:none;padding:12px 32px;border-radius:40px;font-size:15px;font-weight:600;cursor:pointer;width:100%;">
+      กลับหน้าหลัก
+    </button>
+  </div>
+</div>
+
+<script>
+function showSuccessModal() {
+  document.getElementById('successModal').style.display = 'flex';
+}
 </script>
 
 </body>
