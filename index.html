@@ -1703,7 +1703,6 @@ function renderCard(d, isCard) {
           ${catsHTML}
           ${seeMoreHTML}
         </div>
-        ${d.caption ? `<div class="card-caption">${d.caption}</div>` : ''}
       </div>
     `;
   } else {
@@ -1735,18 +1734,17 @@ async function shareProfile(id) {
   
   const shareURL = `${window.location.origin}${window.location.pathname}?id=${id}`;
   const shareText = `🐱 พบโปรไฟล์น่ารักจาก Kittizen!\nเจ้าของ: ${d.name}\nเจ้าเหมียว: ${d.cats.map(c => c.name).join(', ')}`;
+  const fullMessage = `${shareText}\n\n${shareURL}`;
   
   if (navigator.share) {
     try {
       await navigator.share({ 
         title: `${d.name} - Kittizen`, 
-        text: shareText, 
-        url: shareURL 
+        text: fullMessage
       });
     } catch (e) {}
   } else {
     try {
-      const fullMessage = `${shareText}\n\n${shareURL}`;
       await navigator.clipboard.writeText(fullMessage);
       showToast('📋 คัดลอกลิงก์โปรไฟล์แล้ว');
     } catch (e) {
