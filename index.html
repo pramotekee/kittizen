@@ -657,11 +657,14 @@
   .modal-contact a {
     color: var(--text-secondary);
     text-decoration: none;
-    font-size: 20px;
+    font-size: 12px;
     transition: color 0.15s;
   }
   .modal-contact a:hover {
     color: var(--accent);
+  }
+  .modal-contact .contact-pill {
+    font-size: 12px;
   }
 
   /* LIGHTBOX */
@@ -1739,7 +1742,6 @@ async function shareProfile(id) {
   if (navigator.share) {
     try {
       await navigator.share({ 
-        title: `${d.name} - Kittizen`, 
         text: fullMessage
       });
     } catch (e) {}
