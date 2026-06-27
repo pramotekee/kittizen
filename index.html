@@ -1276,34 +1276,18 @@ let selectedId = null;
 // HELPERS
 // ============================================================
 function getCatField(row, idx, field) {
-  const colMap = {
-    1: { name: 'H', image: 'I', breed: 'J' },
-    2: { name: 'K', image: 'L', breed: 'M' },
-    3: { name: 'N', image: 'O', breed: 'P' },
-    4: { name: 'Q', image: 'R', breed: 'S' },
-    5: { name: 'T', image: 'U', breed: 'V' },
-    6: { name: 'W', image: 'X', breed: 'Y' },
-    7: { name: 'Z', image: 'AA', breed: 'AB' },
-    8: { name: 'AC', image: 'AD', breed: 'AE' },
-    9: { name: 'AF', image: 'AG', breed: 'AH' },
-    10: { name: 'AI', image: 'AJ', breed: 'AK' }
-  };
-  const col = colMap[idx];
-  if (!col) return '';
-  const colIndex = {
-    'H':0,'I':1,'J':2,'K':3,'L':4,'M':5,'N':6,'O':7,'P':8,
-    'Q':9,'R':10,'S':11,'T':12,'U':13,'V':14,'W':15,'X':16,'Y':17,
-    'Z':18,'AA':19,'AB':20,'AC':21,'AD':22,'AE':23,'AF':24,'AG':25,'AH':26,
-    'AI':27,'AJ':28,'AK':29
-  };
-  const idx2 = colIndex[col[field]];
-  if (idx2 === undefined) return '';
-  return row[idx2] || '';
+  // แต่ละแมวมี 5 fields: name, image, breed, gender, color
+  // แมวตัวที่ 1 เริ่มที่ col index 7 (col H)
+  const base = 7 + (idx - 1) * 5;
+  const fieldOffset = { name: 0, image: 1, breed: 2, gender: 3, color: 4 };
+  const offset = fieldOffset[field];
+  if (offset === undefined) return '';
+  return row[base + offset] || '';
 }
 
 function getRainbowData(row) {
   try {
-    const raw = row[40] || '{}';
+    const raw = row[60] || '{}';
     return JSON.parse(raw);
   } catch {
     return {};
@@ -1311,19 +1295,19 @@ function getRainbowData(row) {
 }
 
 function getCatCount(row) {
-  const raw = row[37] || '0';
+  const raw = row[57] || '0';
   const count = parseInt(raw, 10);
   return isNaN(count) ? 0 : count;
 }
 
 function getCatMale(row) {
-  const raw = row[38] || '0';
+  const raw = row[58] || '0';
   const count = parseInt(raw, 10);
   return isNaN(count) ? 0 : count;
 }
 
 function getCatFemale(row) {
-  const raw = row[39] || '0';
+  const raw = row[59] || '0';
   const count = parseInt(raw, 10);
   return isNaN(count) ? 0 : count;
 }
@@ -1341,19 +1325,21 @@ function parseRow(row) {
       name: getCatField(row, i, 'name'),
       image: getCatField(row, i, 'image'),
       breed: getCatField(row, i, 'breed')
+      gender: getCatField(row, i, 'gender'),
+      color:  getCatField(row, i, 'color')
     })).filter(c => c.name || c.image),
     cat_count: getCatCount(row),
     cat_male: getCatMale(row),
     cat_female: getCatFemale(row),
     rainbow: getRainbowData(row),
-    line_id: row[41] || '',
-    youtube: row[42] || '',
-    tiktok: row[43] || '',
-    instagram: row[44] || '',
-    x: row[45] || '',
-    create_date: row[46] || '',
-    edit_code: row[47] || '',
-    status: row[48] || 'FALSE'
+    line_id:     row[61] || '',
+    youtube:     row[62] || '',
+    tiktok:      row[63] || '',
+    instagram:   row[64] || '',
+    x:           row[65] || '',
+    create_date: row[66] || '',
+    edit_code:   row[67] || '',
+    status:      row[68] || 'FALSE'
   };
 }
 
