@@ -254,7 +254,7 @@
       <div class="form-row">
         <div class="form-group">
           <label>ชื่อเจ้าของ <span class="required">*</span></label>
-          <input type="text" id="searchName" placeholder="ชื่อของคุณ">
+          <input type="text" id="searchName" placeholder="ชื่อของคุณ" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
         </div>
       </div>
       <button class="btn-submit" id="searchBtn" style="margin-top:0;">🔍 ค้นหาโปรไฟล์</button>
@@ -785,7 +785,7 @@
   // ============================================================
   document.getElementById('searchBtn').addEventListener('click', async function() {
     const editCode = document.getElementById('editCode').value.trim();
-    const name = document.getElementById('searchName').value.trim();
+    const name = document.getElementById('searchName').value.trim().toLowerCase();
 
     if (!editCode || !name) {
       showAlert('กรุณากรอกรหัสแก้ไข และชื่อให้ครบ', 'error');
@@ -828,7 +828,7 @@
   // FILL FORM
   // ============================================================
   function fillEditForm(data) {
-    document.getElementById('editOwnerName').value = data.name || '';
+    document.getElementById('editOwnerName').value = data.name.toLowerCase() || '';
     document.getElementById('editOwnerGender').value = data.gender || '';
     document.getElementById('editDistrict').value = data.district || '';
     document.getElementById('editOwnerPhoto').value = data.photo_url || '';
