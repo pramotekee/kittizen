@@ -345,7 +345,7 @@
         <div class="form-group">
           <label>รูปโปรไฟล์เจ้าของ (URL) <span class="required">*</span></label>
           <input type="url" id="editOwnerPhoto" required>
-          <small>⚠️ อย่าลืมตั้งค่าลิงก์รูปภาพนี้เป็น Share to public</small>
+          <small>⚠️ อย่าลืมตั้งค่า URL รูปภาพนี้เป็น Share to public (รองรับ Google Drive, Dropbox, Imgur, imgBB หรือ URL รูปภาพของคุณ)</small>
         </div>
 
         <div class="form-group">
@@ -478,7 +478,7 @@
         <div class="full-width">
           <label>รูปแมว (URL) <span class="required">*</span></label>
           <input type="url" class="cat-image" value="${escapeHtml(catData?.image || '')}" placeholder="https://drive.google.com/thumbnail?id=..." required>
-          <small style="display:block;margin-top:4px;font-size:11px;color:var(--text-secondary);">⚠️ อย่าลืมตั้งค่าลิงก์รูปภาพนี้เป็น Share to public</small>
+          <small style="display:block;margin-top:4px;font-size:11px;color:var(--text-secondary);">⚠️ อย่าลืมตั้งค่า URL รูปภาพนี้เป็น Share to public (รองรับ Google Drive, Dropbox, Imgur, imgBB หรือ URL รูปภาพของคุณ)</small>
         </div>
         <div class="full-width">
           <label>สายพันธุ์ <span class="required">*</span></label>
@@ -760,6 +760,27 @@
   }
 
   // ============================================================
+  // แปลง URL ไฟล์รูปอัตโนมัติ
+  // ============================================================
+    function normalizeImageUrl(url) {
+    if (!url) return '';
+  
+    // Google Drive: /file/d/ID/view หรือ /open?id=ID
+    const gdrive1 = url.match(/drive\.google\.com\/file\/d\/([^\/\?]+)/);
+    const gdrive2 = url.match(/drive\.google\.com\/open\?id=([^&]+)/);
+    const id = gdrive1?.[1] || gdrive2?.[1];
+    if (id) return `https://drive.google.com/uc?export=view&id=${id}`;
+  
+    // Dropbox: ?dl=0 → ?raw=1
+    if (url.includes('dropbox.com')) {
+      return url.replace('?dl=0', '?raw=1').replace('?dl=1', '?raw=1');
+    }
+  
+    // URL อื่นๆ ใช้ตรงๆ เลย (imgur, postimg, imgbb ฯลฯ)
+    return url;
+  }
+
+  // ============================================================
   // SEARCH
   // ============================================================
   document.getElementById('searchBtn').addEventListener('click', async function() {
@@ -878,7 +899,7 @@
       const color = g.querySelector('.cat-color').value;
 
       if (catName && catImage && breed && catGender && color) {
-        cats.push({ name: catName, image: catImage, breed, gender: catGender, color });
+        cats.push({ name: catName, image: normalizeImageUrl(catImage), breed, gender: catGender, color });
         catCount++;
         if (catGender === 'ผู้') catMale++;
         if (catGender === 'เมีย') catFemale++;
@@ -893,7 +914,7 @@
     const payload = {
       action: 'update',
       edit_code: currentEditCode,
-      name, job, gender, district, photo_url, caption,
+      name, job, gender, district, photo_url: normalizeImageUrl(photo_url), caption,
       cats,
       cat_count: catCount,
       cat_male: catMale,
