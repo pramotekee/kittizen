@@ -786,10 +786,9 @@
   document.getElementById('searchBtn').addEventListener('click', async function() {
     const editCode = document.getElementById('editCode').value.trim();
     const name = document.getElementById('searchName').value.trim();
-    const job = document.getElementById('searchJob').value.trim();
 
     if (!editCode || !name) {
-      showAlert('กรุณากรอกรหัสแก้ไข ชื่อ และอาชีพให้ครบ', 'error');
+      showAlert('กรุณากรอกรหัสแก้ไข และชื่อให้ครบ', 'error');
       return;
     }
 
@@ -803,7 +802,6 @@
           action: 'fetch',
           edit_code: editCode,
           name: name,
-          job: job
         })
       });
 
