@@ -1672,7 +1672,7 @@ function renderCard(d, isCard) {
     
     return `
       <div class="cat-thumb">
-        <div class="cat-img ${rainbow ? 'rainbow' : ''}" onclick="event.stopPropagation();openLightbox('${cat.image || ''}')">
+        <div class="cat-img ${rainbow ? 'rainbow' : ''}">
           ${img}
           ${rainbow ? '<span class="rainbow-badge">🌈</span>' : ''}
         </div>
@@ -1825,7 +1825,7 @@ function openModal(id) {
     
     return `
       <div class="modal-cat-item">
-        <div class="cat-img ${rainbow ? 'rainbow' : ''}" onclick="event.stopPropagation();openLightbox('${cat.image || ''}')">
+        <div class="cat-img ${rainbow ? 'rainbow' : ''}">
           ${img}
           ${rainbow ? '<span class="rainbow-badge">🌈</span>' : ''}
         </div>
