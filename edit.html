@@ -256,10 +256,6 @@
           <label>ชื่อเจ้าของ <span class="required">*</span></label>
           <input type="text" id="searchName" placeholder="ชื่อของคุณ" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
         </div>
-        <div class="form-group">
-          <label>อาชีพ <span class="required">*</span></label>
-          <input type="text" id="editOwnerJob" required>
-        </div>
       </div>
       <button class="btn-submit" id="searchBtn" style="margin-top:0;">🔍 ค้นหาโปรไฟล์</button>
     </div>
@@ -275,6 +271,10 @@
           <div class="form-group">
             <label>ชื่อเจ้าของ <span class="required">*</span></label>
             <input type="text" id="editOwnerName" required>
+          </div>
+          <div class="form-group">
+            <label>อาชีพ <span class="required">*</span></label>
+            <input type="text" id="editOwnerJob" required>
           </div>
         </div>
 
@@ -876,7 +876,6 @@
     }
 
     const name = document.getElementById('editOwnerName').value.trim();
-    const job = document.getElementById('editOwnerJob').value.trim();
     const gender = document.getElementById('editOwnerGender').value;
     const district = document.getElementById('editDistrict').value;
     const photo_url = document.getElementById('editOwnerPhoto').value.trim();
@@ -916,8 +915,13 @@
     const payload = {
       action: 'update',
       edit_code: currentEditCode,
-      name, job, gender, district, photo_url: normalizeImageUrl(photo_url), caption,
-      cats,
+      name: name,
+      job: job,
+      gender: gender,
+      district: district,
+      photo_url: normalizeImageUrl(photo_url),
+      caption: caption,
+      cats: cats,
       cat_count: catCount,
       cat_male: catMale,
       cat_female: catFemale,
@@ -979,7 +983,6 @@
           action: 'delete',
           edit_code: currentEditCode,
           name: name,
-          job: job
         })
       });
       const result = await res.json();
