@@ -1671,7 +1671,7 @@ function renderCard(d, isCard) {
     
     return `
       <div class="cat-thumb">
-        <div class="cat-img ${rainbow ? 'rainbow' : ''}" onclick="event.stopPropagation();openLightbox('${cat.image || ''}')">
+        <div class="cat-img ${rainbow ? 'rainbow' : ''}">
           ${img}
           ${rainbow ? '<span class="rainbow-badge">🌈</span>' : ''}
         </div>
@@ -1746,7 +1746,8 @@ async function shareProfile(id) {
     } catch (e) {}
   } else {
     try {
-      await navigator.clipboard.writeText(`${shareText}\n${shareURL}`);
+      const fullMessage = `${shareText}\n\n${shareURL}`;
+      await navigator.clipboard.writeText(fullMessage);
       showToast('📋 คัดลอกลิงก์โปรไฟล์แล้ว');
     } catch (e) {
       showToast('ไม่สามารถคัดลอกได้ กรุณาลองใหม่');
