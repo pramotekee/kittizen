@@ -2188,15 +2188,71 @@ function renderVizCharts() {
 // ============================================================
 
 const BANNER_OVERRIDE = [
-  // ตัวอย่าง — ลบ // ออกแล้วใส่ข้อมูลจริง
-  // { image: 'https://...', name: 'มิตซึ', owner: 'คุณป๊อป', link: 'https://...', id: null },
+
+  //===================
+  // Banner 1
+  //===================
+  { 
+    image: 'https://drive.google.com/uc?export=view&id=1PUJ-DsorSwxSRqpxw3HBVyoRltU2R-CI', 
+    name: '', 
+    owner: '', 
+    link: 'https://www.google.com/',
+  },
+
+  //===================
+  // Banner 2
+  //===================
+  { 
+    image: 'https://drive.google.com/uc?export=view&id=1P8GhENVG0IJT72TV6FTvrViF7-9IN96f', 
+    name: 'ชื่อแมว', 
+    owner: 'ชื่อเจ้าของ', 
+    link: 'https://www.yahoo.com/',
+  },
+
+  //===================
+  // Banner 3
+  //===================
+  { 
+    image: 'https://drive.google.com/uc?export=view&id=1ZBeMrFFOAQyfbK9MNQKKMwZ1BlQuftke', 
+    name: 'ชื่อแมว', 
+    owner: 'ชื่อเจ้าของ', 
+    link: 'https://www.netflix.com/',
+  },
+
+  //===================
+  // Banner 4
+  //===================
+  { 
+    image: 'https://drive.google.com/uc?export=view&id=【Photo ID】', 
+    name: 'ชื่อแมว', 
+    owner: 'ชื่อเจ้าของ', 
+    link: 'https://URL_ที่อยากพาไป',
+  },
+
+  //===================
+  // Banner 5
+  //===================
+  { 
+    image: 'https://drive.google.com/uc?export=view&id=【Photo ID】', 
+    name: 'ชื่อแมว', 
+    owner: 'ชื่อเจ้าของ', 
+    link: 'https://URL_ที่อยากพาไป',
+  }
+
 ];
+
+const BANNER_TOTAL = 5; // ← ต้องการให้แสดงกี่ banner บน front แก้ตรงนี้ที่เดียว
 
 function initBanner() {
   const track = document.getElementById('bannerTrack');
   if (!track) return;
 
-  const pool = BANNER_OVERRIDE.length > 0 ? BANNER_OVERRIDE : shuffleFromBannerData();
+  // เอา hardcode ก่อน แล้วสุ่มเติมให้ครบ BANNER_TOTAL
+  const hardcoded = BANNER_OVERRIDE;
+  const remaining = BANNER_TOTAL - hardcoded.length;
+  const random = remaining > 0 ? shuffleFromBannerData().slice(0, remaining) : [];
+  const pool = [...hardcoded, ...random];
+
   if (pool.length === 0) {
     track.closest('.meow-banner-wrap').style.display = 'none';
     return;
