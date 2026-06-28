@@ -141,16 +141,31 @@
     padding: 0 20px 14px;
   }
   .filter-group select {
-    padding: 9px 14px;
+    padding: 9px 36px 9px 14px;
     border-radius: 10px;
-    border: 1px solid var(--border);
+    border: 1.5px solid var(--border);
     background: var(--surface);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237A6E6A' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    appearance: none;
+    -webkit-appearance: none;
     font-size: 13px;
     outline: none;
     cursor: pointer;
     min-width: 120px;
     flex: 1;
     max-width: 180px;
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .filter-group select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(249,185,92,0.15);
+  }
+  .filter-group select:hover {
+    border-color: var(--accent);
   }
   .filter-group select:focus {
     border-color: var(--accent);
@@ -478,13 +493,20 @@
     color: var(--text-secondary);
   }
   .pagination-wrap .left select {
-    padding: 6px 12px;
+    padding: 6px 28px 6px 12px;
     border-radius: 8px;
-    border: 1px solid var(--border);
+    border: 1.5px solid var(--border);
     background: var(--surface);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237A6E6A' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    appearance: none;
+    -webkit-appearance: none;
     font-size: 13px;
     outline: none;
     cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: border-color 0.15s;
   }
   .pagination-wrap .center {
     display: flex;
