@@ -112,7 +112,7 @@
   }
   .meow-banner-card {
     flex: 0 0 280px;
-    height: 120px;
+    height: 150px;
     border-radius: 16px;
     overflow: hidden;
     position: relative;
@@ -2254,36 +2254,75 @@ function initBanner(withRandom = false) {
     <div class="meow-banner-card" onclick="handleBannerClick('${item.link || ''}', '${item.id || ''}')">
       <img src="${normalizeImageUrl(item.image)}" alt="${item.name}" onerror="this.closest('.meow-banner-card').style.display='none'">
       <div class="meow-banner-info">
-        <div class="cat-name">🐱 ${item.name}</div>
-        <div class="owner-name">เจ้าของ: ${item.owner}</div>
+        ${item.name ? `<div class="cat-name">🐱 ${item.name}</div>` : ''}
+        ${item.owner ? `<div class="owner-name">เจ้าของ: ${item.owner}</div>` : ''}
       </div>
     </div>
   `).join('');
 
   // รอ render เสร็จก่อนค่อย animate
   requestAnimationFrame(() => {
-    const cardWidth = 280 + 16; // card width + gap
+    const cardWidth = 280 + 16;
     const totalWidth = pool.length * cardWidth;
     let pos = totalWidth;
     let paused = false;
+    let dragging = false;
+    let dragStartX = 0;
+    let dragStartPos = 0;
 
-    track.addEventListener('touchstart', () => { paused = true; }, { passive: true });
-    track.addEventListener('touchend', () => { paused = false; }, { passive: true });
-    track.addEventListener('mouseenter', () => { paused = true; });
-    track.addEventListener('mouseleave', () => { paused = false; });
+    // Mouse drag
+    track.addEventListener('mousedown', (e) => {
+      dragging = true;
+      paused = true;
+      dragStartX = e.clientX;
+      dragStartPos = pos;
+      track.style.cursor = 'grabbing';
+    });
+    window.addEventListener('mousemove', (e) => {
+      if (!dragging) return;
+      const delta = dragStartX - e.clientX;
+      pos = dragStartPos + delta;
+      if (pos >= totalWidth * 2) pos = totalWidth;
+      if (pos < 0) pos = totalWidth;
+      track.style.transform = `translateX(-${pos}px)`;
+    });
+    window.addEventListener('mouseup', () => {
+      if (!dragging) return;
+      dragging = false;
+      paused = false;
+      track.style.cursor = 'grab';
+    });
+
+    // Touch drag
+    track.addEventListener('touchstart', (e) => {
+      paused = true;
+      dragStartX = e.touches[0].clientX;
+      dragStartPos = pos;
+    }, { passive: true });
+    track.addEventListener('touchmove', (e) => {
+      const delta = dragStartX - e.touches[0].clientX;
+      pos = dragStartPos + delta;
+      if (pos >= totalWidth * 2) pos = totalWidth;
+      if (pos < 0) pos = totalWidth;
+      track.style.transform = `translateX(-${pos}px)`;
+    }, { passive: true });
+    track.addEventListener('touchend', () => {
+      paused = false;
+    }, { passive: true });
+
+    track.style.cursor = 'grab';
 
     function animate() {
-      if (!paused) {
-        pos += 0.5; // ความเร็ว — เพิ่มตัวเลขถ้าอยากเร็วขึ้น
+      if (!paused && !dragging) {
+        pos += 0.5;
         if (pos >= totalWidth * 2) pos = totalWidth;
         track.style.transform = `translateX(-${pos}px)`;
       }
-      requestAnimationFrame(animate);
+      track._animFrame = requestAnimationFrame(animate);
     }
 
     animate();
   });
-}
 
 function shuffleFromBannerData() {
   if (allData.length === 0) return [];
