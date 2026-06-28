@@ -1670,6 +1670,7 @@ async function fetchData() {
     
     updateDashboard();
     applyFilters();
+    initBanner();
   } catch (err) {
     console.error('Error fetching data:', err);
     document.getElementById('grid').innerHTML = `
@@ -1760,7 +1761,6 @@ function applyFilters() {
 
   currentPage = 1;
   renderGrid();
-  initBanner();
 }
 
 function resetFilters() {
