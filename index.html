@@ -108,21 +108,8 @@
   .meow-banner-track {
     display: flex;
     gap: 16px;
-    -webkit-animation: bannerScroll 30s linear infinite;
-    animation: bannerScroll 30s linear infinite;
     width: max-content;
-    min-width: 200vw;
     will-change: transform;
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
-  }
-  @-webkit-keyframes bannerScroll {
-    0%   { -webkit-transform: translateX(0); transform: translateX(0); }
-    100% { -webkit-transform: translateX(-50%); transform: translateX(-50%); }
-  }
-  @keyframes bannerScroll {
-    0%   { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
   }
   .meow-banner-card {
     flex: 0 0 280px;
@@ -2208,9 +2195,15 @@ const BANNER_OVERRIDE = [
 function initBanner() {
   const track = document.getElementById('bannerTrack');
   if (!track) return;
+
   const pool = BANNER_OVERRIDE.length > 0 ? BANNER_OVERRIDE : shuffleFromBannerData();
-  if (pool.length === 0) { track.closest('.meow-banner-wrap').style.display = 'none'; return; }
-  const items = [...pool, ...pool];
+  if (pool.length === 0) {
+    track.closest('.meow-banner-wrap').style.display = 'none';
+    return;
+  }
+
+  // ทำ 3 รอบเพื่อให้ loop ต่อเนื่องบนทุก screen size
+  const items = [...pool, ...pool, ...pool];
   track.innerHTML = items.map(item => `
     <div class="meow-banner-card" onclick="handleBannerClick('${item.link || ''}', '${item.id || ''}')">
       <img src="${item.image}" alt="${item.name}" onerror="this.closest('.meow-banner-card').style.display='none'">
@@ -2220,6 +2213,30 @@ function initBanner() {
       </div>
     </div>
   `).join('');
+
+  // รอ render เสร็จก่อนค่อย animate
+  requestAnimationFrame(() => {
+    const cardWidth = 280 + 16; // card width + gap
+    const totalWidth = pool.length * cardWidth;
+    let pos = 0;
+    let paused = false;
+
+    track.addEventListener('touchstart', () => { paused = true; }, { passive: true });
+    track.addEventListener('touchend', () => { paused = false; }, { passive: true });
+    track.addEventListener('mouseenter', () => { paused = true; });
+    track.addEventListener('mouseleave', () => { paused = false; });
+
+    function animate() {
+      if (!paused) {
+        pos += 0.5; // ความเร็ว — เพิ่มตัวเลขถ้าอยากเร็วขึ้น
+        if (pos >= totalWidth) pos = 0;
+        track.style.transform = `translateX(-${pos}px)`;
+      }
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  });
 }
 
 function shuffleFromBannerData() {
