@@ -430,6 +430,36 @@
     background: var(--accent-dark);
   }
 
+  .lightbox-prev,
+  .lightbox-next {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    border: none;
+    font-size: 36px;
+    padding: 20px 14px;
+    cursor: pointer;
+    z-index: 501;
+    border-radius: 8px;
+    transition: background 0.2s;
+    font-weight: 300;
+  }
+  .lightbox-prev:hover,
+  .lightbox-next:hover {
+    background: rgba(255,255,255,0.25);
+  }
+  .lightbox-prev { left: 16px; }
+  .lightbox-next { right: 16px; }
+  @media (max-width: 600px) {
+    .lightbox-prev,
+    .lightbox-next {
+      font-size: 28px;
+      padding: 14px 10px;
+    }
+  }
+
   /* PAGINATION */
   .pagination-wrap {
     display: flex;
@@ -1196,8 +1226,10 @@
 
 <!-- LIGHTBOX -->
 <div class="lightbox-overlay" id="lightboxOverlay" onclick="closeLightbox()">
-  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
-  <img class="lightbox-img" id="lightboxImg" src="" alt="รูปแมว">
+  <button class="lightbox-close" onclick="event.stopPropagation();closeLightbox()">✕</button>
+  <button class="lightbox-prev" onclick="event.stopPropagation();prevImage()">‹</button>
+  <img class="lightbox-img" id="lightboxImg" src="" alt="รูปแมว" onclick="event.stopPropagation()">
+  <button class="lightbox-next" onclick="event.stopPropagation();nextImage()">›</button>
 </div>
 
 <!-- TOAST -->
@@ -1339,6 +1371,8 @@ let currentPage = 1;
 let rowsPerPage = 50;
 let currentView = 'card';
 let selectedId = null;
+let currentLightboxCats = [];
+let currentLightboxIndex = 0;
 
 // ============================================================
 // HELPERS
@@ -1448,14 +1482,20 @@ function showToast(msg) {
   t._timer = setTimeout(() => t.classList.remove('show'), 2500);
 }
 
-function openLightbox(url) {
+function openLightbox(url, catList, index) {
   if (!url) return;
+  
+  // เก็บข้อมูลรูปทั้งหมด
+  if (catList && Array.isArray(catList)) {
+    currentLightboxCats = catList;
+    currentLightboxIndex = index || 0;
+  } else {
+    currentLightboxCats = [];
+    currentLightboxIndex = 0;
+  }
+  
   document.getElementById('lightboxImg').src = url;
   document.getElementById('lightboxOverlay').classList.add('open');
-}
-
-function closeLightbox() {
-  document.getElementById('lightboxOverlay').classList.remove('open');
 }
 
 // ============================================================
@@ -1829,7 +1869,7 @@ function openModal(id) {
   
   return `
     <div class="modal-cat-item">
-      <div class="cat-img ${rainbow ? 'rainbow' : ''}" onclick="event.stopPropagation();openLightbox('${cat.image || ''}')">
+      <div class="cat-img ${rainbow ? 'rainbow' : ''}" onclick="event.stopPropagation();openLightbox('${cat.image || ''}', cats, ${idx})">
         ${img}
         ${rainbow ? '<span class="rainbow-badge">🌈</span>' : ''}
       </div>
@@ -1887,6 +1927,51 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(applyFilters, 500);
   }
 });
+
+// Lightbox Keyboard
+document.addEventListener('keydown', (e) => {
+  if (!document.getElementById('lightboxOverlay').classList.contains('open')) return;
+  if (e.key === 'ArrowLeft') prevImage();
+  if (e.key === 'ArrowRight') nextImage();
+  if (e.key === 'Escape') closeLightbox();
+});
+
+// Lightbox Touch
+let touchStartX = 0;
+let touchEndX = 0;
+document.getElementById('lightboxImg').addEventListener('touchstart', (e) => {
+  touchStartX = e.changedTouches[0].screenX;
+}, { passive: true });
+document.getElementById('lightboxImg').addEventListener('touchend', (e) => {
+  touchEndX = e.changedTouches[0].screenX;
+  const diff = touchStartX - touchEndX;
+  if (Math.abs(diff) > 50) {
+    if (diff > 0) nextImage();
+    else prevImage();
+  }
+}, { passive: true });
+
+// ============================================================
+// LIGHTBOX
+// ============================================================
+function closeLightbox() {
+  document.getElementById('lightboxOverlay').classList.remove('open');
+}
+
+function prevImage() {
+  if (currentLightboxCats.length === 0) return;
+  currentLightboxIndex = (currentLightboxIndex - 1 + currentLightboxCats.length) % currentLightboxCats.length;
+  const img = currentLightboxCats[currentLightboxIndex]?.image;
+  if (img) document.getElementById('lightboxImg').src = img;
+}
+
+function nextImage() {
+  if (currentLightboxCats.length === 0) return;
+  currentLightboxIndex = (currentLightboxIndex + 1) % currentLightboxCats.length;
+  const img = currentLightboxCats[currentLightboxIndex]?.image;
+  if (img) document.getElementById('lightboxImg').src = img;
+}
+
 </script>
 
   <!-- FOOTER -->
