@@ -6,6 +6,7 @@
 <title>Kittizen — where cat communities live</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Bungee+Shade&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
   :root {
     --bg: #FAF7F4;
@@ -1001,6 +1002,7 @@
     <div style="display: flex; gap: 8px; flex-shrink: 0;">
       <a href="create.html" class="action-btn" style="background: var(--accent); color: white; padding: 10px 20px; border-radius: 12px; text-decoration: none; font-size: 13px; font-weight: 600; transition: all 0.15s; display: flex; align-items: center; gap: 6px; white-space: nowrap;">➕ Create</a>
       <a href="edit.html" class="action-btn" style="background: var(--tag-bg); color: var(--text-primary); padding: 10px 20px; border-radius: 12px; text-decoration: none; font-size: 13px; font-weight: 600; transition: all 0.15s; display: flex; align-items: center; gap: 6px; white-space: nowrap;">✏️ Edit</a>
+<button onclick="openVizModal()" class="action-btn" style="background: #2C2420; color: white; padding: 10px 20px; border-radius: 12px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 6px; white-space: nowrap;">📊 Visualize</button>
     </div>
   </div>
 
@@ -1254,6 +1256,77 @@
   <img class="lightbox-img" id="lightboxImg" src="" alt="รูปแมว" onclick="event.stopPropagation()">
   <button class="lightbox-next" onclick="event.stopPropagation();nextImage()">›</button>
 </div>
+
+<!-- VISUALIZE MODAL -->
+<div id="vizModal" style="display:none;position:fixed;inset:0;background:rgba(44,36,32,0.85);z-index:600;overflow-y:auto;">
+  <div style="max-width:900px;margin:40px auto;padding:20px;">
+    
+    <!-- Header -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+      <div>
+        <h2 style="color:#fff;font-size:22px;font-weight:700;margin-bottom:4px;">📊 Kittizen Data</h2>
+        <p style="color:rgba(255,255,255,0.5);font-size:13px;">visualized from community data</p>
+      </div>
+      <button onclick="closeVizModal()" style="background:rgba(255,255,255,0.1);border:none;color:#fff;width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer;">✕</button>
+    </div>
+
+    <!-- Grid -->
+    <div id="vizGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      
+      <!-- Card 1: เพศเจ้าของ -->
+      <div style="background:#FFFCF9;border-radius:20px;padding:20px;">
+        <div style="font-size:13px;font-weight:600;color:#2C2420;margin-bottom:4px;">👤 เพศเจ้าของแมว</div>
+        <div style="font-size:11px;color:#7A6E6A;margin-bottom:16px;">สัดส่วนเจ้าของทั้งหมด</div>
+        <canvas id="chartOwnerGender"></canvas>
+      </div>
+
+      <!-- Card 2: เพศแมว -->
+      <div style="background:#FFFCF9;border-radius:20px;padding:20px;">
+        <div style="font-size:13px;font-weight:600;color:#2C2420;margin-bottom:4px;">🐱 เพศแมว</div>
+        <div style="font-size:11px;color:#7A6E6A;margin-bottom:16px;">สัดส่วนแมวทั้งหมด</div>
+        <canvas id="chartCatGender"></canvas>
+      </div>
+
+      <!-- Card 3: Top เขต -->
+      <div style="background:#FFFCF9;border-radius:20px;padding:20px;">
+        <div style="font-size:13px;font-weight:600;color:#2C2420;margin-bottom:4px;">📍 Top 10 เขต</div>
+        <div style="font-size:11px;color:#7A6E6A;margin-bottom:16px;">เขตที่มีคนเลี้ยงแมวมากที่สุด</div>
+        <canvas id="chartDistrict"></canvas>
+      </div>
+
+      <!-- Card 4: Top สายพันธุ์ -->
+      <div style="background:#FFFCF9;border-radius:20px;padding:20px;">
+        <div style="font-size:13px;font-weight:600;color:#2C2420;margin-bottom:4px;">🐈 Top 10 สายพันธุ์</div>
+        <div style="font-size:11px;color:#7A6E6A;margin-bottom:16px;">สายพันธุ์ยอดนิยมในชุมชน</div>
+        <canvas id="chartBreed"></canvas>
+      </div>
+
+      <!-- Card 5: จำนวนแมวต่อคน -->
+      <div style="background:#FFFCF9;border-radius:20px;padding:20px;">
+        <div style="font-size:13px;font-weight:600;color:#2C2420;margin-bottom:4px;">🔢 จำนวนแมวต่อเจ้าของ</div>
+        <div style="font-size:11px;color:#7A6E6A;margin-bottom:16px;">คนส่วนใหญ่เลี้ยงกี่ตัว</div>
+        <canvas id="chartCatCount"></canvas>
+      </div>
+
+      <!-- Card 6: Heatmap เขต -->
+      <div style="background:#FFFCF9;border-radius:20px;padding:20px;">
+        <div style="font-size:13px;font-weight:600;color:#2C2420;margin-bottom:4px;">🗺️ Density Map เขต กทม.</div>
+        <div style="font-size:11px;color:#7A6E6A;margin-bottom:16px;">ความหนาแน่นผู้เลี้ยงแมวแต่ละเขต</div>
+        <canvas id="chartHeatmap"></canvas>
+      </div>
+
+    </div>
+
+    <!-- Mobile note -->
+    <p style="text-align:center;color:rgba(255,255,255,0.3);font-size:11px;margin-top:20px;">scroll ดูเพิ่มเติม · กด ✕ เพื่อปิด</p>
+  </div>
+</div>
+
+<style>
+  @media (max-width: 600px) {
+    #vizGrid { grid-template-columns: 1fr !important; }
+  }
+</style>
 
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
@@ -1951,6 +2024,108 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(applyFilters, 500);
   }
 });
+
+// ============================================================
+// VISUALIZE
+// ============================================================
+let vizCharts = [];
+
+function openVizModal() {
+  if (allData.length === 0) { showToast('ยังไม่มีข้อมูล'); return; }
+  document.getElementById('vizModal').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  setTimeout(renderVizCharts, 100);
+}
+
+function closeVizModal() {
+  document.getElementById('vizModal').style.display = 'none';
+  document.body.style.overflow = '';
+  vizCharts.forEach(c => c.destroy());
+  vizCharts = [];
+}
+
+function renderVizCharts() {
+  vizCharts.forEach(c => c.destroy());
+  vizCharts = [];
+
+  const palette = ['#F9B95C','#96C7B3','#D4897A','#6398A9','#B5D5C8','#F0CFA0','#A8C5D8','#E8B4A0'];
+
+  // 1. เพศเจ้าของ
+  const ownerGender = {};
+  allData.forEach(d => { ownerGender[d.gender || 'ไม่ระบุ'] = (ownerGender[d.gender || 'ไม่ระบุ'] || 0) + 1; });
+  vizCharts.push(new Chart(document.getElementById('chartOwnerGender'), {
+    type: 'doughnut',
+    data: { labels: Object.keys(ownerGender), datasets: [{ data: Object.values(ownerGender), backgroundColor: palette, borderWidth: 0 }] },
+    options: { plugins: { legend: { position: 'bottom', labels: { font: { family: 'Inter', size: 11 }, padding: 12 } } }, cutout: '65%' }
+  }));
+
+  // 2. เพศแมว
+  let catMale = 0, catFemale = 0;
+  allData.forEach(d => { catMale += d.cat_male || 0; catFemale += d.cat_female || 0; });
+  vizCharts.push(new Chart(document.getElementById('chartCatGender'), {
+    type: 'doughnut',
+    data: { labels: ['ตัวผู้', 'ตัวเมีย'], datasets: [{ data: [catMale, catFemale], backgroundColor: ['#96C7B3','#F9B95C'], borderWidth: 0 }] },
+    options: { plugins: { legend: { position: 'bottom', labels: { font: { family: 'Inter', size: 11 }, padding: 12 } } }, cutout: '65%' }
+  }));
+
+  // 3. Top 10 เขต
+  const districts = {};
+  allData.forEach(d => { if (d.district) districts[d.district] = (districts[d.district] || 0) + 1; });
+  const topDistricts = Object.entries(districts).sort((a,b) => b[1]-a[1]).slice(0,10);
+  vizCharts.push(new Chart(document.getElementById('chartDistrict'), {
+    type: 'bar',
+    data: {
+      labels: topDistricts.map(d => d[0].replace('เขต','')),
+      datasets: [{ data: topDistricts.map(d => d[1]), backgroundColor: '#F9B95C', borderRadius: 6, borderSkipped: false }]
+    },
+    options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 10 } } } } }
+  }));
+
+  // 4. Top 10 สายพันธุ์
+  const breeds = {};
+  allData.forEach(d => (d.cats || []).forEach(c => { if (c.breed) breeds[c.breed] = (breeds[c.breed] || 0) + 1; }));
+  const topBreeds = Object.entries(breeds).sort((a,b) => b[1]-a[1]).slice(0,10);
+  vizCharts.push(new Chart(document.getElementById('chartBreed'), {
+    type: 'bar',
+    data: {
+      labels: topBreeds.map(b => b[0].length > 15 ? b[0].substring(0,15)+'…' : b[0]),
+      datasets: [{ data: topBreeds.map(b => b[1]), backgroundColor: '#96C7B3', borderRadius: 6, borderSkipped: false }]
+    },
+    options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 10 } } } } }
+  }));
+
+  // 5. จำนวนแมวต่อเจ้าของ
+  const catCounts = {};
+  allData.forEach(d => { const c = d.cat_count || 0; catCounts[c] = (catCounts[c] || 0) + 1; });
+  const sortedCounts = Object.entries(catCounts).sort((a,b) => Number(a[0])-Number(b[0]));
+  vizCharts.push(new Chart(document.getElementById('chartCatCount'), {
+    type: 'bar',
+    data: {
+      labels: sortedCounts.map(c => `${c[0]} ตัว`),
+      datasets: [{ data: sortedCounts.map(c => c[1]), backgroundColor: '#D4897A', borderRadius: 6, borderSkipped: false }]
+    },
+    options: { plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 10 } } }, y: { grid: { color: 'rgba(0,0,0,0.04)' } } } }
+  }));
+
+  // 6. Heatmap เขต (bar chart เรียงทุกเขต)
+  const allDistricts = Object.entries(districts).sort((a,b) => b[1]-a[1]);
+  const maxVal = allDistricts[0]?.[1] || 1;
+  const heatColors = allDistricts.map(d => {
+    const ratio = d[1] / maxVal;
+    if (ratio > 0.75) return '#F9B95C';
+    if (ratio > 0.5) return '#F0CFA0';
+    if (ratio > 0.25) return '#B5D5C8';
+    return '#96C7B3';
+  });
+  vizCharts.push(new Chart(document.getElementById('chartHeatmap'), {
+    type: 'bar',
+    data: {
+      labels: allDistricts.map(d => d[0].replace('เขต','')),
+      datasets: [{ data: allDistricts.map(d => d[1]), backgroundColor: heatColors, borderRadius: 4, borderSkipped: false }]
+    },
+    options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 9 } } } } }
+  }));
+}
 
 // Lightbox Keyboard
 document.addEventListener('keydown', (e) => {
