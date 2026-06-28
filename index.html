@@ -1666,6 +1666,7 @@ async function fetchData() {
     
     updateDashboard();
     applyFilters();
+    initBanner(true);
   } catch (err) {
     console.error('Error fetching data:', err);
     document.getElementById('grid').innerHTML = `
@@ -2065,7 +2066,7 @@ function closeModal(e) {
 // INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
-  initBanner();
+  initBanner(false);
   fetchData();
 
   const params = new URLSearchParams(window.location.search);
@@ -2189,8 +2190,6 @@ const BANNER_OVERRIDE = [
   //===================
   { 
     image: 'https://drive.google.com/uc?export=view&id=1PUJ-DsorSwxSRqpxw3HBVyoRltU2R-CI', 
-    name: '', 
-    owner: '', 
     link: 'https://www.google.com/',
   },
 
@@ -2199,8 +2198,6 @@ const BANNER_OVERRIDE = [
   //===================
   { 
     image: 'https://drive.google.com/uc?export=view&id=1P8GhENVG0IJT72TV6FTvrViF7-9IN96f', 
-    name: 'ชื่อแมว', 
-    owner: 'ชื่อเจ้าของ', 
     link: 'https://www.yahoo.com/',
   },
 
@@ -2209,8 +2206,6 @@ const BANNER_OVERRIDE = [
   //===================
   { 
     image: 'https://drive.google.com/uc?export=view&id=1ZBeMrFFOAQyfbK9MNQKKMwZ1BlQuftke', 
-    name: 'ชื่อแมว', 
-    owner: 'ชื่อเจ้าของ', 
     link: 'https://www.netflix.com/',
   },
   /*
@@ -2238,14 +2233,14 @@ const BANNER_OVERRIDE = [
 
 const BANNER_TOTAL = 5; // ← ต้องการให้แสดงกี่ banner บน front แก้ตรงนี้ที่เดียว
 
-function initBanner() {
+function initBanner(withRandom = false) {
   const track = document.getElementById('bannerTrack');
   if (!track) return;
 
   // เอา hardcode ก่อน แล้วสุ่มเติมให้ครบ BANNER_TOTAL
   const hardcoded = BANNER_OVERRIDE;
   const remaining = BANNER_TOTAL - hardcoded.length;
-  const random = remaining > 0 ? shuffleFromBannerData().slice(0, remaining) : [];
+  const random = (withRandom && remaining > 0) ? shuffleFromBannerData().slice(0, remaining) : [];
   const pool = [...hardcoded, ...random];
 
   if (pool.length === 0) {
@@ -2269,7 +2264,7 @@ function initBanner() {
   requestAnimationFrame(() => {
     const cardWidth = 280 + 16; // card width + gap
     const totalWidth = pool.length * cardWidth;
-    let pos = 0;
+    let pos = totalWidth;
     let paused = false;
 
     track.addEventListener('touchstart', () => { paused = true; }, { passive: true });
@@ -2280,7 +2275,7 @@ function initBanner() {
     function animate() {
       if (!paused) {
         pos += 0.5; // ความเร็ว — เพิ่มตัวเลขถ้าอยากเร็วขึ้น
-        if (pos >= totalWidth) pos = 0 - (cardWidth);
+        if (pos >= totalWidth * 2) pos = totalWidth;
         track.style.transform = `translateX(-${pos}px)`;
       }
       requestAnimationFrame(animate);
