@@ -344,6 +344,10 @@
               <option value="เขตบางบอน">เขตบางบอน</option>
             </select>
           </div>
+          <div class="form-group">
+            <label>อีเมล <span class="required">*</span></label>
+            <input type="email" id="editEmail" placeholder="your@email.com" required>
+          </div>
         </div>
 
         <div class="form-group">
@@ -836,6 +840,7 @@
     document.getElementById('editOwnerJob').value = data.job || '';
     document.getElementById('editOwnerGender').value = data.gender || '';
     document.getElementById('editDistrict').value = data.district || '';
+    document.getElementById('editEmail').value = data.email || '';
     document.getElementById('editOwnerPhoto').value = data.photo_url || '';
     document.getElementById('editCaption').value = data.caption || '';
     document.getElementById('editCaptionCounter').textContent = (data.caption || '').length;
@@ -927,6 +932,7 @@
       cat_male: catMale,
       cat_female: catFemale,
       rainbow: currentProfile?.rainbow || {},
+      email: document.getElementById('editEmail').value.trim(),
       line_id: document.getElementById('editLineId').value.trim(),
       youtube: document.getElementById('editYoutube').value.trim(),
       tiktok: document.getElementById('editTiktok').value.trim().replace('@', ''),
