@@ -297,6 +297,12 @@
             <option value="เขตบางบอน">เขตบางบอน</option>
           </select>
         </div>
+        <div class="form-row">
+         <div class="form-group">
+           <label>อีเมล <span class="required">*</span></label>
+           <input type="email" id="email" placeholder="your@email.com" required>
+         </div>
+        </div>
       </div>
 
       <div class="form-group">
@@ -758,10 +764,11 @@
     const ownerJob = document.getElementById('ownerJob').value.trim();
     const ownerGender = document.getElementById('ownerGender').value;
     const district = document.getElementById('district').value;
+    const email = document.getElementById('email').value.trim();
     const ownerPhoto = document.getElementById('ownerPhoto').value.trim();
     const caption = document.getElementById('caption').value.trim();
 
-    if (!ownerName || !ownerJob || !ownerGender || !district || !ownerPhoto || !caption) {
+    if (!ownerName || !ownerJob || !ownerGender || !district || !email || !ownerPhoto || !caption) {
       alert('กรุณากรอกข้อมูลให้ครบทุกช่องที่มี *');
       return;
     }
@@ -797,15 +804,25 @@
 
     const payload = {
       action: 'create',
-      name: ownerName, job: ownerJob, gender: ownerGender,
-      photo_url: normalizeImageUrl(ownerPhoto), caption, district,
-      cats, cat_count: catCount, cat_male: catMale, cat_female: catFemale,
+      name: ownerName, 
+      job: ownerJob, 
+      gender: ownerGender,
+      photo_url: normalizeImageUrl(ownerPhoto), 
+      caption: caption,
+      district: district,
+      cats: cats,
+      cat_count: catCount, 
+      cat_male: catMale, 
+      cat_female: catFemale,
+      email: email,
       line_id: document.getElementById('lineId').value.trim(),
       youtube: document.getElementById('youtube').value.trim(),
       tiktok: document.getElementById('tiktok').value.trim().replace('@',''),
       instagram: document.getElementById('instagram').value.trim().replace('@',''),
       x: document.getElementById('x').value.trim().replace('@',''),
-      edit_code: editCode, status: 'TRUE', create_date: now
+      edit_code: editCode, 
+      status: 'TRUE', 
+      create_date: now
     };
 
     const btn = document.getElementById('submitBtn');
