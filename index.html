@@ -1373,6 +1373,7 @@ let currentView = 'card';
 let selectedId = null;
 let currentLightboxCats = [];
 let currentLightboxIndex = 0;
+let currentModalCats = [];
 
 // ============================================================
 // HELPERS
@@ -1699,6 +1700,7 @@ function renderGrid() {
 
 function renderCard(d, isCard) {
   const cats = d.cats || [];
+  currentModalCats = cats;
   const showCats = cats.slice(0, 5);
   const hasMore = cats.length > 5;
 
@@ -1868,7 +1870,7 @@ function openModal(id) {
   
   return `
     <div class="modal-cat-item">
-      <div class="cat-img ${rainbow ? 'rainbow' : ''}" onclick="event.stopPropagation();openLightbox('${cat.image || ''}', cats, ${idx})">
+      <div class="cat-img ${rainbow ? 'rainbow' : ''}" onclick="event.stopPropagation();openLightbox('${cat.image || ''}', currentModalCats, ${idx})">
         ${img}
         ${rainbow ? '<span class="rainbow-badge">🌈</span>' : ''}
       </div>
