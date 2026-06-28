@@ -16,7 +16,6 @@
     --accent-light: #FEF3E2;
     --text-primary: #2C2420;
     --text-secondary: #7A6E6A;
-    --border: #E8DDD8;
     --tag-bg: #F0E8E4;
     --border: #D2D2D7;
     --card-shadow: 0 2px 12px rgba(0,0,0,0.07);
@@ -136,7 +135,7 @@
     left: 0;
     right: 0;
     padding: 8px 12px;
-    background: linear-gradient(transparent, rgba(44,36,32,0.75));
+    background: transparent;
     color: #fff;
   }
   .meow-banner-info .cat-name {
@@ -216,9 +215,6 @@
     box-shadow: 0 0 0 3px rgba(249,185,92,0.15);
   }
   .filter-group select:hover {
-    border-color: var(--accent);
-  }
-  .filter-group select:focus {
     border-color: var(--accent);
   }
   .filter-group .filter-label {
@@ -1670,7 +1666,6 @@ async function fetchData() {
     
     updateDashboard();
     applyFilters();
-    initBanner();
   } catch (err) {
     console.error('Error fetching data:', err);
     document.getElementById('grid').innerHTML = `
@@ -2070,9 +2065,9 @@ function closeModal(e) {
 // INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
+  initBanner();
   fetchData();
-  
-  // Handle district from URL (for create button)
+
   const params = new URLSearchParams(window.location.search);
   const district = params.get('district');
   if (district) {
@@ -2218,7 +2213,7 @@ const BANNER_OVERRIDE = [
     owner: 'ชื่อเจ้าของ', 
     link: 'https://www.netflix.com/',
   },
-
+  /*
   //===================
   // Banner 4
   //===================
@@ -2238,7 +2233,7 @@ const BANNER_OVERRIDE = [
     owner: 'ชื่อเจ้าของ', 
     link: 'https://URL_ที่อยากพาไป',
   }
-
+  */
 ];
 
 const BANNER_TOTAL = 5; // ← ต้องการให้แสดงกี่ banner บน front แก้ตรงนี้ที่เดียว
@@ -2262,7 +2257,7 @@ function initBanner() {
   const items = [...pool, ...pool, ...pool];
   track.innerHTML = items.map(item => `
     <div class="meow-banner-card" onclick="handleBannerClick('${item.link || ''}', '${item.id || ''}')">
-      <img src="${item.image}" alt="${item.name}" onerror="this.closest('.meow-banner-card').style.display='none'">
+      <img src="${normalizeImageUrl(item.image)}" alt="${item.name}" onerror="this.closest('.meow-banner-card').style.display='none'">
       <div class="meow-banner-info">
         <div class="cat-name">🐱 ${item.name}</div>
         <div class="owner-name">เจ้าของ: ${item.owner}</div>
