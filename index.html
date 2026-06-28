@@ -99,6 +99,63 @@
     margin-top: 2px;
   }
 
+  /* MEOW BANNER */
+  .meow-banner-wrap {
+    overflow: hidden;
+    padding: 0 0 20px;
+    width: 100%;
+  }
+  .meow-banner-track {
+    display: flex;
+    gap: 16px;
+    animation: bannerScroll 30s linear infinite;
+    width: max-content;
+  }
+  .meow-banner-track:hover {
+    animation-play-state: paused;
+  }
+  @keyframes bannerScroll {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .meow-banner-card {
+    flex: 0 0 280px;
+    height: 120px;
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .meow-banner-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.13);
+  }
+  .meow-banner-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .meow-banner-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 8px 12px;
+    background: linear-gradient(transparent, rgba(44,36,32,0.75));
+    color: #fff;
+  }
+  .meow-banner-info .cat-name {
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .meow-banner-info .owner-name {
+    font-size: 11px;
+    opacity: 0.8;
+  }
+
   /* SEARCH & FILTER */
   .search-container {
     display: flex;
@@ -994,6 +1051,11 @@
     </div>
   </div>
 
+  <!-- MEOW BANNER -->
+  <div class="meow-banner-wrap">
+    <div class="meow-banner-track" id="bannerTrack"></div>
+  </div>
+
   <!-- SEARCH -->
   <div class="search-container">
     <div class="search-box">
@@ -1705,6 +1767,7 @@ function applyFilters() {
 
   currentPage = 1;
   renderGrid();
+  initBanner();
 }
 
 function resetFilters() {
@@ -2125,6 +2188,50 @@ function renderVizCharts() {
     },
     options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 9 } } } } }
   }));
+}
+
+// ============================================================
+// MEOW BANNER
+// ============================================================
+
+const BANNER_OVERRIDE = [
+  // ตัวอย่าง — ลบ // ออกแล้วใส่ข้อมูลจริง
+  // { image: 'https://...', name: 'มิตซึ', owner: 'คุณป๊อป', link: 'https://...', id: null },
+];
+
+function initBanner() {
+  const track = document.getElementById('bannerTrack');
+  if (!track) return;
+  const pool = BANNER_OVERRIDE.length > 0 ? BANNER_OVERRIDE : shuffleFromBannerData();
+  if (pool.length === 0) { track.closest('.meow-banner-wrap').style.display = 'none'; return; }
+  const items = [...pool, ...pool];
+  track.innerHTML = items.map(item => `
+    <div class="meow-banner-card" onclick="handleBannerClick('${item.link || ''}', '${item.id || ''}')">
+      <img src="${item.image}" alt="${item.name}" onerror="this.closest('.meow-banner-card').style.display='none'">
+      <div class="meow-banner-info">
+        <div class="cat-name">🐱 ${item.name}</div>
+        <div class="owner-name">เจ้าของ: ${item.owner}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function shuffleFromBannerData() {
+  if (allData.length === 0) return [];
+  const pool = [];
+  allData.forEach(d => {
+    (d.cats || []).forEach(cat => {
+      if (cat.image && cat.name) {
+        pool.push({ image: cat.image, name: cat.name, owner: d.name, link: '', id: d.id });
+      }
+    });
+  });
+  return shuffleArray(pool).slice(0, 10);
+}
+
+function handleBannerClick(link, id) {
+  if (link) { window.open(link, '_blank'); return; }
+  if (id) { openModal(isNaN(id) ? id : Number(id)); return; }
 }
 
 // Lightbox Keyboard
