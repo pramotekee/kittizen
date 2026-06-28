@@ -108,11 +108,17 @@
   .meow-banner-track {
     display: flex;
     gap: 16px;
+    -webkit-animation: bannerScroll 30s linear infinite;
     animation: bannerScroll 30s linear infinite;
     width: max-content;
+    min-width: 200vw;
+    will-change: transform;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
   }
-  .meow-banner-track:hover {
-    animation-play-state: paused;
+  @-webkit-keyframes bannerScroll {
+    0%   { -webkit-transform: translateX(0); transform: translateX(0); }
+    100% { -webkit-transform: translateX(-50%); transform: translateX(-50%); }
   }
   @keyframes bannerScroll {
     0%   { transform: translateX(0); }
