@@ -1485,7 +1485,6 @@ function showToast(msg) {
 function openLightbox(url, catList, index) {
   if (!url) return;
   
-  // เก็บข้อมูลรูปทั้งหมด
   if (catList && Array.isArray(catList)) {
     currentLightboxCats = catList;
     currentLightboxIndex = index || 0;
@@ -1961,15 +1960,13 @@ function closeLightbox() {
 function prevImage() {
   if (currentLightboxCats.length === 0) return;
   currentLightboxIndex = (currentLightboxIndex - 1 + currentLightboxCats.length) % currentLightboxCats.length;
-  const img = currentLightboxCats[currentLightboxIndex]?.image;
-  if (img) document.getElementById('lightboxImg').src = img;
+  document.getElementById('lightboxImg').src = currentLightboxCats[currentLightboxIndex].image;
 }
 
 function nextImage() {
   if (currentLightboxCats.length === 0) return;
   currentLightboxIndex = (currentLightboxIndex + 1) % currentLightboxCats.length;
-  const img = currentLightboxCats[currentLightboxIndex]?.image;
-  if (img) document.getElementById('lightboxImg').src = img;
+  document.getElementById('lightboxImg').src = currentLightboxCats[currentLightboxIndex].image;
 }
 
 </script>
