@@ -2285,7 +2285,7 @@ function initBanner() {
     function animate() {
       if (!paused) {
         pos += 0.5; // ความเร็ว — เพิ่มตัวเลขถ้าอยากเร็วขึ้น
-        if (pos >= totalWidth) pos = 0;
+        if (pos >= totalWidth) pos = 0 - (cardWidth);
         track.style.transform = `translateX(-${pos}px)`;
       }
       requestAnimationFrame(animate);
