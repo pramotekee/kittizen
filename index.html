@@ -1362,7 +1362,7 @@
       <!-- Card 6: Heatmap เขต -->
       <div style="background:#FFFCF9;border-radius:20px;padding:20px;">
         <div style="font-size:13px;font-weight:600;color:#2C2420;margin-bottom:4px;">🗺️ Kitty Lovely Density</div>
-        <div style="font-size:11px;color:#7A6E6A;margin-bottom:16px;">เขตคนรักคนหลงแมว</div>
+        <div style="font-size:11px;color:#7A6E6A;margin-bottom:16px;">เขตคนรักคนหลงแมว (หน่วย:คน)</div>
         <canvas id="chartHeatmap"></canvas>
       </div>
 
@@ -2102,6 +2102,11 @@ function renderVizCharts() {
 
   const palette = ['#F9B95C','#96C7B3','#D4897A','#6398A9','#B5D5C8','#F0CFA0','#A8C5D8','#E8B4A0'];
 
+  function niceMax(val) {
+    const steps = [50, 100, 200, 500, 1000, 2000, 5000];
+    return steps.find(s => s > val) || Math.ceil(val / 1000) * 1000;
+  }
+
   // 1. เพศเจ้าของ
   const ownerGender = {};
   allData.forEach(d => { ownerGender[d.gender || 'ไม่ระบุ'] = (ownerGender[d.gender || 'ไม่ระบุ'] || 0) + 1; });
@@ -2124,26 +2129,28 @@ function renderVizCharts() {
   const districts = {};
   allData.forEach(d => { if (d.district) districts[d.district] = (districts[d.district] || 0) + 1; });
   const topDistricts = Object.entries(districts).sort((a,b) => b[1]-a[1]).slice(0,10);
+  const maxDistrict = Math.max(...topDistricts.map(d => d[1]));
   vizCharts.push(new Chart(document.getElementById('chartDistrict'), {
     type: 'bar',
     data: {
       labels: topDistricts.map(d => d[0].replace('เขต','')),
       datasets: [{ data: topDistricts.map(d => d[1]), backgroundColor: '#F9B95C', borderRadius: 6, borderSkipped: false }]
     },
-    options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 10 } } } } }
+    options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { max: niceMax(maxDistrict), grid: { display: false }, ticks: { precision: 0 } }, y: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 10 } } } } }
   }));
 
   // 4. Top 10 สายพันธุ์
   const breeds = {};
   allData.forEach(d => (d.cats || []).forEach(c => { if (c.breed) breeds[c.breed] = (breeds[c.breed] || 0) + 1; }));
   const topBreeds = Object.entries(breeds).sort((a,b) => b[1]-a[1]).slice(0,10);
+  const maxBreed = Math.max(...topBreeds.map(b => b[1]));
   vizCharts.push(new Chart(document.getElementById('chartBreed'), {
     type: 'bar',
     data: {
       labels: topBreeds.map(b => b[0].length > 15 ? b[0].substring(0,15)+'…' : b[0]),
       datasets: [{ data: topBreeds.map(b => b[1]), backgroundColor: '#96C7B3', borderRadius: 6, borderSkipped: false }]
     },
-    options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 10 } } } } }
+    options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { max: niceMax(maxBreed), grid: { display: false }, ticks: { precision: 0 } }, y: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 10 } } } } }
   }));
 
   // 5. จำนวนแมวต่อเจ้าของ
@@ -2156,14 +2163,14 @@ function renderVizCharts() {
       labels: sortedCounts.map(c => `${c[0]} ตัว`),
       datasets: [{ data: sortedCounts.map(c => c[1]), backgroundColor: '#D4897A', borderRadius: 6, borderSkipped: false }]
     },
-    options: { plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 10 } } }, y: { grid: { color: 'rgba(0,0,0,0.04)' } } } }
+    options: { plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 10 }, precision: 0 } }, y: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { precision: 0 } } } }
   }));
 
-  // 6. Heatmap เขต (bar chart เรียงทุกเขต)
+  // 6. Heatmap เขต
   const allDistricts = Object.entries(districts).sort((a,b) => b[1]-a[1]);
-  const maxVal = allDistricts[0]?.[1] || 1;
+  const maxHeat = allDistricts[0]?.[1] || 1;
   const heatColors = allDistricts.map(d => {
-    const ratio = d[1] / maxVal;
+    const ratio = d[1] / maxHeat;
     if (ratio > 0.75) return '#F9B95C';
     if (ratio > 0.5) return '#F0CFA0';
     if (ratio > 0.25) return '#B5D5C8';
@@ -2175,7 +2182,7 @@ function renderVizCharts() {
       labels: allDistricts.map(d => d[0].replace('เขต','')),
       datasets: [{ data: allDistricts.map(d => d[1]), backgroundColor: heatColors, borderRadius: 4, borderSkipped: false }]
     },
-    options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 9 } } } } }
+    options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { max: niceMax(maxHeat), grid: { display: false }, ticks: { precision: 0 } }, y: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 9 } } } } }
   }));
 }
 
