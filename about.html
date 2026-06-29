@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — KITTIZEN</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Bungee+Shade&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FAF7F4;
+    --surface: #FFFCF9;
+    --accent: #F9B95C;
+    --accent-dark: #E8A043;
+    --accent-light: #FEF3E2;
+    --text-primary: #2C2420;
+    --text-secondary: #7A6E6A;
+    --tag-bg: #F0E8E4;
+    --border: #D2D2D7;
+    --card-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    text-align: center;
+    padding: 40px 20px 50px;
+    background: linear-gradient(135deg, #F9B95C 0%, #E8A043 100%);
+    border-radius: 0 0 32px 32px;
+    position: relative;
+  }
+  .back-btn {
+    position: absolute;
+    top: 24px;
+    left: 24px;
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.15s;
+    font-family: 'Inter', sans-serif;
+  }
+  .back-btn:hover { background: rgba(255,255,255,0.32); }
+  .header h1 {
+    font-family: 'Bungee Shade', cursive;
+    font-size: 52px;
+    color: #fff;
+    letter-spacing: 4px;
+    line-height: 1;
+  }
+  .header .slogan {
+    font-size: 18px;
+    font-weight: 500;
+    color: #FFF5E6;
+    margin-top: 12px;
+  }
+
+  /* ── CONTENT ── */
+  .content {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  /* about */
+  .origin-label {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent-dark);
+    background: var(--accent-light);
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+  }
+
+  .big-quote {
+    font-size: clamp(22px, 5vw, 30px);
+    font-weight: 700;
+    line-height: 1.45;
+    color: var(--text-primary);
+    margin-bottom: 28px;
+  }
+  .big-quote em {
+    font-style: normal;
+    color: var(--accent-dark);
+  }
+
+  .body-text {
+    font-size: 16px;
+    line-height: 1.85;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+  }
+  .body-text strong {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  /* divider */
+  .divider {
+    text-align: center;
+    color: var(--border);
+    font-size: 20px;
+    letter-spacing: 8px;
+    margin: 40px 0;
+    user-select: none;
+  }
+
+  /* section heading */
+  .section-heading {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* highlight block */
+  .highlight-block {
+    background: var(--accent-light);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 12px 12px 0;
+    padding: 16px 20px;
+    margin: 24px 0;
+  }
+  .highlight-block p {
+    font-size: 15px;
+    line-height: 1.75;
+    color: var(--text-primary);
+  }
+
+  /* community roles */
+  .role-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 20px 0;
+  }
+  .role-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    background: var(--surface);
+    border-radius: 14px;
+    padding: 14px 18px;
+    box-shadow: var(--card-shadow);
+  }
+  .role-emoji {
+    font-size: 22px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .role-text {
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--text-secondary);
+  }
+  .role-text strong {
+    display: block;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+  }
+
+  /* closing */
+  .closing {
+    text-align: center;
+    padding: 40px 24px;
+    background: var(--surface);
+    border-radius: 24px;
+    box-shadow: var(--card-shadow);
+    margin: 40px 0 0;
+  }
+  .closing .paw { font-size: 40px; margin-bottom: 16px; display: block; }
+  .closing p {
+    font-size: 16px;
+    line-height: 1.8;
+    color: var(--text-secondary);
+    max-width: 480px;
+    margin: 0 auto 20px;
+  }
+  .closing .sign {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  .closing .sign a {
+    color: var(--accent-dark);
+    text-decoration: none;
+    font-weight: 700;
+  }
+  .closing .sign a:hover { text-decoration: underline; }
+
+  /* ── SPECIAL THANKS ── */
+  .thanks-block {
+    margin-top: 40px;
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 24px 28px;
+    background: transparent;
+  }
+  .thanks-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .thanks-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .thanks-text {
+    font-size: 14px;
+    line-height: 1.85;
+    color: var(--text-secondary);
+  }
+  .thanks-text .tag {
+    display: inline-block;
+    background: var(--tag-bg);
+    border-radius: 6px;
+    padding: 1px 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 2px;
+  }
+
+  /* responsive */
+  @media (max-width: 480px) {
+    .content { padding: 36px 16px 60px; }
+    .thanks-block { padding: 18px 18px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <a href="index.html" class="back-btn">← กลับหน้าหลัก</a>
+  <h1>🐱 KITTIZEN</h1>
+  <p class="slogan">Cat . Club . Care . Community</p>
+</header>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- Origin -->
+  <div class="origin-label">ABOUT</div>
+
+  <div class="big-quote">
+    <em>"กูจะเอา AI ไปทำแมวอะไรดีนะ"</em> 🐱
+  </div>
+
+  <p class="body-text">
+    KITTIZEN เกิดขึ้นในเย็นวันหนึ่ง ตอนที่ผมนั่งเล่น AI แล้วหันไปมองแมวที่บ้าน ก่อนจะมีความคิดแปลก ๆ โผล่ขึ้นมาในหัว
+  </p>
+  <p class="body-text">
+    ใช่แล้ว ประโยคนั้นแหละ <strong>"กูจะเอา AI ไปทำแมวอะไรดีนะ"</strong>
+  </p>
+  <p class="body-text">
+    แล้วก็…เออ ก็เอามาทำเรื่องแมว ๆ มันไปเลยละกัน 😂
+  </p>
+  <p class="body-text">
+    จากความคิดเล่น ๆ วันนั้น เลยกลายมาเป็น KITTIZEN — พื้นที่เล็ก ๆ ขอแตะกระแส AI เอามารับใช้คนเลี้ยงเหมียวในกรุงเทพฯ ที่อยากบอกโลกว่า
+  </p>
+
+  <div class="highlight-block">
+    <p>
+      <strong>"นี่แมวช้านนนนน"</strong> และไม่ต้องใช้มุกว่า "ไปดูแมวที่ห้องเรามั้ย" เพราะแค่ขอ Link ก็ได้ดูแล้ว ลีน เร็ว ไว จบ ง่าย สะดวก<br>
+      <span style="font-size:13px;color:var(--text-secondary);">(อ่าว งี้แกกำลังทำลายโอกาสพาคนไปห้องอะสิ!)</span>
+    </p>
+  </div>
+
+  <div class="divider">· · ·</div>
+
+  <!-- City life -->
+  <div class="section-heading">🏙️ คนมีเหมียวในเมืองใหญ่</div>
+
+  <p class="body-text">
+    กรุงเทพฯ เป็นเมืองที่เร่งรีบ ทุกเช้าเราต้องรีบออกไปทำงาน แต่ก่อนออกจากบ้าน หลายคนก็ยังต้องเติมน้ำ เติมอาหารเม็ด โกยขี้แมว หรือรีบกวาดขนแมวบนโซฟาสักหน่อย
+  </p>
+  <p class="body-text">
+    หรือต้องเอาแท่งกาวปัดขนออกจากเสื้อผ้าเพราะโดนจู่โจมโดดใส่ตอนนั่งใส่รองเท้าที่หน้าประตู — <strong>หยุด! ไม่ต้องเดินมาถูแล้ว ไม่ได้ไปสักทีเนี่ยะ</strong>
+  </p>
+  <p class="body-text">
+    พอเลิกงานกลับมา คนที่รออยู่หน้าประตูอาจไม่ใช่แฟน…
+  </p>
+  <p class="body-text">
+    แต่เป็นเจ้านาย Last boss ที่แท้จริง รอเช็คงาน <em style="font-style:italic;color:var(--accent-dark);">"อาหารเย็นอยู่ไหน พร้อมยัง ส่งยัง จะส่งกี่โมง?"</em>
+  </p>
+  <p class="body-text">
+    ชีวิตคนเลี้ยงแมวอาจแตกต่างกันไป แต่ความสุขเล็ก ๆ แบบนี้ พวกเราเหล่าคนเลี้ยงแมวรับรู้เหมือนกันจริง ๆ
+  </p>
+
+  <div class="divider">· · ·</div>
+
+  <!-- What is Kittizen -->
+  <div class="section-heading">🐾 แล้ว KITTIZEN คืออะไร?</div>
+
+  <p class="body-text">
+    KITTIZEN คือ Cat Community สำหรับคนเลี้ยงแมวในกรุงเทพฯ — พื้นที่ ชุมชน คลับ หรือจะเรียกว่าแก๊งค์สเตอร์ก็ได้ จะได้ดูโหดขึ้นมาหน่อย ที่ให้คุณสร้างโปรไฟล์ ใส่รูปแมว เล่าเรื่องราวของตัวเอง และแนะนำเจ้านาย เอ๋ย เจ้าเหมียวของคุณ
+  </p>
+
+  <p class="body-text" style="margin-bottom:12px;">คุณอาจได้รู้ว่า…</p>
+
+  <div class="role-list">
+    <div class="role-item">
+      <div class="role-emoji">🎨</div>
+      <div class="role-text">
+        <strong>นักออกแบบคนนี้เลี้ยงแมวตั้ง 8 ตัว</strong>
+        โอ้ววววว
+      </div>
+    </div>
+    <div class="role-item">
+      <div class="role-emoji">🩺</div>
+      <div class="role-text">
+        <strong>คุณหมอคนนี้เป็นทาสของแมวอ้วนสุดขี้อ้อน ขนยาว มีตาสองสี</strong>
+        ไม่ต่างอะไรกับเรา
+      </div>
+    </div>
+    <div class="role-item">
+      <div class="role-emoji">💼</div>
+      <div class="role-text">
+        <strong>CEO คนนี้ก็กลับบ้านไปโกยขี้แมวเหมือนฉันเลย</strong>
+        เพราะสุดท้ายแล้ว ไม่ว่าเราจะทำอาชีพอะไร ดูดีแค่ไหน เราต่างก็วิ่งวุ่นทำงานหาเงินมาเลี้ยงแมวอยู่ดี
+      </div>
+    </div>
+  </div>
+
+  <div class="divider">· · ·</div>
+
+  <!-- CTA -->
+  <div class="section-heading">📸 โชว์แมวหน่อยยยยย</div>
+
+  <p class="body-text">
+    ไม่ว่าคุณจะเพิ่งรับแมวจรมาดูแลเมื่อ 5 วันที่แล้วเอง หรือเป็นทาสแมวมานานเป็นสิบ ๆ ปี ที่นี่ยินดีต้อนรับทุกคนเลย
+  </p>
+  <p class="body-text">
+    แค่สร้างโปรไฟล์ <a href="create.html" style="display:inline-flex;align-items:center;gap:5px;background:var(--accent);color:white;padding:4px 14px;border-radius:20px;font-size:14px;font-weight:700;text-decoration:none;vertical-align:middle;">➕ Create</a> บอกเล่าเรื่องราวของตัวเอง ของแมวในบ้าน แล้วแบ่งปันรูปน่ารักให้คนอื่นได้รู้จัก
+  </p>
+  <p class="body-text">
+    เราเชื่อว่า นอกจากบทบาทในการทำงานแล้ว เราทุกคนยังมีอีกหนึ่งบทบาทที่ภูมิใจไม่แพ้กัน — <strong>การได้เลี้ยงแมว 🐾</strong>
+  </p>
+
+  <!-- Closing card -->
+  <div class="closing">
+    <span class="paw">🐱</span>
+    <p>
+      เราอาจเป็น Citizen ของเมืองกรุงเทพฯ<br>
+      แต่ถ้าคุณเลี้ยงแมว… เราทุกคนก็เป็นชาว <strong>KITTIZEN</strong> ด้วย
+    </p>
+    <p style="font-size:22px;margin-bottom:16px;">ยินดีต้อนรับครับ เหมี๊ยวววว</p>
+    <div class="sign">
+      ติดต่อผมทาง DM ช่องได้เลย : TikTok 
+      <a href="https://tiktok.com/@popzilarkub" target="_blank">@popzilarkub</a>
+    </div>
+  </div>
+
+  <!-- Special Thanks -->
+  <div class="thanks-block">
+    <div class="thanks-label">Special Thanks</div>
+    <p class="thanks-text">แพลตฟอร์มนี้ถูกสร้างขึ้นด้วย</p>
+    <p class="thanks-text"><strong>มนุษย์ 1 คน (ชื่อป๊อป)</strong></p>
+    <p class="thanks-text"><strong>ทีม AI ผู้ช่วยเขียนโค้ด</strong> Gemini, Claude, Deepseek, ChatGPT, Perplexity (ใช้แบบฟรีทั้งหมด)</p>
+    <p class="thanks-text"><strong>กาแฟหลายแก้ว</strong> ช่วยถ่างตาหา bug ที่เกิดจากลืมใส่เครื่องหมายคอมม่า ปีกกาเกินมา กูจะบ้าาาาา</p>
+    <p class="thanks-text">และ <strong>แมวสองตัว (ไวท์ตี้, ส้ม)</strong> ที่ช่วยปล่อยขนลงพื้น ลับเล็บที่เตียง เอาใบไม้เข้ามาทิ้งในห้อง — และเป็นจุดเริ่มต้น เป็นแรงบันดาลใจ</p>
+  </div>
+
+</div>
+
+</body>
+</html>
