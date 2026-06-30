@@ -1909,11 +1909,11 @@ async function initBkkMap() {
   }
 
   function getColor(count) {
-    if (count === 0) return '#F0E8E4';
-    if (count <= 2) return '#F9D9A8';
-    if (count <= 5) return '#F9B95C';
-    if (count <= 10) return '#E8A043';
-    return '#C07010';
+    if (count === 0) return '#FEF9E5';
+    if (count <= 100) return '#FAE2BA';
+    if (count <= 500) return '#F2AA53';
+    if (count <= 1000) return '#DC4D30';
+    return '#A9232D';
   }
 
   function styleFeature(feature) {
