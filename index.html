@@ -283,7 +283,10 @@
     border-radius: 20px;
     box-shadow: var(--card-shadow);
     background: var(--surface);
+    position: relative;
+    z-index: 1;
   }
+
   .leaflet-container { font-family: 'Inter', sans-serif; background: var(--bg); }
   .district-tooltip {
     font-size: 12px;
@@ -1855,7 +1858,7 @@ function setView(view) {
     mapBtn.classList.add('active');
     initBkkMap();
   } else {
-    grid.style.display = 'grid';
+    grid.style.removeProperty('display');
     mapWrap.classList.remove('active');
     paginationWrap.style.display = 'flex';
     grid.classList.remove('line-view', 'card-view');
@@ -1889,6 +1892,7 @@ async function initBkkMap() {
     zoomControl: true,
     attributionControl: false
   }).setView([13.7563, 100.5018], 10.4);
+  bkkMapInstance.getContainer().style.zIndex = '1';
 
   if (!bkkGeoData) {
     try {
@@ -1929,7 +1933,10 @@ async function initBkkMap() {
       const count = getDistrictCount(dname);
       layer.bindTooltip(`${dname} (${count})`, { className: 'district-tooltip', sticky: true });
 
-      layer.on('click', () => selectMapDistrict(dname, layer));
+      layer.on('click', (e) => {
+        L.DomEvent.stopPropagation(e);
+        selectMapDistrict(dname, layer);
+      });
       layer.on('mouseover', () => layer.setStyle({ weight: 2.5, fillOpacity: 1 }));
       layer.on('mouseout', () => {
         if (selectedMapDistrict !== dname) layer.setStyle({ weight: 1.2, fillOpacity: 0.9 });
