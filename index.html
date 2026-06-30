@@ -1016,6 +1016,40 @@
     }
   }
 
+  .scroll-top-btn {
+    position: fixed;
+    bottom: 24px;
+    right: 20px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 998;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.25s, transform 0.25s, background 0.15s;
+  }
+  .scroll-top-btn.show {
+    display: flex;
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .scroll-top-btn:hover {
+    background: var(--accent-dark);
+  }
+  @media (max-width: 600px) {
+    .scroll-top-btn { bottom: 16px; right: 16px; width: 40px; height: 40px; font-size: 18px; }
+  }
+
   .toast {
     position: fixed;
     bottom: 80px;
@@ -1443,6 +1477,10 @@
     #vizGrid { grid-template-columns: 1fr !important; }
   }
 </style>
+
+<!-- SCROLL TO TOP -->
+<button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="กลับขึ้นด้านบน">↑</button>
+
 
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
@@ -2554,6 +2592,21 @@ function handleBannerClick(link, id) {
   if (link) { window.open(link, '_blank'); return; }
   if (id) { openModal(isNaN(id) ? id : Number(id)); return; }
 }
+
+// ============================================================
+// SCROLL TO TOP
+// ============================================================
+window.addEventListener('scroll', () => {
+  const btn = document.getElementById('scrollTopBtn');
+  if (window.scrollY > 400) {
+    btn.classList.add('show');
+  } else {
+    btn.classList.remove('show');
+  }
+});
+
+// Lightbox Keyboard
+document.addEventListener('keydown', (e) => {
 
 // Lightbox Keyboard
 document.addEventListener('keydown', (e) => {
