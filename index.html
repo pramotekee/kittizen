@@ -7,6 +7,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Bungee+Shade&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
   :root {
     --bg: #FAF7F4;
@@ -266,6 +269,58 @@
   }
   .view-toggle-btn:hover:not(.active) {
     background: var(--tag-bg);
+  }
+
+  /* MAP VIEW */
+  .map-wrap {
+    display: none;
+    padding: 0 20px 20px;
+  }
+  .map-wrap.active { display: block; }
+  #bkkMap {
+    width: 100%;
+    height: 480px;
+    border-radius: 20px;
+    box-shadow: var(--card-shadow);
+    background: var(--surface);
+  }
+  .leaflet-container { font-family: 'Inter', sans-serif; background: var(--bg); }
+  .district-tooltip {
+    font-size: 12px;
+    font-weight: 600;
+    background: var(--surface);
+    border: none;
+    box-shadow: var(--card-shadow);
+    padding: 4px 10px;
+    border-radius: 8px;
+  }
+  .map-district-panel {
+    margin-top: 16px;
+  }
+  .map-district-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 4px 12px;
+  }
+  .map-district-header h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  .map-district-header .count {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .map-clear-btn {
+    font-size: 12px;
+    color: var(--accent-dark);
+    background: var(--accent-light);
+    border: none;
+    border-radius: 20px;
+    padding: 5px 14px;
+    cursor: pointer;
+    font-weight: 600;
   }
 
   /* GRID */
@@ -1009,7 +1064,7 @@
   <header class="header">
     <h1>🐱 KITTIZEN</h1>
     <p class="slogan">Show your real boss.</p>
-    <p class="caption">Let Bangkok meet the one who runs your home.</p>
+    <p class="caption">ขอดูแมวหน่อยยยยยยยยยย</p>
   </header>
 
   <!-- DASHBOARD -->
@@ -1267,10 +1322,17 @@
   <div class="view-toggle">
     <button class="view-toggle-btn active" id="viewCard" onclick="setView('card')">▦ Card</button>
     <button class="view-toggle-btn" id="viewLine" onclick="setView('line')">≡ List</button>
+    <button class="view-toggle-btn" id="viewMap" onclick="setView('map')">🗺️ Map</button>
   </div>
 
   <!-- GRID -->
   <div class="grid card-view" id="grid"></div>
+
+  <!-- MAP -->
+  <div class="map-wrap" id="mapWrap">
+    <div id="bkkMap"></div>
+    <div class="map-district-panel" id="mapDistrictPanel"></div>
+  </div>
 
   <!-- PAGINATION -->
   <div class="pagination-wrap" id="paginationWrap">
@@ -1776,21 +1838,157 @@ function resetFilters() {
 function setView(view) {
   currentView = view;
   const grid = document.getElementById('grid');
+  const mapWrap = document.getElementById('mapWrap');
   const cardBtn = document.getElementById('viewCard');
   const lineBtn = document.getElementById('viewLine');
-  
-  if (view === 'line') {
-    grid.classList.remove('card-view');
-    grid.classList.add('line-view');
-    lineBtn.classList.add('active');
-    cardBtn.classList.remove('active');
+  const mapBtn = document.getElementById('viewMap');
+  const paginationWrap = document.getElementById('paginationWrap');
+
+  cardBtn.classList.remove('active');
+  lineBtn.classList.remove('active');
+  mapBtn.classList.remove('active');
+
+  if (view === 'map') {
+    grid.style.display = 'none';
+    mapWrap.classList.add('active');
+    paginationWrap.style.display = 'none';
+    mapBtn.classList.add('active');
+    initBkkMap();
   } else {
-    grid.classList.remove('line-view');
-    grid.classList.add('card-view');
-    cardBtn.classList.add('active');
-    lineBtn.classList.remove('active');
+    grid.style.display = 'grid';
+    mapWrap.classList.remove('active');
+    paginationWrap.style.display = 'flex';
+    grid.classList.remove('line-view', 'card-view');
+    if (view === 'line') {
+      grid.classList.add('line-view');
+      lineBtn.classList.add('active');
+    } else {
+      grid.classList.add('card-view');
+      cardBtn.classList.add('active');
+    }
+    renderGrid();
   }
-  renderGrid();
+}
+
+// ============================================================
+// MAP VIEW (Leaflet + GeoJSON)
+// ============================================================
+const BKK_GEOJSON_URL = 'https://raw.githubusercontent.com/pcrete/gsvloader-demo/master/geojson/Bangkok-districts.geojson';
+let bkkMapInstance = null;
+let bkkGeoLayer = null;
+let bkkGeoData = null;
+let selectedMapDistrict = null;
+
+async function initBkkMap() {
+  if (bkkMapInstance) {
+    setTimeout(() => bkkMapInstance.invalidateSize(), 100);
+    return;
+  }
+
+  bkkMapInstance = L.map('bkkMap', {
+    zoomControl: true,
+    attributionControl: false
+  }).setView([13.7563, 100.5018], 10.4);
+
+  if (!bkkGeoData) {
+    try {
+      const resp = await fetch(BKK_GEOJSON_URL);
+      bkkGeoData = await resp.json();
+    } catch (err) {
+      document.getElementById('bkkMap').innerHTML = '<p style="padding:40px;text-align:center;color:var(--text-secondary);">ไม่สามารถโหลดแผนที่ได้</p>';
+      return;
+    }
+  }
+
+  function getDistrictCount(dname) {
+    return allData.filter(d => d.district === dname).length;
+  }
+
+  function getColor(count) {
+    if (count === 0) return '#F0E8E4';
+    if (count <= 2) return '#F9D9A8';
+    if (count <= 5) return '#F9B95C';
+    if (count <= 10) return '#E8A043';
+    return '#C07010';
+  }
+
+  function styleFeature(feature) {
+    const count = getDistrictCount(feature.properties.dname);
+    return {
+      fillColor: getColor(count),
+      weight: 1.2,
+      color: '#FFFCF9',
+      fillOpacity: 0.9
+    };
+  }
+
+  bkkGeoLayer = L.geoJSON(bkkGeoData, {
+    style: styleFeature,
+    onEachFeature: (feature, layer) => {
+      const dname = feature.properties.dname;
+      const count = getDistrictCount(dname);
+      layer.bindTooltip(`${dname} (${count})`, { className: 'district-tooltip', sticky: true });
+
+      layer.on('click', () => selectMapDistrict(dname, layer));
+      layer.on('mouseover', () => layer.setStyle({ weight: 2.5, fillOpacity: 1 }));
+      layer.on('mouseout', () => {
+        if (selectedMapDistrict !== dname) layer.setStyle({ weight: 1.2, fillOpacity: 0.9 });
+      });
+    }
+  }).addTo(bkkMapInstance);
+
+  bkkMapInstance.fitBounds(bkkGeoLayer.getBounds());
+  setTimeout(() => bkkMapInstance.invalidateSize(), 150);
+}
+
+function selectMapDistrict(dname, layer) {
+  selectedMapDistrict = dname;
+
+  bkkGeoLayer.eachLayer(l => {
+    const isSelected = l.feature.properties.dname === dname;
+    l.setStyle({
+      weight: isSelected ? 3 : 1.2,
+      fillOpacity: isSelected ? 1 : 0.9,
+      color: isSelected ? '#2C2420' : '#FFFCF9'
+    });
+  });
+
+  const matched = allData.filter(d => d.district === dname);
+  const panel = document.getElementById('mapDistrictPanel');
+
+  if (matched.length === 0) {
+    panel.innerHTML = `
+      <div class="map-district-header">
+        <h3>📍 ${dname}</h3>
+        <button class="map-clear-btn" onclick="clearMapSelection()">✕ ปิด</button>
+      </div>
+      <div class="empty-district" style="border-radius:16px;">
+        <span class="emoji">🏠</span>
+        <div class="msg">ยังไม่มีสมาชิกในเขตนี้</div>
+        <a href="create.html?district=${encodeURIComponent(dname)}" class="action-btn">➕ สร้างโปรไฟล์</a>
+      </div>
+    `;
+    return;
+  }
+
+  panel.innerHTML = `
+    <div class="map-district-header">
+      <h3>📍 ${dname}</h3>
+      <span class="count">${matched.length} เจ้าของ</span>
+      <button class="map-clear-btn" onclick="clearMapSelection()">✕ ปิด</button>
+    </div>
+    <div class="grid card-view" style="padding:0;">
+      ${matched.map(d => renderCard(d, true)).join('')}
+    </div>
+  `;
+}
+
+function clearMapSelection() {
+  selectedMapDistrict = null;
+  document.getElementById('mapDistrictPanel').innerHTML = '';
+  if (bkkGeoLayer) {
+    bkkGeoLayer.eachLayer(l => l.setStyle({ weight: 1.2, fillOpacity: 0.9, color: '#FFFCF9' }));
+  }
 }
 
 // ============================================================
