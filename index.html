@@ -2482,7 +2482,7 @@ const BANNER_OVERRIDE = [
   */
 ];
 
-const BANNER_TOTAL = 5; // ← ต้องการให้แสดงกี่ banner บน front แก้ตรงนี้ที่เดียว
+const BANNER_TOTAL = 20; // ← ต้องการให้แสดงกี่ banner บน front แก้ตรงนี้ที่เดียว
 
 function initBanner(withRandom = false) {
   const track = document.getElementById('bannerTrack');
@@ -2586,7 +2586,7 @@ function shuffleFromBannerData() {
       }
     });
   });
-  return shuffleArray(pool).slice(0, 10);
+  return shuffleArray(pool).slice(0, 20);
 }
 
 function handleBannerClick(link, id) {
