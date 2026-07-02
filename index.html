@@ -2092,7 +2092,6 @@ function renderGrid() {
 
 function renderCard(d, isCard) {
   const cats = d.cats || [];
-  currentModalCats = cats;
   const showCats = cats.slice(0, 5);
   const hasMore = cats.length > 5;
 
@@ -2107,7 +2106,7 @@ function renderCard(d, isCard) {
     
     return `
       <div class="cat-thumb">
-        <div class="cat-img ${rainbow ? 'rainbow' : ''}">
+        <div class="cat-img ${rainbow ? 'rainbow' : ''}" onclick="event.stopPropagation();openLightbox('${cat.image || ''}', ${JSON.stringify(cats)}, ${idx})">
           ${img}
           ${rainbow ? '<span class="rainbow-badge">🌈</span>' : ''}
         </div>
