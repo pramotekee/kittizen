@@ -1854,9 +1854,11 @@ function applyFilters() {
       if (!hasBreed) return false;
     }
 
-    // Color
+    // Color - กรองเฉพาะเมื่อมีข้อมูลสีในระบบ
     if (color) {
+      // ตรวจสอบว่ามีแมวตัวไหนมีสีนี้บ้าง
       const hasColor = d.cats.some(c => c.color === color);
+      // ถ้าไม่มีแมวตัวไหนสีนี้ → ไม่แสดงการ์ดนี้
       if (!hasColor) return false;
     }
 
