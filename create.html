@@ -487,16 +487,16 @@
           <div class="cat-fields">
             <div class="full-width">
               <label>ชื่อแมว <span class="required">*</span></label>
-              <input type="text" class="cat-name" placeholder="เช่น ข้าวเหนียว" required>
+              <input type="text" class="cat-name" placeholder="เช่น ข้าวเหนียว">
             </div>
             <div class="full-width">
               <label>รูปแมว (URL) <span class="required">*</span></label>
-              <input type="url" class="cat-image" placeholder="https://drive.google.com/thumbnail?id=..." required>
+              <input type="url" class="cat-image" placeholder="https://drive.google.com/thumbnail?id=...">
               <small style="display:block;margin-top:4px;font-size:11px;color:var(--text-secondary);">⚠️ อย่าลืมตั้งค่า URL รูปภาพนี้เป็น Share to public (รองรับ Google Drive, Dropbox, Imgur, imgBB หรือ URL รูปภาพของคุณ)</small>
             </div>
             <div class="full-width">
               <label>สายพันธุ์ <span class="required">*</span></label>
-              <select class="cat-breed" required onchange="toggleOtherBreed(this)">
+              <select class="cat-breed" onchange="toggleOtherBreed(this)">
                 <option value="">เลือกสายพันธุ์</option>
                 <option value="ABYSSINIAN">ABYSSINIAN (อะบิสซิเนียน)</option>
                 <option value="AMERICAN BOBTAIL">AMERICAN BOBTAIL (อเมริกัน บ็อบเทล)</option>
@@ -591,7 +591,7 @@
             </div>
             <div>
               <label>เพศ <span class="required">*</span></label>
-              <select class="cat-gender" required>
+              <select class="cat-gender">
                 <option value="">เลือก</option>
                 <option value="ผู้">ผู้</option>
                 <option value="เมีย">เมีย</option>
@@ -599,7 +599,7 @@
             </div>
             <div>
               <label>สี <span class="required">*</span></label>
-              <select class="cat-color" required>
+              <select class="cat-color">
                 <option value="">เลือกสี</option>
                 <option value="ขาว">ขาว</option>
                 <option value="ดำ">ดำ</option>
@@ -706,8 +706,8 @@
     if (btn) {
       btn.style.display = 'inline-block';
       btn.onclick = function() {
-        if (catsContainer.querySelectorAll('.cat-group').length <= 2) {
-          alert('ต้องมีแมวอย่างน้อย 2 ตัว');
+        if (catsContainer.querySelectorAll('.cat-group').length <= 1) {
+          alert('ต้องมีแมวอย่างน้อย 1 ตัว');
           return;
         }
         template.remove();
@@ -721,7 +721,7 @@
   // Remove cat (for initial 2 cats)
   function removeCat(index) {
     const groups = catsContainer.querySelectorAll('.cat-group');
-    if (groups.length <= 2) { alert('ต้องมีแมวอย่างน้อย 2 ตัว'); return; }
+    if (groups.length <= 2) { alert('ต้องมีแมวอย่างน้อย 1 ตัว'); return; }
     groups[index].remove();
     updateLabels();
   }
@@ -731,7 +731,7 @@
     groups.forEach((g, i) => {
       g.querySelector('.cat-label').textContent = `🐱 แมวตัวที่ ${i+1}`;
       const btn = g.querySelector('.btn-remove');
-      if (btn) btn.style.display = groups.length > 2 ? 'inline-block' : 'none';
+      if (btn) btn.style.display = groups.length > 1 ? 'inline-block' : 'none';
     });
   }
 
