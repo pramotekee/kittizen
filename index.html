@@ -1768,11 +1768,12 @@ async function fetchData() {
     const text = await resp.text();
     const json = JSON.parse(text.substring(47, text.length - 2));
     const rows = json.table.rows || [];
+    console.log('📊 จำนวนแถวที่โหลดจาก Sheet:', rows.length);
     
     allData = rows.map(row => {
       const values = row.c.map(c => c ? c.v : '');
       return parseRow(values);
-    }).filter(d => d.id && d.status === 'TRUE');
+    }).filter(d => d.id);
     
     // สุ่มลำดับ
     allData = shuffleArray(allData);
