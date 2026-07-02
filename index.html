@@ -1717,6 +1717,14 @@ function openLightbox(url, catList, index) {
   document.getElementById('lightboxOverlay').classList.add('open');
 }
 
+function openLightboxOwner(url) {
+  if (!url) return;
+  currentLightboxCats = [{ image: url, name: 'รูปโปรไฟล์' }];
+  currentLightboxIndex = 0;
+  document.getElementById('lightboxImg').src = url;
+  document.getElementById('lightboxOverlay').classList.add('open');
+}
+
 async function fetchData() {
   try {
     const resp = await fetch(GVIZ_URL);
@@ -1959,7 +1967,7 @@ function renderCard(d, isCard) {
   const cats = d.cats || [];
   const showCats = cats.slice(0, 5);
   const hasMore = cats.length > 5;
-  const ownerPhoto = d.photo_url ? `<img src="${d.photo_url}" alt="${d.name}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2248%22 height=%2248%22%3E%3Crect width=%2248%22 height=%2248%22 fill=%22%23E8E8ED%22/%3E%3Ctext x=%2224%22 y=%2230%22 text-anchor=%22middle%22 font-size=%2220%22 fill=%22%23999%22%3E🐱%3C/text%3E%3C/svg%3E'">` : '';
+  const ownerPhoto = d.photo_url ? `<img src="${d.photo_url}" alt="${d.name}" onclick="event.stopPropagation();openLightboxOwner('${d.photo_url}')" style="cursor:pointer;" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2248%22 height=%2248%22%3E%3Crect width=%2248%22 height=%2248%22 fill=%22%23E8E8ED%22/%3E%3Ctext x=%2224%22 y=%2230%22 text-anchor=%22middle%22 font-size=%2220%22 fill=%22%23999%22%3E🐱%3C/text%3E%3C/svg%3E'">` : '';
   const catsHTML = showCats.map(function(cat, idx) {
     const rainbow = isRainbow(d, idx);
     const rainbowDate = getRainbowDate(d, idx);
@@ -2018,7 +2026,7 @@ function openModal(id) {
   const cats = d.cats || [];
   currentModalCats = cats;
   const modal = document.getElementById('modalBody');
-  const ownerPhoto = d.photo_url ? `<img src="${d.photo_url}" alt="${d.name}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2272%22 height=%2272%22%3E%3Crect width=%2272%22 height=%2272%22 fill=%22%23E8E8ED%22/%3E%3Ctext x=%2236%22 y=%2244%22 text-anchor=%22middle%22 font-size=%2230%22 fill=%22%23999%22%3E🐱%3C/text%3E%3C/svg%3E'">` : '';
+  const ownerPhoto = d.photo_url ? `<img src="${d.photo_url}" alt="${d.name}" onclick="event.stopPropagation();openLightboxOwner('${d.photo_url}')" style="cursor:pointer;" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2272%22 height=%2272%22%3E%3Crect width=%2272%22 height=%2272%22 fill=%22%23E8E8ED%22/%3E%3Ctext x=%2236%22 y=%2244%22 text-anchor=%22middle%22 font-size=%2230%22 fill=%22%23999%22%3E🐱%3C/text%3E%3C/svg%3E'">` : '';
   const catsHTML = cats.map(function(cat, idx) {
     const rainbow = isRainbow(d, idx);
     const rainbowDate = getRainbowDate(d, idx);
