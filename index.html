@@ -7,7 +7,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Bungee+Shade&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
@@ -1438,28 +1437,35 @@
         <canvas id="chartCatGender"></canvas>
       </div>
 
-      <!-- Card 3: Top เขต -->
+      <!-- Card 3: Top 5 สีแมว -->
+      <div style="background:#FFFCF9;border-radius:20px;padding:20px;">
+        <div style="font-size:13px;font-weight:600;color:#2C2420;margin-bottom:4px;">🎨 Top 5 สีแมว</div>
+        <div style="font-size:11px;color:#7A6E6A;margin-bottom:16px;">สีที่นิยมเลี้ยงมากที่สุด (หน่วย:ตัว)</div>
+        <canvas id="chartCatColor"></canvas>
+      </div>
+
+      <!-- Card 4: Top เขต -->
       <div style="background:#FFFCF9;border-radius:20px;padding:20px;">
         <div style="font-size:13px;font-weight:600;color:#2C2420;margin-bottom:4px;">📍 Top 10 เขต</div>
         <div style="font-size:11px;color:#7A6E6A;margin-bottom:16px;">เขตที่มีคนเลี้ยงแมวมากที่สุด (หน่วย:คน)</div>
         <canvas id="chartDistrict"></canvas>
       </div>
 
-      <!-- Card 4: Top สายพันธุ์ -->
+      <!-- Card 5: Top สายพันธุ์ -->
       <div style="background:#FFFCF9;border-radius:20px;padding:20px;">
         <div style="font-size:13px;font-weight:600;color:#2C2420;margin-bottom:4px;">🐈 Top 10 สายพันธุ์</div>
         <div style="font-size:11px;color:#7A6E6A;margin-bottom:16px;">สายพันธุ์ยอดนิยม (หน่วย:ตัว)</div>
         <canvas id="chartBreed"></canvas>
       </div>
 
-      <!-- Card 5: จำนวนแมวต่อคน -->
+      <!-- Card 6: จำนวนแมวต่อคน -->
       <div style="background:#FFFCF9;border-radius:20px;padding:20px;">
         <div style="font-size:13px;font-weight:600;color:#2C2420;margin-bottom:4px;">🔢 จำนวนแมวต่อเจ้าของ</div>
         <div style="font-size:11px;color:#7A6E6A;margin-bottom:16px;">คนส่วนใหญ่เลี้ยงกี่ตัว</div>
         <canvas id="chartCatCount"></canvas>
       </div>
 
-      <!-- Card 6: Heatmap เขต -->
+      <!-- Card 7: Heatmap เขต -->
       <div style="background:#FFFCF9;border-radius:20px;padding:20px;">
         <div style="font-size:13px;font-weight:600;color:#2C2420;margin-bottom:4px;">🗺️ Kitty Lovely Density</div>
         <div style="font-size:11px;color:#7A6E6A;margin-bottom:16px;">เขตคนรักคนหลงแมว (หน่วย:คน)</div>
@@ -1700,8 +1706,8 @@ function getRainbowDate(cats, idx) {
 }
 
 function getCatColor(cat) {
-  // อนาคตอาจเพิ่มฟิลด์สีแมวใน Sheet
-  return '';
+  // ดึงสีจากข้อมูลใน Sheet โดยตรง
+  return cat.color || '';
 }
 
 function getBreedDisplay(breed) {
@@ -1737,12 +1743,16 @@ function showToast(msg) {
 function openLightbox(url, catList, index) {
   if (!url) return;
   
-  if (catList && Array.isArray(catList)) {
+  // ✅ รับ catList ที่ส่งมา และเก็บไว้ใน currentLightboxCats
+  if (catList && Array.isArray(catList) && catList.length > 0) {
     currentLightboxCats = catList;
     currentLightboxIndex = index || 0;
-  } else {
-    currentLightboxCats = [];
-    currentLightboxIndex = 0;
+  }
+  
+  // ✅ ถ้าไม่มี catList ส่งมา ให้ใช้ currentModalCats แทน
+  if (currentLightboxCats.length === 0 && currentModalCats.length > 0) {
+    currentLightboxCats = currentModalCats;
+    currentLightboxIndex = index || 0;
   }
   
   document.getElementById('lightboxImg').src = url;
@@ -1846,8 +1856,8 @@ function applyFilters() {
 
     // Color
     if (color) {
-      // ยังไม่ support สีแมวใน Sheet
-      return true;
+      const hasColor = d.cats.some(c => c.color === color);
+      if (!hasColor) return false;
     }
 
     // Cat count
@@ -2106,7 +2116,7 @@ function renderCard(d, isCard) {
     
     return `
       <div class="cat-thumb">
-        <div class="cat-img ${rainbow ? 'rainbow' : ''}" onclick="event.stopPropagation();openLightbox('${cat.image || ''}', ${JSON.stringify(cats)}, ${idx})">
+        <div class="cat-img ${rainbow ? 'rainbow' : ''}" onclick="event.stopPropagation();openLightbox('${(cat.image || '').replace(/'/g, "\\'")}', ${JSON.stringify(cats)}, ${idx})">
           ${img}
           ${rainbow ? '<span class="rainbow-badge">🌈</span>' : ''}
         </div>
@@ -2248,6 +2258,7 @@ function openModal(id) {
   selectedId = id;
 
   const cats = d.cats || [];
+  currentModalCats = cats;
   const modal = document.getElementById('modalBody');
   
   // Owner
@@ -2261,7 +2272,7 @@ function openModal(id) {
   
   return `
     <div class="modal-cat-item">
-      <div class="cat-img ${rainbow ? 'rainbow' : ''}" onclick="event.stopPropagation();openLightbox('${cat.image || ''}', currentModalCats, ${idx})">
+      <div class="cat-img ${rainbow ? 'rainbow' : ''}" onclick="event.stopPropagation();openLightbox('${(cat.image || '').replace(/'/g, "\\'")}', currentModalCats, ${idx})">
         ${img}
         ${rainbow ? '<span class="rainbow-badge">🌈</span>' : ''}
       </div>
@@ -2368,7 +2379,54 @@ function renderVizCharts() {
     options: { plugins: { legend: { position: 'bottom', labels: { font: { family: 'Inter', size: 11 }, padding: 12 } } }, cutout: '65%' }
   }));
 
-  // 3. Top 10 เขต
+  // 3. Top 5 สีแมว
+  const catColors = {};
+  allData.forEach(d => {
+    (d.cats || []).forEach(cat => {
+      if (cat.color) {
+        catColors[cat.color] = (catColors[cat.color] || 0) + 1;
+      }
+    });
+  });
+
+  const topColors = Object.entries(catColors)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+
+  // ถ้ามีข้อมูลสีแมว
+  if (topColors.length > 0) {
+    const maxColor = Math.max(...topColors.map(c => c[1]));
+    vizCharts.push(new Chart(document.getElementById('chartCatColor'), {
+      type: 'bar',
+      data: {
+        labels: topColors.map(c => c[0]),
+        datasets: [{
+          data: topColors.map(c => c[1]),
+          backgroundColor: ['#F9B95C', '#96C7B3', '#D4897A', '#6398A9', '#B5D5C8'],
+          borderRadius: 6,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          x: {
+            max: niceMax(maxColor),
+            grid: { display: false },
+            ticks: { precision: 0 }
+          },
+          y: {
+            grid: { display: false },
+            ticks: { font: { family: 'Inter', size: 10 } }
+          }
+        }
+      }
+    }));
+
+  // 4. Top 10 เขต
   const districts = {};
   allData.forEach(d => { if (d.district) districts[d.district] = (districts[d.district] || 0) + 1; });
   const topDistricts = Object.entries(districts).sort((a,b) => b[1]-a[1]).slice(0,10);
@@ -2382,7 +2440,7 @@ function renderVizCharts() {
     options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { max: niceMax(maxDistrict), grid: { display: false }, ticks: { precision: 0 } }, y: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 10 } } } } }
   }));
 
-  // 4. Top 10 สายพันธุ์
+  // 5. Top 10 สายพันธุ์
   const breeds = {};
   allData.forEach(d => (d.cats || []).forEach(c => { if (c.breed) breeds[c.breed] = (breeds[c.breed] || 0) + 1; }));
   const topBreeds = Object.entries(breeds).sort((a,b) => b[1]-a[1]).slice(0,10);
@@ -2396,7 +2454,7 @@ function renderVizCharts() {
     options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { max: niceMax(maxBreed), grid: { display: false }, ticks: { precision: 0 } }, y: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 10 } } } } }
   }));
 
-  // 5. จำนวนแมวต่อเจ้าของ
+  // 6. จำนวนแมวต่อเจ้าของ
   const catCounts = {};
   allData.forEach(d => { const c = d.cat_count || 0; catCounts[c] = (catCounts[c] || 0) + 1; });
   const sortedCounts = Object.entries(catCounts).sort((a,b) => Number(a[0])-Number(b[0]));
@@ -2409,7 +2467,7 @@ function renderVizCharts() {
     options: { plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 10 }, precision: 0 } }, y: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { precision: 0 } } } }
   }));
 
-  // 6. Heatmap เขต
+  // 7. Heatmap เขต
   const allDistricts = Object.entries(districts).sort((a,b) => b[1]-a[1]);
   const maxHeat = allDistricts[0]?.[1] || 1;
   const heatColors = allDistricts.map(d => {
@@ -2605,23 +2663,15 @@ window.addEventListener('scroll', () => {
   }
 });
 
-// Lightbox Keyboard
-document.addEventListener('keydown', (e) => {
-  if (!document.getElementById('lightboxOverlay').classList.contains('open')) return;
-  if (e.key === 'ArrowLeft') prevImage();
-  if (e.key === 'ArrowRight') nextImage();
-  if (e.key === 'Escape') closeLightbox();
-});
-
 // Lightbox Touch
-let touchStartX = 0;
-let touchEndX = 0;
+let lightboxTouchStartX = 0;
+let lightboxTouchEndX = 0;
 document.getElementById('lightboxImg').addEventListener('touchstart', (e) => {
-  touchStartX = e.changedTouches[0].screenX;
+  lightboxTouchStartX = e.changedTouches[0].screenX;
 }, { passive: true });
 document.getElementById('lightboxImg').addEventListener('touchend', (e) => {
-  touchEndX = e.changedTouches[0].screenX;
-  const diff = touchStartX - touchEndX;
+  lightboxTouchEndX = e.changedTouches[0].screenX;
+  const diff = lightboxTouchStartX - lightboxTouchEndX;
   if (Math.abs(diff) > 50) {
     if (diff > 0) nextImage();
     else prevImage();
@@ -2636,16 +2686,36 @@ function closeLightbox() {
 }
 
 function prevImage() {
-  if (currentLightboxCats.length === 0) return;
+  if (!currentLightboxCats || currentLightboxCats.length === 0) {
+    showToast('ไม่มีรูปอื่นให้ดู');
+    return;
+  }
   currentLightboxIndex = (currentLightboxIndex - 1 + currentLightboxCats.length) % currentLightboxCats.length;
-  document.getElementById('lightboxImg').src = currentLightboxCats[currentLightboxIndex].image;
+  const newUrl = currentLightboxCats[currentLightboxIndex]?.image;
+  if (newUrl) {
+    document.getElementById('lightboxImg').src = newUrl;
+  }
 }
 
 function nextImage() {
-  if (currentLightboxCats.length === 0) return;
+  if (!currentLightboxCats || currentLightboxCats.length === 0) {
+    showToast('ไม่มีรูปอื่นให้ดู');
+    return;
+  }
   currentLightboxIndex = (currentLightboxIndex + 1) % currentLightboxCats.length;
-  document.getElementById('lightboxImg').src = currentLightboxCats[currentLightboxIndex].image;
+  const newUrl = currentLightboxCats[currentLightboxIndex]?.image;
+  if (newUrl) {
+    document.getElementById('lightboxImg').src = newUrl;
+  }
 }
+
+// Lightbox Keyboard
+document.addEventListener('keydown', (e) => {
+  if (!document.getElementById('lightboxOverlay').classList.contains('open')) return;
+  if (e.key === 'ArrowLeft') prevImage();
+  if (e.key === 'ArrowRight') nextImage();
+  if (e.key === 'Escape') closeLightbox();
+});
 
 </script>
 
