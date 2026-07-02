@@ -2061,6 +2061,14 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('filterDistrict').value = district;
     setTimeout(applyFilters, 500);
   }
+  // ✅ เพิ่มส่วนนี้: อ่าน id และเปิด Modal
+  const id = params.get('id');
+  if (id) {
+    // รอให้ข้อมูลโหลดเสร็จก่อน แล้วค่อยเปิด Modal
+    setTimeout(function() {
+      openModal(id);
+    }, 1500);
+  }
 });
 
 let vizCharts = [];
