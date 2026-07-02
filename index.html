@@ -6,7 +6,7 @@
 <title>Kittizen — where cat communities live</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Bungee+Shade&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
@@ -1768,7 +1768,6 @@ async function fetchData() {
     const text = await resp.text();
     const json = JSON.parse(text.substring(47, text.length - 2));
     const rows = json.table.rows || [];
-    console.log('📊 จำนวนแถวที่โหลดจาก Sheet:', rows.length);
     
     allData = rows.map(row => {
       const values = row.c.map(c => c ? c.v : '');
