@@ -6,7 +6,7 @@
 <title>Kittizen — where cat communities live</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Bungee+Shade&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
@@ -1493,6 +1493,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
+
 // ============================================================
 // CONFIG
 // ============================================================
@@ -1591,19 +1592,6 @@ const BREEDS = [
   { en: 'OTHER CAT', th: 'สายพันธุ์อื่นๆ' }
 ];
 
-const DISTRICTS = [
-  'เขตพระนคร', 'เขตดุสิต', 'เขตหนองจอก', 'เขตบางรัก', 'เขตบางเขน',
-  'เขตบางกะปิ', 'เขตปทุมวัน', 'เขตป้อมปราบศัตรูพ่าย', 'เขตพระโขนง', 'เขตมีนบุรี',
-  'เขตลาดกระบัง', 'เขตยานนาวา', 'เขตสัมพันธ์วงศ์', 'เขตพญาไท', 'เขตธนบุรี',
-  'เขตบางกอกใหญ่', 'เขตห้วยขวาง', 'เขตคลองสาน', 'เขตตลิ่งชัน', 'เขตบางกอกน้อย',
-  'เขตบางขุนเทียน', 'เขตภาษีเจริญ', 'เขตหนองแขม', 'เขตราษฎร์บูรณะ', 'เขตบางพลัด',
-  'เขตดินแดง', 'เขตบึงกุ่ม', 'เขตสาทร', 'เขตบางซื่อ', 'เขตจตุจักร',
-  'เขตบางคอแหลม', 'เขตประเวศ', 'เขตคลองเตย', 'เขตสวนหลวง', 'เขตจอมทอง',
-  'เขตดอนเมือง', 'เขตราชเทวี', 'เขตลาดพร้าว', 'เขตวัฒนา', 'เขตบางแค',
-  'เขตหลักสี่', 'เขตสายไหม', 'เขตคันนายาว', 'เขตสะพานสูง', 'เขตวังทองหลาง',
-  'เขตคลองสามวา', 'เขตบางนา', 'เขตทวีวัฒนา', 'เขตทุ่งครุ', 'เขตบางบอน'
-];
-
 function normalizeImageUrl(url) {
   if (!url) return '';
   const gdrive1 = url.match(/drive\.google\.com\/file\/d\/([^\/\?]+)/);
@@ -1619,9 +1607,6 @@ function normalizeImageUrl(url) {
   return url;
 }
 
-// ============================================================
-// STATE
-// ============================================================
 let allData = [];
 let filteredData = [];
 let currentPage = 1;
@@ -1632,9 +1617,6 @@ let currentLightboxCats = [];
 let currentLightboxIndex = 0;
 let currentModalCats = [];
 
-// ============================================================
-// HELPERS
-// ============================================================
 function getCatField(row, idx, field) {
   const base = 7 + (idx - 1) * 5;
   const fieldOffset = { name: 0, image: 1, breed: 2, gender: 3, color: 4 };
@@ -1666,31 +1648,31 @@ function getCatFemale(row) {
 
 function parseRow(row) {
   return {
-    id:         row[0]  || '',
-    name:       row[1]  || '',
-    gender:     row[2]  || '',
-    job:        row[3]  || '',
-    photo_url:  normalizeImageUrl(row[4] || ''),
-    caption:    row[5]  || '',
-    district:   row[6]  || '',
+    id: row[0] || '',
+    name: row[1] || '',
+    gender: row[2] || '',
+    job: row[3] || '',
+    photo_url: normalizeImageUrl(row[4] || ''),
+    caption: row[5] || '',
+    district: row[6] || '',
     cats: [1,2,3,4,5,6,7,8,9,10].map(i => ({
-      name:   getCatField(row, i, 'name'),
-      image:  normalizeImageUrl(getCatField(row, i, 'image')),
-      breed:  getCatField(row, i, 'breed'),
+      name: getCatField(row, i, 'name'),
+      image: normalizeImageUrl(getCatField(row, i, 'image')),
+      breed: getCatField(row, i, 'breed'),
       gender: getCatField(row, i, 'gender'),
-      color:  getCatField(row, i, 'color')
+      color: getCatField(row, i, 'color')
     })).filter(c => c.name || c.image),
-    cat_count:   getCatCount(row),
-    cat_male:    getCatMale(row),
-    cat_female:  getCatFemale(row),
-    rainbow:     getRainbowData(row),
-    line_id:     row[61] || '',
-    youtube:     row[62] || '',
-    tiktok:      row[63] || '',
-    instagram:   row[64] || '',
-    x:           row[65] || '',
+    cat_count: getCatCount(row),
+    cat_male: getCatMale(row),
+    cat_female: getCatFemale(row),
+    rainbow: getRainbowData(row),
+    line_id: row[61] || '',
+    youtube: row[62] || '',
+    tiktok: row[63] || '',
+    instagram: row[64] || '',
+    x: row[65] || '',
     create_date: row[66] || '',
-    edit_code:   row[67] || '',
+    edit_code: row[67] || '',
     status: (row[68] === true || row[68] === 'TRUE') ? 'TRUE' : 'FALSE'
   };
 }
@@ -1703,25 +1685,6 @@ function isRainbow(cats, idx) {
 function getRainbowDate(cats, idx) {
   const num = idx + 1;
   return cats.rainbow && cats.rainbow[num] ? cats.rainbow[num] : null;
-}
-
-function getCatColor(cat) {
-  // ดึงสีจากข้อมูลใน Sheet โดยตรง
-  return cat.color || '';
-}
-
-function getBreedDisplay(breed) {
-  if (!breed) return '';
-  const found = BREEDS.find(b => b.en === breed || b.th === breed);
-  if (found) return `${found.en} (${found.th})`;
-  return breed;
-}
-
-function getBreedShort(breed) {
-  if (!breed) return '';
-  const found = BREEDS.find(b => b.en === breed || b.th === breed);
-  if (found) return found.en;
-  return breed;
 }
 
 function shuffleArray(arr) {
@@ -1742,61 +1705,40 @@ function showToast(msg) {
 
 function openLightbox(url, catList, index) {
   if (!url) return;
-  
-  // ✅ รับ catList ที่ส่งมา และเก็บไว้ใน currentLightboxCats
   if (catList && Array.isArray(catList) && catList.length > 0) {
     currentLightboxCats = catList;
     currentLightboxIndex = index || 0;
   }
-  
-  // ✅ ถ้าไม่มี catList ส่งมา ให้ใช้ currentModalCats แทน
   if (currentLightboxCats.length === 0 && currentModalCats.length > 0) {
     currentLightboxCats = currentModalCats;
     currentLightboxIndex = index || 0;
   }
-  
   document.getElementById('lightboxImg').src = url;
   document.getElementById('lightboxOverlay').classList.add('open');
 }
 
-// ============================================================
-// FETCH DATA
-// ============================================================
 async function fetchData() {
   try {
     const resp = await fetch(GVIZ_URL);
     const text = await resp.text();
     const json = JSON.parse(text.substring(47, text.length - 2));
     const rows = json.table.rows || [];
-    
+    console.log('📊 จำนวนแถว:', rows.length);
     allData = rows.map(row => {
       const values = row.c.map(c => c ? c.v : '');
       return parseRow(values);
     }).filter(d => d.id);
-    
-    // สุ่มลำดับ
     allData = shuffleArray(allData);
     filteredData = [...allData];
-    
     updateDashboard();
     applyFilters();
     initBanner(true);
   } catch (err) {
-    console.error('Error fetching data:', err);
-    document.getElementById('grid').innerHTML = `
-      <div class="no-data">
-        <span class="emoji">😿</span>
-        <p>ไม่สามารถโหลดข้อมูลได้ กรุณาลองใหม่ภายหลัง</p>
-        <p style="font-size:12px;color:var(--text-secondary);margin-top:8px;">${err.message}</p>
-      </div>
-    `;
+    console.error('Error:', err);
+    document.getElementById('grid').innerHTML = `<div class="no-data"><span class="emoji">😿</span><p>ไม่สามารถโหลดข้อมูลได้</p></div>`;
   }
 }
 
-
-// ============================================================
-// DASHBOARD
-// ============================================================
 function updateDashboard() {
   const owners = allData.filter(d => d.status === 'TRUE');
   const totalCats = owners.reduce((sum, d) => sum + d.cat_count, 0);
@@ -1804,7 +1746,6 @@ function updateDashboard() {
   const femaleOwners = owners.filter(d => d.gender === 'หญิง').length;
   const maleCats = owners.reduce((sum, d) => sum + d.cat_male, 0);
   const femaleCats = owners.reduce((sum, d) => sum + d.cat_female, 0);
-
   document.getElementById('totalCats').textContent = totalCats;
   document.getElementById('totalOwners').textContent = owners.length;
   document.getElementById('maleOwners').textContent = maleOwners;
@@ -1813,9 +1754,6 @@ function updateDashboard() {
   document.getElementById('femaleCats').textContent = femaleCats;
 }
 
-// ============================================================
-// FILTERS
-// ============================================================
 function applyFilters() {
   const search = document.getElementById('searchInput').value.toLowerCase().trim();
   const district = document.getElementById('filterDistrict').value;
@@ -1824,53 +1762,31 @@ function applyFilters() {
   const breed = document.getElementById('filterBreed').value;
   const color = document.getElementById('filterColor').value;
   const catCount = document.getElementById('filterCatCount').value;
-
   filteredData = allData.filter(d => {
-    // Search
     if (search) {
-      const searchable = [
-        d.name, d.job, d.district, d.caption,
-        ...d.cats.map(c => c.name),
-        ...d.cats.map(c => c.breed)
-      ].join(' ').toLowerCase();
+      const searchable = [d.name, d.job, d.district, d.caption, ...d.cats.map(c => c.name), ...d.cats.map(c => c.breed)].join(' ').toLowerCase();
       if (!searchable.includes(search)) return false;
     }
-
-    // District
     if (district && d.district !== district) return false;
-
-    // Owner gender
     if (ownerGender && d.gender !== ownerGender) return false;
-
-    // Cat gender
     if (catGender) {
       if (catGender === 'ผู้' && d.cat_male === 0) return false;
       if (catGender === 'เมีย' && d.cat_female === 0) return false;
     }
-
-    // Breed
     if (breed) {
       const hasBreed = d.cats.some(c => c.breed === breed);
       if (!hasBreed) return false;
     }
-
-    // Color - กรองเฉพาะเมื่อมีข้อมูลสีในระบบ
     if (color) {
-      // ตรวจสอบว่ามีแมวตัวไหนมีสีนี้บ้าง
       const hasColor = d.cats.some(c => c.color === color);
-      // ถ้าไม่มีแมวตัวไหนสีนี้ → ไม่แสดงการ์ดนี้
       if (!hasColor) return false;
     }
-
-    // Cat count
     if (catCount) {
       if (catCount === '10+' && d.cat_count <= 10) return false;
       if (catCount !== '10+' && d.cat_count !== parseInt(catCount, 10)) return false;
     }
-
     return true;
   });
-
   currentPage = 1;
   renderGrid();
 }
@@ -1886,9 +1802,6 @@ function resetFilters() {
   applyFilters();
 }
 
-// ============================================================
-// VIEW TOGGLE
-// ============================================================
 function setView(view) {
   currentView = view;
   const grid = document.getElementById('grid');
@@ -1897,11 +1810,9 @@ function setView(view) {
   const lineBtn = document.getElementById('viewLine');
   const mapBtn = document.getElementById('viewMap');
   const paginationWrap = document.getElementById('paginationWrap');
-
   cardBtn.classList.remove('active');
   lineBtn.classList.remove('active');
   mapBtn.classList.remove('active');
-
   if (view === 'map') {
     grid.style.display = 'none';
     mapWrap.classList.add('active');
@@ -1924,9 +1835,6 @@ function setView(view) {
   }
 }
 
-// ============================================================
-// MAP VIEW (Leaflet + GeoJSON)
-// ============================================================
 const BKK_GEOJSON_URL = 'https://raw.githubusercontent.com/pcrete/gsvloader-demo/master/geojson/Bangkok-districts.geojson';
 let bkkMapInstance = null;
 let bkkGeoLayer = null;
@@ -1938,13 +1846,11 @@ async function initBkkMap() {
     setTimeout(() => bkkMapInstance.invalidateSize(), 100);
     return;
   }
-
   bkkMapInstance = L.map('bkkMap', {
     zoomControl: true,
     attributionControl: false
   }).setView([13.7563, 100.5018], 10.4);
   bkkMapInstance.getContainer().style.zIndex = '1';
-
   if (!bkkGeoData) {
     try {
       const resp = await fetch(BKK_GEOJSON_URL);
@@ -1954,11 +1860,9 @@ async function initBkkMap() {
       return;
     }
   }
-
   function getDistrictCount(dname) {
     return allData.filter(d => d.district === dname).length;
   }
-
   function getColor(count) {
     if (count === 0) return '#D5D5D5';
     if (count <= 100) return '#FAE2BA';
@@ -1966,7 +1870,6 @@ async function initBkkMap() {
     if (count <= 1000) return '#DC4D30';
     return '#A9232D';
   }
-
   function styleFeature(feature) {
     const count = getDistrictCount(feature.properties.dname);
     return {
@@ -1976,33 +1879,29 @@ async function initBkkMap() {
       fillOpacity: 0.9
     };
   }
-
   bkkGeoLayer = L.geoJSON(bkkGeoData, {
     style: styleFeature,
     onEachFeature: (feature, layer) => {
       const dname = feature.properties.dname;
       const count = getDistrictCount(dname);
       layer.bindTooltip(`${dname} (${count})`, { className: 'district-tooltip', sticky: true });
-
-      layer.on('click', (e) => {
+      layer.on('click', function(e) {
         L.DomEvent.stopPropagation(e);
-        selectMapDistrict(dname, layer);
+        selectMapDistrict(dname, this);
       });
-      layer.on('mouseover', () => layer.setStyle({ weight: 2.5, fillOpacity: 1 }));
-      layer.on('mouseout', () => {
-        if (selectedMapDistrict !== dname) layer.setStyle({ weight: 1.2, fillOpacity: 0.9 });
+      layer.on('mouseover', function() { this.setStyle({ weight: 2.5, fillOpacity: 1 }); });
+      layer.on('mouseout', function() {
+        if (selectedMapDistrict !== dname) this.setStyle({ weight: 1.2, fillOpacity: 0.9 });
       });
     }
   }).addTo(bkkMapInstance);
-
   bkkMapInstance.fitBounds(bkkGeoLayer.getBounds());
   setTimeout(() => bkkMapInstance.invalidateSize(), 150);
 }
 
 function selectMapDistrict(dname, layer) {
   selectedMapDistrict = dname;
-
-  bkkGeoLayer.eachLayer(l => {
+  bkkGeoLayer.eachLayer(function(l) {
     const isSelected = l.feature.properties.dname === dname;
     l.setStyle({
       weight: isSelected ? 3 : 1.2,
@@ -2010,93 +1909,47 @@ function selectMapDistrict(dname, layer) {
       color: isSelected ? '#2C2420' : '#FFFCF9'
     });
   });
-
   const matched = allData.filter(d => d.district === dname);
   const panel = document.getElementById('mapDistrictPanel');
-
   if (matched.length === 0) {
-    panel.innerHTML = `
-      <div class="map-district-header">
-        <h3>📍 ${dname}</h3>
-        <button class="map-clear-btn" onclick="clearMapSelection()">✕ ปิด</button>
-      </div>
-      <div class="empty-district" style="border-radius:16px;">
-        <span class="emoji">🏠</span>
-        <div class="msg">ยังไม่มีใครมาโชว์แมวในเขตนี้เลย ถ้าคุณมีแมวโชว์ให้เราดูหน่อยนะ</div>
-        <a href="create.html?district=${encodeURIComponent(dname)}" class="action-btn">➕ สร้างโปรไฟล์</a>
-      </div>
-    `;
+    panel.innerHTML = `<div class="map-district-header"><h3>📍 ${dname}</h3><button class="map-clear-btn" onclick="clearMapSelection()">✕ ปิด</button></div><div class="empty-district"><span class="emoji">🏠</span><div class="msg">ยังไม่มีใครมาโชว์แมวในเขตนี้</div><a href="create.html?district=${encodeURIComponent(dname)}" class="action-btn">➕ สร้างโปรไฟล์</a></div>`;
     return;
   }
-
-  panel.innerHTML = `
-    <div class="map-district-header">
-      <h3>📍 ${dname}</h3>
-      <span class="count">${matched.length} เจ้าของ</span>
-      <button class="map-clear-btn" onclick="clearMapSelection()">✕ ปิด</button>
-    </div>
-    <div class="grid card-view" style="padding:0;">
-      ${matched.map(d => renderCard(d, true)).join('')}
-    </div>
-  `;
+  panel.innerHTML = `<div class="map-district-header"><h3>📍 ${dname}</h3><span class="count">${matched.length} เจ้าของ</span><button class="map-clear-btn" onclick="clearMapSelection()">✕ ปิด</button></div><div class="grid card-view" style="padding:0;">${matched.map(d => renderCard(d, true)).join('')}</div>`;
 }
 
 function clearMapSelection() {
   selectedMapDistrict = null;
   document.getElementById('mapDistrictPanel').innerHTML = '';
   if (bkkGeoLayer) {
-    bkkGeoLayer.eachLayer(l => l.setStyle({ weight: 1.2, fillOpacity: 0.9, color: '#FFFCF9' }));
+    bkkGeoLayer.eachLayer(function(l) { l.setStyle({ weight: 1.2, fillOpacity: 0.9, color: '#FFFCF9' }); });
   }
 }
 
-// ============================================================
-// ROWS PER PAGE
-// ============================================================
 function changeRowsPerPage() {
   rowsPerPage = parseInt(document.getElementById('rowsPerPage').value, 10);
   currentPage = 1;
   renderGrid();
 }
 
-// ============================================================
-// RENDER GRID
-// ============================================================
 function renderGrid() {
   const grid = document.getElementById('grid');
   const totalPages = Math.ceil(filteredData.length / rowsPerPage);
   if (currentPage > totalPages) currentPage = Math.max(1, totalPages);
-
   const start = (currentPage - 1) * rowsPerPage;
   const end = Math.min(start + rowsPerPage, filteredData.length);
   const pageData = filteredData.slice(start, end);
-
-  // เช็คว่าเป็นเขตที่ไม่มีข้อมูล
   const selectedDistrict = document.getElementById('filterDistrict').value;
   if (selectedDistrict && pageData.length === 0) {
-    grid.innerHTML = `
-      <div class="empty-district">
-        <span class="emoji">🏠</span>
-        <div class="msg">📍 ${selectedDistrict} ยังไม่มีใครมาโชว์แมวในเขตนี้เลย ถ้าคุณมีแมวโชว์ให้เราดูหน่อยนะ</div>
-        <div class="msg" style="font-size:14px;">คุณคือคนแรกที่จะทำให้ที่นี่มีชีวิตชีวาขึ้น! 🐱</div>
-        <a href="create.html?district=${encodeURIComponent(selectedDistrict)}" class="action-btn">➕ สร้างโปรไฟล์</a>
-      </div>
-    `;
+    grid.innerHTML = `<div class="empty-district"><span class="emoji">🏠</span><div class="msg">📍 ${selectedDistrict} ยังไม่มีใครมาโชว์แมว</div><a href="create.html?district=${encodeURIComponent(selectedDistrict)}" class="action-btn">➕ สร้างโปรไฟล์</a></div>`;
     renderPagination(totalPages);
     return;
   }
-
   if (pageData.length === 0) {
-    grid.innerHTML = `
-      <div class="no-data">
-        <span class="emoji">😿</span>
-        <p>ไม่พบข้อมูลที่ตรงกับการค้นหา</p>
-        <a href="#" onclick="resetFilters();return false;" style="color:var(--accent);text-decoration:underline;">รีเซ็ตตัวกรอง</a>
-      </div>
-    `;
+    grid.innerHTML = `<div class="no-data"><span class="emoji">😿</span><p>ไม่พบข้อมูล</p><a href="#" onclick="resetFilters();return false;" style="color:var(--accent);text-decoration:underline;">รีเซ็ตตัวกรอง</a></div>`;
     renderPagination(totalPages);
     return;
   }
-
   const isCard = currentView === 'card';
   grid.innerHTML = pageData.map(d => renderCard(d, isCard)).join('');
   renderPagination(totalPages);
@@ -2106,140 +1959,47 @@ function renderCard(d, isCard) {
   const cats = d.cats || [];
   const showCats = cats.slice(0, 5);
   const hasMore = cats.length > 5;
-
-  // Owner photo
   const ownerPhoto = d.photo_url ? `<img src="${d.photo_url}" alt="${d.name}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2248%22 height=%2248%22%3E%3Crect width=%2248%22 height=%2248%22 fill=%22%23E8E8ED%22/%3E%3Ctext x=%2224%22 y=%2230%22 text-anchor=%22middle%22 font-size=%2220%22 fill=%22%23999%22%3E🐱%3C/text%3E%3C/svg%3E'">` : '';
-
-  // Cats
-  const catsHTML = showCats.map((cat, idx) => {
+  const catsHTML = showCats.map(function(cat, idx) {
     const rainbow = isRainbow(d, idx);
     const rainbowDate = getRainbowDate(d, idx);
     const img = cat.image ? `<img src="${cat.image}" alt="${cat.name}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2260%22 height=%2260%22%3E%3Crect width=%2260%22 height=%2260%22 fill=%22%23E8E8ED%22/%3E%3Ctext x=%2230%22 y=%2238%22 text-anchor=%22middle%22 font-size=%2224%22 fill=%22%23999%22%3E🐱%3C/text%3E%3C/svg%3E'">` : '';
-    
-    return `
-      <div class="cat-thumb">
-        <div class="cat-img ${rainbow ? 'rainbow' : ''}" onclick="event.stopPropagation();openLightbox('${(cat.image || '').replace(/'/g, "\\'")}', ${JSON.stringify(cats)}, ${idx})">
-          ${img}
-          ${rainbow ? '<span class="rainbow-badge">🌈</span>' : ''}
-        </div>
-        <div class="cat-name ${rainbow ? 'rainbow' : ''}">${cat.name || 'น้องเหมียว'}</div>
-        ${rainbow && rainbowDate ? `<span class="rainbow-date">กลับดาว ${rainbowDate}</span>` : ''}
-      </div>
-    `;
+    return `<div class="cat-thumb"><div class="cat-img ${rainbow ? 'rainbow' : ''}" onclick="event.stopPropagation();openLightbox('${(cat.image || '').replace(/'/g, "\\'")}', ${JSON.stringify(cats)}, ${idx})">${img}${rainbow ? '<span class="rainbow-badge">🌈</span>' : ''}</div><div class="cat-name ${rainbow ? 'rainbow' : ''}">${cat.name || 'น้องเหมียว'}</div>${rainbow && rainbowDate ? `<span class="rainbow-date">กลับดาว ${rainbowDate}</span>` : ''}</div>`;
   }).join('');
-
-  // See more button
-  const seeMoreHTML = hasMore ? `
-    <div class="card-seemore" onclick="event.stopPropagation();openModal('${d.id}')">
-      <span class="icon">👀</span>
-      See More
-    </div>
-  ` : '';
-
+  const seeMoreHTML = hasMore ? `<div class="card-seemore" onclick="event.stopPropagation();openModal('${d.id}')"><span class="icon">👀</span>See More</div>` : '';
   if (isCard) {
-    return `
-      <div class="card" onclick="openModal('${d.id}')">
-        <div class="card-owner">
-          <div class="card-owner-img">${ownerPhoto}</div>
-          <div class="card-owner-info">
-            <div class="name">${d.name || 'ไม่ระบุชื่อ'}</div>
-            <div class="job">${d.job || ''}</div>
-          </div>
-        </div>
-        <div class="card-cats">
-          ${catsHTML}
-          ${seeMoreHTML}
-        </div>
-      </div>
-    `;
+    return `<div class="card" onclick="openModal('${d.id}')"><div class="card-owner"><div class="card-owner-img">${ownerPhoto}</div><div class="card-owner-info"><div class="name">${d.name || 'ไม่ระบุชื่อ'}</div><div class="job">${d.job || ''}</div></div></div><div class="card-cats">${catsHTML}${seeMoreHTML}</div></div>`;
   } else {
-    // Line view
-    return `
-      <div class="card" onclick="openModal('${d.id}')">
-        <div class="card-owner">
-          <div class="card-owner-img">${ownerPhoto}</div>
-          <div class="card-owner-info">
-            <div class="name">${d.name || 'ไม่ระบุชื่อ'}</div>
-            <div class="job">${d.job || ''}</div>
-          </div>
-        </div>
-        <div class="card-cats">
-          ${catsHTML}
-          ${seeMoreHTML}
-        </div>
-      </div>
-    `;
+    return `<div class="card" onclick="openModal('${d.id}')"><div class="card-owner"><div class="card-owner-img">${ownerPhoto}</div><div class="card-owner-info"><div class="name">${d.name || 'ไม่ระบุชื่อ'}</div><div class="job">${d.job || ''}</div></div></div><div class="card-cats">${catsHTML}${seeMoreHTML}</div></div>`;
   }
 }
 
-// ============================================================
-// SHARE PROFILE
-// ============================================================
 async function shareProfile(id) {
   const d = allData.find(item => item.id === id);
   if (!d) return;
-  
-  const shareURL = `${window.location.origin}${window.location.pathname}?id=${id}`;
-  const shareText = `🐱 มาดูแมวของเรามั้ย?\nเจ้าของ: ${d.name}\nเจ้าเหมียว: ${d.cats.map(c => c.name).join(', ')}`;
-  const fullMessage = `${shareText}\n\n${shareURL}`;
-  
+  const shareURL = window.location.origin + window.location.pathname + '?id=' + id;
+  const shareText = '🐱 มาดูแมวของเรามั้ย?\nเจ้าของ: ' + d.name + '\nเจ้าเหมียว: ' + d.cats.map(function(c) { return c.name; }).join(', ');
+  const fullMessage = shareText + '\n\n' + shareURL;
   if (navigator.share) {
-    try {
-      await navigator.share({ 
-        text: fullMessage
-      });
-    } catch (e) {}
+    try { await navigator.share({ text: fullMessage }); } catch (e) {}
   } else {
-    try {
-      await navigator.clipboard.writeText(fullMessage);
-      showToast('📋 คัดลอกลิงก์โปรไฟล์แล้ว');
-    } catch (e) {
-      showToast('ไม่สามารถคัดลอกได้ กรุณาลองใหม่');
-    }
+    try { await navigator.clipboard.writeText(fullMessage); showToast('📋 คัดลอกลิงก์โปรไฟล์แล้ว'); } catch (e) { showToast('ไม่สามารถคัดลอกได้'); }
   }
 }
 
-// ============================================================
-// PAGINATION
-// ============================================================
 function renderPagination(totalPages) {
   const container = document.getElementById('pageNumbers');
-  if (totalPages <= 1) {
-    container.innerHTML = '';
-    return;
-  }
-
+  if (totalPages <= 1) { container.innerHTML = ''; return; }
   let html = '';
   const maxVisible = 7;
   let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
   let end = Math.min(totalPages, start + maxVisible - 1);
-  if (end - start + 1 < maxVisible) {
-    start = Math.max(1, end - maxVisible + 1);
-  }
-
-  // Prev
-  html += `<button class="page-btn ${currentPage === 1 ? 'disabled' : ''}" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>‹</button>`;
-
-  // First
-  if (start > 1) {
-    html += `<button class="page-btn" onclick="goToPage(1)">1</button>`;
-    if (start > 2) html += `<span class="page-dots">…</span>`;
-  }
-
-  // Pages
-  for (let i = start; i <= end; i++) {
-    html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
-  }
-
-  // Last
-  if (end < totalPages) {
-    if (end < totalPages - 1) html += `<span class="page-dots">…</span>`;
-    html += `<button class="page-btn" onclick="goToPage(${totalPages})">${totalPages}</button>`;
-  }
-
-  // Next
-  html += `<button class="page-btn ${currentPage === totalPages ? 'disabled' : ''}" onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>›</button>`;
-
+  if (end - start + 1 < maxVisible) { start = Math.max(1, end - maxVisible + 1); }
+  html += '<button class="page-btn ' + (currentPage === 1 ? 'disabled' : '') + '" onclick="goToPage(' + (currentPage - 1) + ')" ' + (currentPage === 1 ? 'disabled' : '') + '>‹</button>';
+  if (start > 1) { html += '<button class="page-btn" onclick="goToPage(1)">1</button>'; if (start > 2) html += '<span class="page-dots">…</span>'; }
+  for (let i = start; i <= end; i++) { html += '<button class="page-btn ' + (i === currentPage ? 'active' : '') + '" onclick="goToPage(' + i + ')">' + i + '</button>'; }
+  if (end < totalPages) { if (end < totalPages - 1) html += '<span class="page-dots">…</span>'; html += '<button class="page-btn" onclick="goToPage(' + totalPages + ')">' + totalPages + '</button>'; }
+  html += '<button class="page-btn ' + (currentPage === totalPages ? 'disabled' : '') + '" onclick="goToPage(' + (currentPage + 1) + ')" ' + (currentPage === totalPages ? 'disabled' : '') + '>›</button>';
   container.innerHTML = html;
 }
 
@@ -2251,62 +2011,28 @@ function goToPage(page) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// ============================================================
-// MODAL
-// ============================================================
 function openModal(id) {
   const d = allData.find(item => item.id === id);
   if (!d) return;
   selectedId = id;
-
   const cats = d.cats || [];
   currentModalCats = cats;
   const modal = document.getElementById('modalBody');
-  
-  // Owner
   const ownerPhoto = d.photo_url ? `<img src="${d.photo_url}" alt="${d.name}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2272%22 height=%2272%22%3E%3Crect width=%2272%22 height=%2272%22 fill=%22%23E8E8ED%22/%3E%3Ctext x=%2236%22 y=%2244%22 text-anchor=%22middle%22 font-size=%2230%22 fill=%22%23999%22%3E🐱%3C/text%3E%3C/svg%3E'">` : '';
-
-  // Cats grid (แถวละ 5)
-  const catsHTML = cats.map((cat, idx) => {
-  const rainbow = isRainbow(d, idx);
-  const rainbowDate = getRainbowDate(d, idx);
-  const img = cat.image ? `<img src="${cat.image}" alt="${cat.name}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect width=%22100%22 height=%22100%22 fill=%22%23E8E8ED%22/%3E%3Ctext x=%2250%22 y=%2260%22 text-anchor=%22middle%22 font-size=%2240%22 fill=%22%23999%22%3E🐱%3C/text%3E%3C/svg%3E'">` : '';
-  
-  return `
-    <div class="modal-cat-item">
-      <div class="cat-img ${rainbow ? 'rainbow' : ''}" onclick="event.stopPropagation();openLightbox('${(cat.image || '').replace(/'/g, "\\'")}', currentModalCats, ${idx})">
-        ${img}
-        ${rainbow ? '<span class="rainbow-badge">🌈</span>' : ''}
-      </div>
-      <div class="cat-name ${rainbow ? 'rainbow' : ''}">${cat.name || 'น้องเหมียว'}</div>
-      <div class="cat-breed">${getBreedShort(cat.breed)}</div>
-      ${rainbow && rainbowDate ? `<div class="rainbow-date">กลับดาว ${rainbowDate}</div>` : ''}
-    </div>
-  `;
-}).join('');
-
+  const catsHTML = cats.map(function(cat, idx) {
+    const rainbow = isRainbow(d, idx);
+    const rainbowDate = getRainbowDate(d, idx);
+    const img = cat.image ? `<img src="${cat.image}" alt="${cat.name}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect width=%22100%22 height=%22100%22 fill=%22%23E8E8ED%22/%3E%3Ctext x=%2250%22 y=%2260%22 text-anchor=%22middle%22 font-size=%2240%22 fill=%22%23999%22%3E🐱%3C/text%3E%3C/svg%3E'">` : '';
+    return `<div class="modal-cat-item"><div class="cat-img ${rainbow ? 'rainbow' : ''}" onclick="event.stopPropagation();openLightbox('${(cat.image || '').replace(/'/g, "\\'")}', currentModalCats, ${idx})">${img}${rainbow ? '<span class="rainbow-badge">🌈</span>' : ''}</div><div class="cat-name ${rainbow ? 'rainbow' : ''}">${cat.name || 'น้องเหมียว'}</div><div class="cat-breed">${cat.breed || ''}</div>${rainbow && rainbowDate ? `<div class="rainbow-date">กลับดาว ${rainbowDate}</div>` : ''}</div>`;
+  }).join('');
   const contacts = [];
-  if (d.line_id) contacts.push(`<a href="https://line.me/ti/p/${d.line_id}" target="_blank" class="contact-pill" title="LINE">💬 LINE</a>`);
-  if (d.youtube) contacts.push(`<a href="${d.youtube}" target="_blank" class="contact-pill" title="YouTube">▶️ YouTube</a>`);
-  if (d.tiktok) contacts.push(`<a href="https://tiktok.com/@${d.tiktok.replace('@','')}" target="_blank" class="contact-pill" title="TikTok">🎵 TikTok</a>`);
-  if (d.instagram) contacts.push(`<a href="https://instagram.com/${d.instagram.replace('@','')}" target="_blank" class="contact-pill" title="Instagram">📷 Instagram</a>`);
-  if (d.x) contacts.push(`<a href="https://x.com/${d.x.replace('@','')}" target="_blank" class="contact-pill" title="X">🐦 X</a>`);
-contacts.push(`<button class="contact-pill share-btn" onclick="shareProfile('${d.id}')">🔗 Share</button>`);
-
-  modal.innerHTML = `
-    <div class="modal-owner">
-      <div class="modal-owner-img">${ownerPhoto}</div>
-      <div class="modal-owner-info">
-        <div class="name">${d.name || 'ไม่ระบุชื่อ'}</div>
-        <div class="job">${d.job || ''}</div>
-        <div class="district">📍 ${d.district || ''}</div>
-      </div>
-    </div>
-    ${cats.length ? `<div class="modal-cats">${catsHTML}</div>` : ''}
-    ${d.caption ? `<div class="modal-caption">${d.caption}</div>` : ''}
-    ${contacts.length ? `<div class="modal-contact">${contacts.join('')}</div>` : ''}
-  `;
-
+  if (d.line_id) contacts.push('<a href="https://line.me/ti/p/' + d.line_id + '" target="_blank" class="contact-pill" title="LINE">💬 LINE</a>');
+  if (d.youtube) contacts.push('<a href="' + d.youtube + '" target="_blank" class="contact-pill" title="YouTube">▶️ YouTube</a>');
+  if (d.tiktok) contacts.push('<a href="https://tiktok.com/@' + d.tiktok.replace('@','') + '" target="_blank" class="contact-pill" title="TikTok">🎵 TikTok</a>');
+  if (d.instagram) contacts.push('<a href="https://instagram.com/' + d.instagram.replace('@','') + '" target="_blank" class="contact-pill" title="Instagram">📷 Instagram</a>');
+  if (d.x) contacts.push('<a href="https://x.com/' + d.x.replace('@','') + '" target="_blank" class="contact-pill" title="X">🐦 X</a>');
+  contacts.push('<button class="contact-pill share-btn" onclick="shareProfile(\'' + d.id + '\')">🔗 Share</button>');
+  modal.innerHTML = '<div class="modal-owner"><div class="modal-owner-img">' + ownerPhoto + '</div><div class="modal-owner-info"><div class="name">' + (d.name || 'ไม่ระบุชื่อ') + '</div><div class="job">' + (d.job || '') + '</div><div class="district">📍 ' + (d.district || '') + '</div></div></div>' + (cats.length ? '<div class="modal-cats">' + catsHTML + '</div>' : '') + (d.caption ? '<div class="modal-caption">' + d.caption + '</div>' : '') + (contacts.length ? '<div class="modal-contact">' + contacts.join('') + '</div>' : '');
   document.getElementById('modalOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
@@ -2318,13 +2044,9 @@ function closeModal(e) {
   selectedId = null;
 }
 
-// ============================================================
-// INIT
-// ============================================================
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', function() {
   initBanner(false);
   fetchData();
-
   const params = new URLSearchParams(window.location.search);
   const district = params.get('district');
   if (district) {
@@ -2333,9 +2055,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// ============================================================
-// VISUALIZE
-// ============================================================
 let vizCharts = [];
 
 function openVizModal() {
@@ -2348,132 +2067,94 @@ function openVizModal() {
 function closeVizModal() {
   document.getElementById('vizModal').style.display = 'none';
   document.body.style.overflow = '';
-  vizCharts.forEach(c => c.destroy());
+  vizCharts.forEach(function(c) { c.destroy(); });
   vizCharts = [];
 }
 
 function renderVizCharts() {
-  vizCharts.forEach(c => c.destroy());
+  vizCharts.forEach(function(c) { c.destroy(); });
   vizCharts = [];
-
-  const palette = ['#F9B95C','#96C7B3','#D4897A','#6398A9','#B5D5C8','#F0CFA0','#A8C5D8','#E8B4A0'];
-
+  var palette = ['#F9B95C','#96C7B3','#D4897A','#6398A9','#B5D5C8','#F0CFA0','#A8C5D8','#E8B4A0'];
   function niceMax(val) {
-    const steps = [50, 100, 200, 500, 1000, 2000, 5000];
-    return steps.find(s => s > val) || Math.ceil(val / 1000) * 1000;
+    var steps = [50, 100, 200, 500, 1000, 2000, 5000];
+    for (var i = 0; i < steps.length; i++) { if (steps[i] > val) return steps[i]; }
+    return Math.ceil(val / 1000) * 1000;
   }
-
-  // 1. เพศเจ้าของ
-  const ownerGender = {};
-  allData.forEach(d => { ownerGender[d.gender || 'ไม่ระบุ'] = (ownerGender[d.gender || 'ไม่ระบุ'] || 0) + 1; });
+  var ownerGender = {};
+  allData.forEach(function(d) { ownerGender[d.gender || 'ไม่ระบุ'] = (ownerGender[d.gender || 'ไม่ระบุ'] || 0) + 1; });
   vizCharts.push(new Chart(document.getElementById('chartOwnerGender'), {
     type: 'doughnut',
     data: { labels: Object.keys(ownerGender), datasets: [{ data: Object.values(ownerGender), backgroundColor: palette, borderWidth: 0 }] },
     options: { plugins: { legend: { position: 'bottom', labels: { font: { family: 'Inter', size: 11 }, padding: 12 } } }, cutout: '65%' }
   }));
-
-  // 2. เพศแมว
-  let catMale = 0, catFemale = 0;
-  allData.forEach(d => { catMale += d.cat_male || 0; catFemale += d.cat_female || 0; });
+  var catMale = 0, catFemale = 0;
+  allData.forEach(function(d) { catMale += d.cat_male || 0; catFemale += d.cat_female || 0; });
   vizCharts.push(new Chart(document.getElementById('chartCatGender'), {
     type: 'doughnut',
     data: { labels: ['ตัวผู้', 'ตัวเมีย'], datasets: [{ data: [catMale, catFemale], backgroundColor: ['#96C7B3','#F9B95C'], borderWidth: 0 }] },
     options: { plugins: { legend: { position: 'bottom', labels: { font: { family: 'Inter', size: 11 }, padding: 12 } } }, cutout: '65%' }
   }));
-
-  // 3. Top 5 สีแมว
-  const catColors = {};
-  allData.forEach(d => {
-    (d.cats || []).forEach(cat => {
-      if (cat.color) {
-        catColors[cat.color] = (catColors[cat.color] || 0) + 1;
-      }
+  var catColors = {};
+  allData.forEach(function(d) {
+    (d.cats || []).forEach(function(cat) {
+      if (cat.color) { catColors[cat.color] = (catColors[cat.color] || 0) + 1; }
     });
   });
-
-  const topColors = Object.entries(catColors)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 5);
-
-  // ถ้ามีข้อมูลสีแมว
+  var topColors = Object.entries(catColors).sort(function(a, b) { return b[1] - a[1]; }).slice(0, 5);
   if (topColors.length > 0) {
-    const maxColor = Math.max(...topColors.map(c => c[1]));
+    var maxColor = Math.max.apply(null, topColors.map(function(c) { return c[1]; }));
     vizCharts.push(new Chart(document.getElementById('chartCatColor'), {
       type: 'bar',
       data: {
-        labels: topColors.map(c => c[0]),
-        datasets: [{
-          data: topColors.map(c => c[1]),
-          backgroundColor: ['#F9B95C', '#96C7B3', '#D4897A', '#6398A9', '#B5D5C8'],
-          borderRadius: 6,
-          borderSkipped: false
-        }]
+        labels: topColors.map(function(c) { return c[0]; }),
+        datasets: [{ data: topColors.map(function(c) { return c[1]; }), backgroundColor: ['#F9B95C', '#96C7B3', '#D4897A', '#6398A9', '#B5D5C8'], borderRadius: 6, borderSkipped: false }]
       },
-      options: {
-        indexAxis: 'y',
-        plugins: {
-          legend: { display: false }
-        },
-        scales: {
-          x: {
-            max: niceMax(maxColor),
-            grid: { display: false },
-            ticks: { precision: 0 }
-          },
-          y: {
-            grid: { display: false },
-            ticks: { font: { family: 'Inter', size: 10 } }
-          }
-        }
-      }
+      options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { max: niceMax(maxColor), grid: { display: false }, ticks: { precision: 0 } }, y: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 10 } } } } }
     }));
-
-  // 4. Top 10 เขต
-  const districts = {};
-  allData.forEach(d => { if (d.district) districts[d.district] = (districts[d.district] || 0) + 1; });
-  const topDistricts = Object.entries(districts).sort((a,b) => b[1]-a[1]).slice(0,10);
-  const maxDistrict = Math.max(...topDistricts.map(d => d[1]));
+  }
+  var districts = {};
+  allData.forEach(function(d) { if (d.district) districts[d.district] = (districts[d.district] || 0) + 1; });
+  var topDistricts = Object.entries(districts).sort(function(a, b) { return b[1] - a[1]; }).slice(0, 10);
+  var maxDistrict = Math.max.apply(null, topDistricts.map(function(d) { return d[1]; }));
   vizCharts.push(new Chart(document.getElementById('chartDistrict'), {
     type: 'bar',
     data: {
-      labels: topDistricts.map(d => d[0].replace('เขต','')),
-      datasets: [{ data: topDistricts.map(d => d[1]), backgroundColor: '#F9B95C', borderRadius: 6, borderSkipped: false }]
+      labels: topDistricts.map(function(d) { return d[0].replace('เขต',''); }),
+      datasets: [{ data: topDistricts.map(function(d) { return d[1]; }), backgroundColor: '#F9B95C', borderRadius: 6, borderSkipped: false }]
     },
     options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { max: niceMax(maxDistrict), grid: { display: false }, ticks: { precision: 0 } }, y: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 10 } } } } }
   }));
-
-  // 5. Top 10 สายพันธุ์
-  const breeds = {};
-  allData.forEach(d => (d.cats || []).forEach(c => { if (c.breed) breeds[c.breed] = (breeds[c.breed] || 0) + 1; }));
-  const topBreeds = Object.entries(breeds).sort((a,b) => b[1]-a[1]).slice(0,10);
-  const maxBreed = Math.max(...topBreeds.map(b => b[1]));
+  var breeds = {};
+  allData.forEach(function(d) {
+    (d.cats || []).forEach(function(c) {
+      if (c.breed) breeds[c.breed] = (breeds[c.breed] || 0) + 1;
+    });
+  });
+  var topBreeds = Object.entries(breeds).sort(function(a, b) { return b[1] - a[1]; }).slice(0, 10);
+  var maxBreed = Math.max.apply(null, topBreeds.map(function(b) { return b[1]; }));
   vizCharts.push(new Chart(document.getElementById('chartBreed'), {
     type: 'bar',
     data: {
-      labels: topBreeds.map(b => b[0].length > 15 ? b[0].substring(0,15)+'…' : b[0]),
-      datasets: [{ data: topBreeds.map(b => b[1]), backgroundColor: '#96C7B3', borderRadius: 6, borderSkipped: false }]
+      labels: topBreeds.map(function(b) { return b[0].length > 15 ? b[0].substring(0,15) + '…' : b[0]; }),
+      datasets: [{ data: topBreeds.map(function(b) { return b[1]; }), backgroundColor: '#96C7B3', borderRadius: 6, borderSkipped: false }]
     },
     options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { max: niceMax(maxBreed), grid: { display: false }, ticks: { precision: 0 } }, y: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 10 } } } } }
   }));
-
-  // 6. จำนวนแมวต่อเจ้าของ
-  const catCounts = {};
-  allData.forEach(d => { const c = d.cat_count || 0; catCounts[c] = (catCounts[c] || 0) + 1; });
-  const sortedCounts = Object.entries(catCounts).sort((a,b) => Number(a[0])-Number(b[0]));
+  var catCounts = {};
+  allData.forEach(function(d) { var c = d.cat_count || 0; catCounts[c] = (catCounts[c] || 0) + 1; });
+  var sortedCounts = Object.entries(catCounts).sort(function(a, b) { return Number(a[0]) - Number(b[0]); });
   vizCharts.push(new Chart(document.getElementById('chartCatCount'), {
     type: 'bar',
     data: {
-      labels: sortedCounts.map(c => `${c[0]} ตัว`),
-      datasets: [{ data: sortedCounts.map(c => c[1]), backgroundColor: '#D4897A', borderRadius: 6, borderSkipped: false }]
+      labels: sortedCounts.map(function(c) { return c[0] + ' ตัว'; }),
+      datasets: [{ data: sortedCounts.map(function(c) { return c[1]; }), backgroundColor: '#D4897A', borderRadius: 6, borderSkipped: false }]
     },
     options: { plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 10 }, precision: 0 } }, y: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { precision: 0 } } } }
   }));
-
-  // 7. Heatmap เขต
-  const allDistricts = Object.entries(districts).sort((a,b) => b[1]-a[1]);
-  const maxHeat = allDistricts[0]?.[1] || 1;
-  const heatColors = allDistricts.map(d => {
-    const ratio = d[1] / maxHeat;
+  var allDistricts = Object.entries(districts).sort(function(a, b) { return b[1] - a[1]; });
+  var maxHeat = allDistricts[0] ? allDistricts[0][1] : 1;
+  var heatColors = allDistricts.map(function(d) {
+    var ratio = d[1] / maxHeat;
     if (ratio > 0.75) return '#F9B95C';
     if (ratio > 0.5) return '#F0CFA0';
     if (ratio > 0.25) return '#B5D5C8';
@@ -2482,164 +2163,93 @@ function renderVizCharts() {
   vizCharts.push(new Chart(document.getElementById('chartHeatmap'), {
     type: 'bar',
     data: {
-      labels: allDistricts.map(d => d[0].replace('เขต','')),
-      datasets: [{ data: allDistricts.map(d => d[1]), backgroundColor: heatColors, borderRadius: 4, borderSkipped: false }]
+      labels: allDistricts.map(function(d) { return d[0].replace('เขต',''); }),
+      datasets: [{ data: allDistricts.map(function(d) { return d[1]; }), backgroundColor: heatColors, borderRadius: 4, borderSkipped: false }]
     },
     options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { max: niceMax(maxHeat), grid: { display: false }, ticks: { precision: 0 } }, y: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 9 } } } } }
   }));
 }
 
-// ============================================================
-// MEOW BANNER
-// ============================================================
-
 const BANNER_OVERRIDE = [
-
-  //===================
-  // Banner 1
-  //===================
-  { 
-    image: 'https://drive.google.com/uc?export=view&id=1PUJ-DsorSwxSRqpxw3HBVyoRltU2R-CI', 
-    link: 'https://www.google.com/',
-  },
-
-  //===================
-  // Banner 2
-  //===================
-  { 
-    image: 'https://drive.google.com/uc?export=view&id=1P8GhENVG0IJT72TV6FTvrViF7-9IN96f', 
-    link: 'https://www.yahoo.com/',
-  },
-
-  //===================
-  // Banner 3
-  //===================
-  { 
-    image: 'https://drive.google.com/uc?export=view&id=1ZBeMrFFOAQyfbK9MNQKKMwZ1BlQuftke', 
-    link: 'https://www.netflix.com/',
-  },
-  /*
-  //===================
-  // Banner 4
-  //===================
-  { 
-    image: 'https://drive.google.com/uc?export=view&id=【Photo ID】', 
-    name: 'ชื่อแมว', 
-    owner: 'ชื่อเจ้าของ', 
-    link: 'https://URL_ที่อยากพาไป',
-  },
-
-  //===================
-  // Banner 5
-  //===================
-  { 
-    image: 'https://drive.google.com/uc?export=view&id=【Photo ID】', 
-    name: 'ชื่อแมว', 
-    owner: 'ชื่อเจ้าของ', 
-    link: 'https://URL_ที่อยากพาไป',
-  }
-  */
+  { image: 'https://drive.google.com/uc?export=view&id=1PUJ-DsorSwxSRqpxw3HBVyoRltU2R-CI', link: 'https://www.google.com/' },
+  { image: 'https://drive.google.com/uc?export=view&id=1P8GhENVG0IJT72TV6FTvrViF7-9IN96f', link: 'https://www.yahoo.com/' },
+  { image: 'https://drive.google.com/uc?export=view&id=1ZBeMrFFOAQyfbK9MNQKKMwZ1BlQuftke', link: 'https://www.netflix.com/' }
 ];
 
-const BANNER_TOTAL = 20; // ← ต้องการให้แสดงกี่ banner บน front แก้ตรงนี้ที่เดียว
+const BANNER_TOTAL = 20;
 
-function initBanner(withRandom = false) {
-  const track = document.getElementById('bannerTrack');
+function initBanner(withRandom) {
+  var track = document.getElementById('bannerTrack');
   if (!track) return;
-
-  // เอา hardcode ก่อน แล้วสุ่มเติมให้ครบ BANNER_TOTAL
-  const hardcoded = BANNER_OVERRIDE;
-  const remaining = BANNER_TOTAL - hardcoded.length;
-  const random = (withRandom && remaining > 0) ? shuffleFromBannerData().slice(0, remaining) : [];
-  const pool = [...hardcoded, ...random];
-
-  if (pool.length === 0) {
-    track.closest('.meow-banner-wrap').style.display = 'none';
-    return;
-  }
-
-  // ทำ 3 รอบเพื่อให้ loop ต่อเนื่องบนทุก screen size
-  const items = [...pool, ...pool, ...pool];
-  track.innerHTML = items.map(item => `
-    <div class="meow-banner-card" onclick="handleBannerClick('${item.link || ''}', '${item.id || ''}')">
-      <img src="${normalizeImageUrl(item.image)}" alt="${item.name}" onerror="this.closest('.meow-banner-card').style.display='none'">
-      <div class="meow-banner-info">
-        ${item.name ? `<div class="cat-name">🐱 ${item.name}</div>` : ''}
-        ${item.owner ? `<div class="owner-name">เจ้าของ: ${item.owner}</div>` : ''}
-      </div>
-    </div>
-  `).join('');
-
-  // รอ render เสร็จก่อนค่อย animate
-  requestAnimationFrame(() => {
-    const cardWidth = 280 + 16;
-    const totalWidth = pool.length * cardWidth;
-    let pos = totalWidth;
-    let paused = false;
-    let dragging = false;
-    let dragStartX = 0;
-    let dragStartPos = 0;
-
-    // Mouse drag
-    track.addEventListener('mousedown', (e) => {
+  var hardcoded = BANNER_OVERRIDE;
+  var remaining = BANNER_TOTAL - hardcoded.length;
+  var random = (withRandom && remaining > 0) ? shuffleFromBannerData().slice(0, remaining) : [];
+  var pool = hardcoded.concat(random);
+  if (pool.length === 0) { track.closest('.meow-banner-wrap').style.display = 'none'; return; }
+  var items = pool.concat(pool).concat(pool);
+  track.innerHTML = items.map(function(item) {
+    return '<div class="meow-banner-card" onclick="handleBannerClick(\'' + (item.link || '') + '\', \'' + (item.id || '') + '\')"><img src="' + normalizeImageUrl(item.image) + '" alt="' + (item.name || '') + '" onerror="this.closest(\'.meow-banner-card\').style.display=\'none\'"><div class="meow-banner-info">' + (item.name ? '<div class="cat-name">🐱 ' + item.name + '</div>' : '') + (item.owner ? '<div class="owner-name">เจ้าของ: ' + item.owner + '</div>' : '') + '</div></div>';
+  }).join('');
+  requestAnimationFrame(function() {
+    var cardWidth = 280 + 16;
+    var totalWidth = pool.length * cardWidth;
+    var pos = totalWidth;
+    var paused = false;
+    var dragging = false;
+    var dragStartX = 0;
+    var dragStartPos = 0;
+    track.addEventListener('mousedown', function(e) {
       dragging = true;
       paused = true;
       dragStartX = e.clientX;
       dragStartPos = pos;
       track.style.cursor = 'grabbing';
     });
-    window.addEventListener('mousemove', (e) => {
+    window.addEventListener('mousemove', function(e) {
       if (!dragging) return;
-      const delta = dragStartX - e.clientX;
+      var delta = dragStartX - e.clientX;
       pos = dragStartPos + delta;
       if (pos >= totalWidth * 2) pos = totalWidth;
       if (pos < 0) pos = totalWidth;
-      track.style.transform = `translateX(-${pos}px)`;
+      track.style.transform = 'translateX(-' + pos + 'px)';
     });
-    window.addEventListener('mouseup', () => {
+    window.addEventListener('mouseup', function() {
       if (!dragging) return;
       dragging = false;
       paused = false;
       track.style.cursor = 'grab';
     });
-
-    // Touch drag
-    track.addEventListener('touchstart', (e) => {
+    track.addEventListener('touchstart', function(e) {
       paused = true;
       dragStartX = e.touches[0].clientX;
       dragStartPos = pos;
     }, { passive: true });
-    track.addEventListener('touchmove', (e) => {
-      const delta = dragStartX - e.touches[0].clientX;
+    track.addEventListener('touchmove', function(e) {
+      var delta = dragStartX - e.touches[0].clientX;
       pos = dragStartPos + delta;
       if (pos >= totalWidth * 2) pos = totalWidth;
       if (pos < 0) pos = totalWidth;
-      track.style.transform = `translateX(-${pos}px)`;
+      track.style.transform = 'translateX(-' + pos + 'px)';
     }, { passive: true });
-    track.addEventListener('touchend', () => {
-      paused = false;
-    }, { passive: true });
-
+    track.addEventListener('touchend', function() { paused = false; }, { passive: true });
     track.style.cursor = 'grab';
-
     function animate() {
       if (!paused && !dragging) {
         pos += 0.5;
         if (pos >= totalWidth * 2) pos = totalWidth;
-        track.style.transform = `translateX(-${pos}px)`;
+        track.style.transform = 'translateX(-' + pos + 'px)';
       }
       track._animFrame = requestAnimationFrame(animate);
     }
-
     animate();
   });
 }
 
 function shuffleFromBannerData() {
   if (allData.length === 0) return [];
-  const pool = [];
-  allData.forEach(d => {
-    (d.cats || []).forEach(cat => {
+  var pool = [];
+  allData.forEach(function(d) {
+    (d.cats || []).forEach(function(cat) {
       if (cat.image && cat.name) {
         pool.push({ image: cat.image, name: cat.name, owner: d.name, link: '', id: d.id });
       }
@@ -2653,36 +2263,25 @@ function handleBannerClick(link, id) {
   if (id) { openModal(isNaN(id) ? id : Number(id)); return; }
 }
 
-// ============================================================
-// SCROLL TO TOP
-// ============================================================
-window.addEventListener('scroll', () => {
-  const btn = document.getElementById('scrollTopBtn');
-  if (window.scrollY > 400) {
-    btn.classList.add('show');
-  } else {
-    btn.classList.remove('show');
-  }
+window.addEventListener('scroll', function() {
+  var btn = document.getElementById('scrollTopBtn');
+  if (window.scrollY > 400) { btn.classList.add('show'); } else { btn.classList.remove('show'); }
 });
 
-// Lightbox Touch
-let lightboxTouchStartX = 0;
-let lightboxTouchEndX = 0;
-document.getElementById('lightboxImg').addEventListener('touchstart', (e) => {
+var lightboxTouchStartX = 0;
+var lightboxTouchEndX = 0;
+document.getElementById('lightboxImg').addEventListener('touchstart', function(e) {
   lightboxTouchStartX = e.changedTouches[0].screenX;
 }, { passive: true });
-document.getElementById('lightboxImg').addEventListener('touchend', (e) => {
+document.getElementById('lightboxImg').addEventListener('touchend', function(e) {
   lightboxTouchEndX = e.changedTouches[0].screenX;
-  const diff = lightboxTouchStartX - lightboxTouchEndX;
+  var diff = lightboxTouchStartX - lightboxTouchEndX;
   if (Math.abs(diff) > 50) {
     if (diff > 0) nextImage();
     else prevImage();
   }
 }, { passive: true });
 
-// ============================================================
-// LIGHTBOX
-// ============================================================
 function closeLightbox() {
   document.getElementById('lightboxOverlay').classList.remove('open');
 }
@@ -2693,10 +2292,8 @@ function prevImage() {
     return;
   }
   currentLightboxIndex = (currentLightboxIndex - 1 + currentLightboxCats.length) % currentLightboxCats.length;
-  const newUrl = currentLightboxCats[currentLightboxIndex]?.image;
-  if (newUrl) {
-    document.getElementById('lightboxImg').src = newUrl;
-  }
+  var newUrl = currentLightboxCats[currentLightboxIndex] ? currentLightboxCats[currentLightboxIndex].image : null;
+  if (newUrl) { document.getElementById('lightboxImg').src = newUrl; }
 }
 
 function nextImage() {
@@ -2705,14 +2302,11 @@ function nextImage() {
     return;
   }
   currentLightboxIndex = (currentLightboxIndex + 1) % currentLightboxCats.length;
-  const newUrl = currentLightboxCats[currentLightboxIndex]?.image;
-  if (newUrl) {
-    document.getElementById('lightboxImg').src = newUrl;
-  }
+  var newUrl = currentLightboxCats[currentLightboxIndex] ? currentLightboxCats[currentLightboxIndex].image : null;
+  if (newUrl) { document.getElementById('lightboxImg').src = newUrl; }
 }
 
-// Lightbox Keyboard
-document.addEventListener('keydown', (e) => {
+document.addEventListener('keydown', function(e) {
   if (!document.getElementById('lightboxOverlay').classList.contains('open')) return;
   if (e.key === 'ArrowLeft') prevImage();
   if (e.key === 'ArrowRight') nextImage();
