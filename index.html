@@ -1992,7 +1992,7 @@ async function shareProfile(id) {
   const d = allData.find(item => item.id === id);
   if (!d) return;
   const shareURL = window.location.origin + window.location.pathname + '?id=' + id;
-  const shareText = '🐱 มาดูแมวของเรามั้ย?\nเจ้าของ: ' + d.name + '\nเจ้าเหมียว: ' + d.cats.map(function(c) { return c.name; }).join(', ');
+  const shareText = '🐱 มาดูแมวเรามั้ย?\nเจ้าของ: ' + d.name + '\nเจ้าเหมียว: ' + d.cats.map(function(c) { return c.name; }).join(', ');
   const fullMessage = shareText + '\n\n' + shareURL;
   if (navigator.share) {
     try { await navigator.share({ text: fullMessage }); } catch (e) {}
