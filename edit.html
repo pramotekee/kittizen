@@ -402,8 +402,11 @@
         </div>
 
         <div class="form-group">
-          <label>LINE ID</label>
-          <input type="text" id="editLineId" placeholder="ดูที่ Setting > Profile (ไม่ต้องใส่@)">
+          <label>🔗 ลิงก์เพิ่มเพื่อน LINE</label>
+          <input type="url" id="editLineLink" placeholder="https://line.me/ti/p/xxxxxxxxx">
+          <small style="font-size:11px;color:var(--text-secondary);">
+            💡 วิธีหา: เปิด LINE App → แท็บเพิ่มเพื่อน → แตะ QR Code → กด "Copy Link" แล้วนำมาวาง
+          </small>
         </div>
         <div class="form-group">
           <label>YouTube</label>
@@ -863,7 +866,7 @@
     document.getElementById('editCaption').value = data.caption || '';
     document.getElementById('editCaptionCounter').textContent = (data.caption || '').length;
 
-    document.getElementById('editLineId').value = data.line_id || '';
+    document.getElementById('editLineLink').value = data.line_link || '';
     document.getElementById('editYoutube').value = data.youtube || '';
     document.getElementById('editTiktok').value = data.tiktok || '';
     document.getElementById('editInstagram').value = data.instagram || '';
@@ -951,7 +954,7 @@
       cat_female: catFemale,
       rainbow: currentProfile?.rainbow || {},
       email: document.getElementById('editEmail').value.trim(),
-      line_id: document.getElementById('editLineId').value.trim(),
+      line_link: document.getElementById('editLineLink').value.trim(),
       youtube: document.getElementById('editYoutube').value.trim(),
       tiktok: document.getElementById('editTiktok').value.trim().replace('@', ''),
       instagram: document.getElementById('editInstagram').value.trim().replace('@', ''),
