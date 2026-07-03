@@ -2146,7 +2146,7 @@ function renderVizCharts() {
     },
     options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { max: niceMax(maxDistrict), grid: { display: false }, ticks: { precision: 0 } }, y: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 10 } } } } }
   }));
-  vvar breeds = {};
+  var breeds = {};
   var standardBreeds = new Set(BREEDS.map(function(b) { return b.en; }));
   allData.forEach(function(d) {
     (d.cats || []).forEach(function(c) {
