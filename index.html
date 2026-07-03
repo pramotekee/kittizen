@@ -2198,6 +2198,8 @@ function renderVizCharts() {
   }));
 }
 
+const SHOW_BANNER_OVERRIDE = false;
+
 const BANNER_OVERRIDE = [
   { image: 'https://drive.google.com/uc?export=view&id=1PUJ-DsorSwxSRqpxw3HBVyoRltU2R-CI', link: 'https://www.google.com/' },
   { image: 'https://drive.google.com/uc?export=view&id=1P8GhENVG0IJT72TV6FTvrViF7-9IN96f', link: 'https://www.yahoo.com/' },
@@ -2209,7 +2211,7 @@ const BANNER_TOTAL = 20;
 function initBanner(withRandom) {
   var track = document.getElementById('bannerTrack');
   if (!track) return;
-  var hardcoded = BANNER_OVERRIDE;
+  var hardcoded = SHOW_BANNER_OVERRIDE ? BANNER_OVERRIDE : [];
   var remaining = BANNER_TOTAL - hardcoded.length;
   var random = (withRandom && remaining > 0) ? shuffleFromBannerData().slice(0, remaining) : [];
   var pool = hardcoded.concat(random);
