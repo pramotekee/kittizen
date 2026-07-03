@@ -208,6 +208,24 @@
   .breadcrumb { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; }
   .breadcrumb a { color: var(--accent); text-decoration: none; }
   .breadcrumb a:hover { text-decoration: underline; }
+
+  /* Spinner - ตัวหมุน */
+  .spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top: 3px solid #ffffff;
+    animation: spin 0.8s linear infinite;
+    vertical-align: middle;
+    margin-right: 10px;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
 </style>
 </head>
 <body>
@@ -827,7 +845,7 @@
 
     const btn = document.getElementById('submitBtn');
     btn.disabled = true;
-    btn.textContent = '⏳ กำลังบันทึก...';
+    btn.innerHTML = '<span class="spinner"></span> กำลังบันทึก...';
 
     try {
       const res = await fetch(SCRIPT_URL, {
@@ -851,7 +869,7 @@
       alert('เกิดข้อผิดพลาด: ' + err.message);
     } finally {
       btn.disabled = false;
-      btn.textContent = '🐱 สร้างโปรไฟล์';
+      btn.innerHTML = '🐱 สร้างโปรไฟล์';
     }
   });
 
