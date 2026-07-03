@@ -1782,7 +1782,13 @@ function applyFilters() {
       if (catGender === 'เมีย' && d.cat_female === 0) return false;
     }
     if (breed) {
-      const hasBreed = d.cats.some(c => c.breed === breed);
+      const hasBreed = d.cats.some(c => {
+        if (breed === 'OTHER CAT') {
+          // ถือว่าเป็น "อื่นๆ" ถ้าค่า breed ไม่ตรงกับสายพันธุ์มาตรฐานที่มีในลิสต์
+          return c.breed && !BREEDS.some(b => b.en === c.breed);
+        }
+        return c.breed === breed;
+      });
       if (!hasBreed) return false;
     }
     if (color) {
@@ -2140,10 +2146,13 @@ function renderVizCharts() {
     },
     options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { max: niceMax(maxDistrict), grid: { display: false }, ticks: { precision: 0 } }, y: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 10 } } } } }
   }));
-  var breeds = {};
+  vvar breeds = {};
+  var standardBreeds = new Set(BREEDS.map(function(b) { return b.en; }));
   allData.forEach(function(d) {
     (d.cats || []).forEach(function(c) {
-      if (c.breed) breeds[c.breed] = (breeds[c.breed] || 0) + 1;
+      if (!c.breed) return;
+      var key = standardBreeds.has(c.breed) ? c.breed : 'OTHER CAT';
+      breeds[key] = (breeds[key] || 0) + 1;
     });
   });
   var topBreeds = Object.entries(breeds).sort(function(a, b) { return b[1] - a[1]; }).slice(0, 10);
@@ -2151,7 +2160,10 @@ function renderVizCharts() {
   vizCharts.push(new Chart(document.getElementById('chartBreed'), {
     type: 'bar',
     data: {
-      labels: topBreeds.map(function(b) { return b[0].length > 15 ? b[0].substring(0,15) + '…' : b[0]; }),
+      labels: topBreeds.map(function(b) {
+        var label = b[0] === 'OTHER CAT' ? 'สายพันธุ์อื่นๆ' : b[0];
+        return label.length > 15 ? label.substring(0,15) + '…' : label;
+      }),
       datasets: [{ data: topBreeds.map(function(b) { return b[1]; }), backgroundColor: '#96C7B3', borderRadius: 6, borderSkipped: false }]
     },
     options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { max: niceMax(maxBreed), grid: { display: false }, ticks: { precision: 0 } }, y: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 10 } } } } }
