@@ -1926,7 +1926,7 @@ function selectMapDistrict(dname, layer) {
   const matched = allData.filter(d => d.district === dname);
   const panel = document.getElementById('mapDistrictPanel');
   if (matched.length === 0) {
-    panel.innerHTML = `<div class="map-district-header"><h3>📍 ${dname}</h3><button class="map-clear-btn" onclick="clearMapSelection()">✕ ปิด</button></div><div class="empty-district"><span class="emoji">🏠</span><div class="msg">ยังไม่มีใครมาโชว์แมวในเขตนี้</div><a href="create.html?district=${encodeURIComponent(dname)}" class="action-btn">➕ สร้างโปรไฟล์</a></div>`;
+    panel.innerHTML = `<div class="map-district-header"><h3>📍 ${dname}</h3><button class="map-clear-btn" onclick="clearMapSelection()">✕ ปิด</button></div><div class="empty-district"><span class="emoji">🏠</span><div class="msg">ยังไม่มีใครมาโชว์แมวในเขตนี้เลย ถ้าคุณมีเจ้าเหมียวโชว์ให้เราดูหน่อยนะ</div><a href="create.html?district=${encodeURIComponent(dname)}" class="action-btn">➕ สร้างโปรไฟล์</a></div>`;
     return;
   }
   panel.innerHTML = `<div class="map-district-header"><h3>📍 ${dname}</h3><span class="count">${matched.length} เจ้าของ</span><button class="map-clear-btn" onclick="clearMapSelection()">✕ ปิด</button></div><div class="grid card-view" style="padding:0;">${matched.map(d => renderCard(d, true)).join('')}</div>`;
