@@ -1666,7 +1666,7 @@ function parseRow(row) {
     cat_male: getCatMale(row),
     cat_female: getCatFemale(row),
     rainbow: getRainbowData(row),
-    line_id: row[61] || '',
+    line_link: row[61] || '',
     youtube: row[62] || '',
     tiktok: row[63] || '',
     instagram: row[64] || '',
@@ -2040,9 +2040,8 @@ function openModal(id) {
     return `<div class="modal-cat-item"><div class="cat-img ${rainbow ? 'rainbow' : ''}" onclick="event.stopPropagation();openLightbox('${(cat.image || '').replace(/'/g, "\\'")}', currentModalCats, ${idx})">${img}${rainbow ? '<span class="rainbow-badge">🌈</span>' : ''}</div><div class="cat-name ${rainbow ? 'rainbow' : ''}">${cat.name || 'น้องเหมียว'}</div><div class="cat-breed">${cat.breed || ''}</div>${rainbow && rainbowDate ? `<div class="rainbow-date">กลับดาว ${rainbowDate}</div>` : ''}</div>`;
   }).join('');
   const contacts = [];
-  if (d.line_id) {
-    var lineId = d.line_id.replace(/^@/, ''); // ตัด @ หน้า
-    contacts.push(`<a href="https://line.me/ti/p/${lineId}" target="_blank" class="contact-pill" title="LINE">💬 LINE</a>`);
+  if (d.line_link) {
+    contacts.push(`<a href="${d.line_link}" target="_blank" class="contact-pill" title="LINE">💬 LINE</a>`);
   }
   if (d.youtube) contacts.push('<a href="' + d.youtube + '" target="_blank" class="contact-pill" title="YouTube">▶️ YouTube</a>');
   if (d.tiktok) contacts.push('<a href="https://tiktok.com/@' + d.tiktok.replace('@','') + '" target="_blank" class="contact-pill" title="TikTok">🎵 TikTok</a>');
