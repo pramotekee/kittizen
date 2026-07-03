@@ -960,7 +960,7 @@
 
     const btn = document.getElementById('updateBtn');
     btn.disabled = true;
-    btn.textContent = '⏳ กำลังอัปเดต...';
+    btn.innerHTML = '<span class="spinner"></span> กำลังอัปเดต...';
 
     try {
       const res = await fetch(SCRIPT_URL, {
@@ -978,7 +978,7 @@
       showAlert('เกิดข้อผิดพลาด: ' + err.message, 'error');
     } finally {
       btn.disabled = false;
-      btn.textContent = '💾 อัปเดตข้อมูล';
+      btn.innerHTML = '💾 อัปเดตข้อมูล';
     }
   });
 
