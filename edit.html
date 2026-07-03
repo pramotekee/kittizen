@@ -819,7 +819,7 @@
     }
 
     this.disabled = true;
-    this.textContent = '⏳ กำลังค้นหา...';
+    this.innerHTML = '<span class="spinner"></span> กำลังค้นหา...';
 
     try {
       const res = await fetch(SCRIPT_URL, {
@@ -846,7 +846,7 @@
       showAlert('เกิดข้อผิดพลาด: ' + err.message, 'error');
     } finally {
       this.disabled = false;
-      this.textContent = '🔍 ค้นหาโปรไฟล์';
+      this.innerHTML = '🔍 ค้นหาโปรไฟล์';
     }
   });
 
