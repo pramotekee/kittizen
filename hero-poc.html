@@ -151,7 +151,8 @@ async function loadTodayHero() {
       return str.slice(0, 10); // สมมติว่าเป็น string "YYYY-MM-DD" อยู่แล้ว
     }
 
-    const today = new Date().toISOString().slice(0, 10); // "2026-07-05"
+    const now = new Date();
+    const today = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0'); // ใช้เวลาท้องถิ่นของเครื่อง ไม่แปลงเป็น UTC
     let imageUrl = null;
     let debugLines = ['วันนี้ (ที่ระบบใช้เทียบ): ' + today, 'จำนวนแถวที่ดึงได้: ' + rows.length, ''];
 
