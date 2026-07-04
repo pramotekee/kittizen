@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>Kittizen — แก้ไขประกาศแมวหาย</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F5F5F7;
+    --surface: #FFFFFF;
+    --accent: #E8734A;
+    --accent-dark: #D4623A;
+    --text-primary: #1D1D1F;
+    --text-secondary: #6E6E73;
+    --tag-bg: #E8E8ED;
+    --border: #D2D2D7;
+    --error: #e74c3c;
+    --success: #2ecc71;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    padding: 32px 20px;
+  }
+  .container { max-width: 720px; margin: 0 auto; }
+  .card {
+    background: var(--surface);
+    border-radius: 28px;
+    padding: 32px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+  h1 { font-size: 28px; font-weight: 700; color: var(--accent); margin-bottom: 4px; }
+  .sub { color: var(--text-secondary); margin-bottom: 28px; font-size: 14px; }
+  .form-group { margin-bottom: 22px; }
+  .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .form-group label .required { color: var(--error); margin-left: 2px; }
+  .form-group small { font-size: 11px; color: var(--text-secondary); display: block; margin-top: 4px; }
+  input, select, textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    transition: all 0.15s;
+    background: var(--surface);
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(232,115,74,0.12);
+  }
+  textarea { resize: vertical; min-height: 80px; }
+  .char-counter { text-align: right; font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
+  .form-row { display: flex; gap: 16px; flex-wrap: wrap; }
+  .form-row .form-group { flex: 1; min-width: 140px; }
+  .hint { font-size: 11px; color: var(--text-secondary); margin-bottom: 6px; line-height: 1.5; }
+
+  .image-slot { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .image-slot .slot-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--tag-bg); display: flex; align-items: center;
+    justify-content: center; font-size: 12px; font-weight: 700;
+    color: var(--text-secondary); flex-shrink: 0;
+  }
+  .image-slot.required-slot .slot-num { background: var(--accent); color: #fff; }
+
+  .btn-submit {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 14px 24px;
+    border-radius: 40px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 16px;
+    transition: background 0.15s;
+  }
+  .btn-submit:hover { background: var(--accent-dark); }
+  .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .btn-unlock {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 14px 24px;
+    border-radius: 40px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.15s;
+  }
+  .btn-unlock:hover { background: var(--accent-dark); }
+
+  /* STATUS PICKER */
+  .status-picker { display: flex; flex-direction: column; gap: 10px; }
+  .status-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1.5px solid var(--border);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .status-option:hover { background: var(--tag-bg); }
+  .status-option.selected {
+    border-color: var(--success);
+    background: #EAF9F0;
+  }
+  .status-option input[type="radio"] { width: auto; accent-color: var(--success); }
+  .status-option .label { font-weight: 600; font-size: 14px; }
+  .status-option .desc { font-size: 12px; color: var(--text-secondary); }
+
+  hr { margin: 20px 0; border-color: var(--border); }
+  .breadcrumb { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; }
+  .breadcrumb a { color: var(--accent); text-decoration: none; }
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  .spinner {
+    display: inline-block; width: 20px; height: 20px;
+    border: 3px solid rgba(255,255,255,0.3); border-radius: 50%;
+    border-top: 3px solid #ffffff; animation: spin 0.8s linear infinite;
+    vertical-align: middle; margin-right: 10px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .success-banner {
+    display: none;
+    background: #EAF9F0;
+    color: #1F8F4E;
+    padding: 14px 18px;
+    border-radius: 14px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+  .success-banner.show { display: block; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="breadcrumb"><a href="catlost.html">🚨 หน้ารวมแมวหาย</a> &gt; แก้ไขประกาศ</div>
+
+  <!-- UNLOCK STEP -->
+  <div class="card" id="unlockCard">
+    <h1>🔒 แก้ไขประกาศแมวหาย</h1>
+    <div class="sub">กรอกรหัส Edit Code ที่ได้รับตอนแจ้งแมวหายเพื่อปลดล็อกการแก้ไข</div>
+    <div class="form-group">
+      <label>รหัสประกาศ (ID) <span class="required">*</span></label>
+      <input type="text" id="lookupId" placeholder="เช่น lost1">
+      <small>หากมาจากการกดปุ่มดินสอในการ์ด ระบบจะกรอกให้อัตโนมัติ</small>
+    </div>
+    <div class="form-group">
+      <label>Edit Code <span class="required">*</span></label>
+      <input type="text" id="lookupEditCode" placeholder="กรอกรหัส 8 หลัก">
+    </div>
+    <button class="btn-unlock" id="unlockBtn">🔓 ปลดล็อก</button>
+  </div>
+
+  <!-- EDIT FORM (hidden until unlocked) -->
+  <div class="card" id="editCard" style="display:none;">
+    <div class="success-banner" id="successBanner">✅ บันทึกข้อมูลเรียบร้อยแล้ว</div>
+    <h1>✏️ แก้ไขประกาศ</h1>
+    <div class="sub">แก้ไขข้อมูลหรืออัปเดตสถานะได้ตลอดเวลา (ระบบจะไม่ลบประกาศนี้ออกไม่ว่าสถานะใด)</div>
+
+    <form id="editForm">
+      <!-- STATUS -->
+      <div class="form-group">
+        <label>สถานะปัจจุบัน <span class="required">*</span></label>
+        <div class="status-picker">
+          <label class="status-option" data-status="searching">
+            <input type="radio" name="status" value="searching">
+            <div>
+              <div class="label">🔍 กำลังตามหา</div>
+              <div class="desc">แมวยังไม่พบ ต้องการให้ชุมชนช่วยตามหาต่อ</div>
+            </div>
+          </label>
+          <label class="status-option" data-status="found">
+            <input type="radio" name="status" value="found">
+            <div>
+              <div class="label">🎉 พบแล้ว</div>
+              <div class="desc">แมวกลับมาแล้ว หรือมีคนพบและติดต่อกลับแล้ว</div>
+            </div>
+          </label>
+          <label class="status-option" data-status="closed">
+            <input type="radio" name="status" value="closed">
+            <div>
+              <div class="label">🔒 ยุติประกาศ</div>
+              <div class="desc">ไม่ต้องการให้ประกาศนี้ใช้งานต่อ (ประกาศจะยังอยู่ในระบบเป็นข้อมูล)</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <hr>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>ชื่อเจ้าของ <span class="required">*</span></label>
+          <input type="text" id="ownerName" required>
+        </div>
+        <div class="form-group">
+          <label>อีเมล <span class="required">*</span></label>
+          <input type="email" id="email" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>รูปโปรไฟล์เจ้าของ (URL) <span class="required">*</span></label>
+        <input type="url" id="ownerPhoto" required>
+      </div>
+
+      <hr>
+
+      <div class="form-group">
+        <label>ชื่อแมว <span class="required">*</span></label>
+        <input type="text" id="catName" required>
+      </div>
+
+      <div class="form-group">
+        <label>รูปแมว (URL) <span class="required">*</span> <small style="display:inline;">— สูงสุด 5 รูป</small></label>
+        <div class="image-slot required-slot">
+          <span class="slot-num">1</span>
+          <input type="url" class="cat-image" id="catImage1" required>
+        </div>
+        <div class="image-slot">
+          <span class="slot-num">2</span>
+          <input type="url" class="cat-image" id="catImage2">
+        </div>
+        <div class="image-slot">
+          <span class="slot-num">3</span>
+          <input type="url" class="cat-image" id="catImage3">
+        </div>
+        <div class="image-slot">
+          <span class="slot-num">4</span>
+          <input type="url" class="cat-image" id="catImage4">
+        </div>
+        <div class="image-slot">
+          <span class="slot-num">5</span>
+          <input type="url" class="cat-image" id="catImage5">
+        </div>
+      </div>
+
+      <hr>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>จังหวัด <span class="required">*</span></label>
+          <select id="province" required>
+            <option value="">เลือกจังหวัด</option>
+            <option value="กระบี่">กระบี่</option>
+            <option value="กรุงเทพมหานคร">กรุงเทพมหานคร</option>
+            <option value="กาญจนบุรี">กาญจนบุรี</option>
+            <option value="กาฬสินธุ์">กาฬสินธุ์</option>
+            <option value="กำแพงเพชร">กำแพงเพชร</option>
+            <option value="ขอนแก่น">ขอนแก่น</option>
+            <option value="จันทบุรี">จันทบุรี</option>
+            <option value="ฉะเชิงเทรา">ฉะเชิงเทรา</option>
+            <option value="ชลบุรี">ชลบุรี</option>
+            <option value="ชัยนาท">ชัยนาท</option>
+            <option value="ชัยภูมิ">ชัยภูมิ</option>
+            <option value="ชุมพร">ชุมพร</option>
+            <option value="เชียงราย">เชียงราย</option>
+            <option value="เชียงใหม่">เชียงใหม่</option>
+            <option value="ตรัง">ตรัง</option>
+            <option value="ตราด">ตราด</option>
+            <option value="ตาก">ตาก</option>
+            <option value="นครนายก">นครนายก</option>
+            <option value="นครปฐม">นครปฐม</option>
+            <option value="นครพนม">นครพนม</option>
+            <option value="นครราชสีมา">นครราชสีมา</option>
+            <option value="นครศรีธรรมราช">นครศรีธรรมราช</option>
+            <option value="นครสวรรค์">นครสวรรค์</option>
+            <option value="นนทบุรี">นนทบุรี</option>
+            <option value="นราธิวาส">นราธิวาส</option>
+            <option value="น่าน">น่าน</option>
+            <option value="บึงกาฬ">บึงกาฬ</option>
+            <option value="บุรีรัมย์">บุรีรัมย์</option>
+            <option value="ปทุมธานี">ปทุมธานี</option>
+            <option value="ประจวบคีรีขันธ์">ประจวบคีรีขันธ์</option>
+            <option value="ปราจีนบุรี">ปราจีนบุรี</option>
+            <option value="ปัตตานี">ปัตตานี</option>
+            <option value="พระนครศรีอยุธยา">พระนครศรีอยุธยา</option>
+            <option value="พะเยา">พะเยา</option>
+            <option value="พังงา">พังงา</option>
+            <option value="พัทลุง">พัทลุง</option>
+            <option value="พิจิตร">พิจิตร</option>
+            <option value="พิษณุโลก">พิษณุโลก</option>
+            <option value="เพชรบุรี">เพชรบุรี</option>
+            <option value="เพชรบูรณ์">เพชรบูรณ์</option>
+            <option value="แพร่">แพร่</option>
+            <option value="ภูเก็ต">ภูเก็ต</option>
+            <option value="มหาสารคาม">มหาสารคาม</option>
+            <option value="มุกดาหาร">มุกดาหาร</option>
+            <option value="แม่ฮ่องสอน">แม่ฮ่องสอน</option>
+            <option value="ยโสธร">ยโสธร</option>
+            <option value="ยะลา">ยะลา</option>
+            <option value="ร้อยเอ็ด">ร้อยเอ็ด</option>
+            <option value="ระนอง">ระนอง</option>
+            <option value="ระยอง">ระยอง</option>
+            <option value="ราชบุรี">ราชบุรี</option>
+            <option value="ลพบุรี">ลพบุรี</option>
+            <option value="ลำปาง">ลำปาง</option>
+            <option value="ลำพูน">ลำพูน</option>
+            <option value="เลย">เลย</option>
+            <option value="ศรีสะเกษ">ศรีสะเกษ</option>
+            <option value="สกลนคร">สกลนคร</option>
+            <option value="สงขลา">สงขลา</option>
+            <option value="สตูล">สตูล</option>
+            <option value="สมุทรปราการ">สมุทรปราการ</option>
+            <option value="สมุทรสงคราม">สมุทรสงคราม</option>
+            <option value="สมุทรสาคร">สมุทรสาคร</option>
+            <option value="สระแก้ว">สระแก้ว</option>
+            <option value="สระบุรี">สระบุรี</option>
+            <option value="สิงห์บุรี">สิงห์บุรี</option>
+            <option value="สุโขทัย">สุโขทัย</option>
+            <option value="สุพรรณบุรี">สุพรรณบุรี</option>
+            <option value="สุราษฎร์ธานี">สุราษฎร์ธานี</option>
+            <option value="สุรินทร์">สุรินทร์</option>
+            <option value="หนองคาย">หนองคาย</option>
+            <option value="หนองบัวลำภู">หนองบัวลำภู</option>
+            <option value="อ่างทอง">อ่างทอง</option>
+            <option value="อำนาจเจริญ">อำนาจเจริญ</option>
+            <option value="อุดรธานี">อุดรธานี</option>
+            <option value="อุตรดิตถ์">อุตรดิตถ์</option>
+            <option value="อุทัยธานี">อุทัยธานี</option>
+            <option value="อุบลราชธานี">อุบลราชธานี</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>พื้นที่/จุดที่แมวหาย <span class="required">*</span></label>
+        <input type="text" id="locationDetail" required>
+      </div>
+
+      <div class="form-group">
+        <label>รายละเอียดเพิ่มเติม <span class="required">*</span></label>
+        <textarea id="detail" maxlength="1000" rows="5" required></textarea>
+        <div class="char-counter"><span id="detailCounter">0</span>/1000</div>
+      </div>
+
+      <hr>
+
+      <div style="margin-bottom:16px;">
+        <h3 style="font-size:16px;">📞 ช่องทางติดต่อ</h3>
+      </div>
+      <div class="form-group">
+        <label>LINE</label>
+        <input type="url" id="lineLink">
+      </div>
+      <div class="form-group">
+        <label>YouTube</label>
+        <input type="url" id="youtube">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>TikTok</label>
+          <input type="text" id="tiktok">
+        </div>
+        <div class="form-group">
+          <label>Instagram</label>
+          <input type="text" id="instagram">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>X (Twitter)</label>
+        <input type="text" id="x">
+      </div>
+
+      <button type="submit" class="btn-submit" id="submitBtn">💾 บันทึกการแก้ไข</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbylJXLg47otdgqZM6EwLma8AL1q5AEIsYe8uDOlNlTh9gOMOS7sHOgceX4l9h8ia3nGfg/exec';
+  let currentEditCode = '';
+
+  function normalizeImageUrl(url) {
+    if (!url) return '';
+    const gdrive1 = url.match(/drive\.google\.com\/file\/d\/([^\/\?]+)/);
+    const gdrive2 = url.match(/drive\.google\.com\/open\?id=([^&]+)/);
+    const id = gdrive1?.[1] || gdrive2?.[1];
+    if (id) return `https://drive.google.com/uc?export=view&id=${id}`;
+    if (url.includes('dropbox.com')) {
+      return url.replace('?dl=0', '?raw=1').replace('?dl=1', '?raw=1');
+    }
+    return url;
+  }
+
+  // Pre-fill ID from URL param (?id=lost1)
+  document.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    if (id) document.getElementById('lookupId').value = id;
+  });
+
+  document.getElementById('detail').addEventListener('input', function() {
+    document.getElementById('detailCounter').textContent = this.value.length;
+  });
+
+  document.querySelectorAll('.status-option').forEach(opt => {
+    opt.addEventListener('click', () => {
+      document.querySelectorAll('.status-option').forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+      opt.querySelector('input[type="radio"]').checked = true;
+    });
+  });
+
+  document.getElementById('unlockBtn').addEventListener('click', async () => {
+    const editCode = document.getElementById('lookupEditCode').value.trim();
+
+    if (!editCode) {
+      alert('กรุณากรอก Edit Code');
+      return;
+    }
+
+    const btn = document.getElementById('unlockBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> กำลังตรวจสอบ...';
+
+    try {
+      const res = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'lost_fetch', edit_code: editCode })
+      });
+      const result = await res.json();
+
+      if (result.success) {
+        currentEditCode = editCode;
+        fillForm(result.data);
+        document.getElementById('unlockCard').style.display = 'none';
+        document.getElementById('editCard').style.display = 'block';
+      } else {
+        alert('ไม่พบประกาศ: ' + (result.error || 'กรุณาตรวจสอบ Edit Code'));
+      }
+    } catch (err) {
+      alert('เกิดข้อผิดพลาด: ' + err.message);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '🔓 ปลดล็อก';
+    }
+  });
+
+  function fillForm(d) {
+    document.querySelector(`.status-option[data-status="${d.status}"]`)?.classList.add('selected');
+    const radio = document.querySelector(`input[name="status"][value="${d.status}"]`);
+    if (radio) radio.checked = true;
+
+    document.getElementById('ownerName').value = d.owner_name || '';
+    document.getElementById('email').value = d.email || '';
+    document.getElementById('ownerPhoto').value = d.owner_photo || '';
+    document.getElementById('catName').value = d.cat_name || '';
+
+    const images = d.cat_images || [];
+    document.getElementById('catImage1').value = images[0] || '';
+    document.getElementById('catImage2').value = images[1] || '';
+    document.getElementById('catImage3').value = images[2] || '';
+    document.getElementById('catImage4').value = images[3] || '';
+    document.getElementById('catImage5').value = images[4] || '';
+
+    document.getElementById('province').value = d.province || '';
+    document.getElementById('locationDetail').value = d.location_detail || '';
+    document.getElementById('detail').value = d.detail || '';
+    document.getElementById('detailCounter').textContent = (d.detail || '').length;
+
+    document.getElementById('lineLink').value = d.line_link || '';
+    document.getElementById('youtube').value = d.youtube || '';
+    document.getElementById('tiktok').value = d.tiktok || '';
+    document.getElementById('instagram').value = d.instagram || '';
+    document.getElementById('x').value = d.x || '';
+  }
+
+  document.getElementById('editForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const statusInput = document.querySelector('input[name="status"]:checked');
+    if (!statusInput) {
+      alert('กรุณาเลือกสถานะ');
+      return;
+    }
+
+    const ownerName = document.getElementById('ownerName').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const ownerPhoto = document.getElementById('ownerPhoto').value.trim();
+    const catName = document.getElementById('catName').value.trim();
+    const province = document.getElementById('province').value;
+    const locationDetail = document.getElementById('locationDetail').value.trim();
+    const detail = document.getElementById('detail').value.trim();
+    const catImage1 = document.getElementById('catImage1').value.trim();
+
+    if (!ownerName || !email || !ownerPhoto || !catName || !province || !locationDetail || !detail || !catImage1) {
+      alert('กรุณากรอกข้อมูลให้ครบทุกช่องที่มี *');
+      return;
+    }
+
+    const catImages = [
+      normalizeImageUrl(catImage1),
+      normalizeImageUrl(document.getElementById('catImage2').value.trim()),
+      normalizeImageUrl(document.getElementById('catImage3').value.trim()),
+      normalizeImageUrl(document.getElementById('catImage4').value.trim()),
+      normalizeImageUrl(document.getElementById('catImage5').value.trim())
+    ].filter(x => x);
+
+    const payload = {
+      action: 'lost_update',
+      edit_code: currentEditCode,
+      status: statusInput.value,
+      owner_name: ownerName,
+      owner_photo: normalizeImageUrl(ownerPhoto),
+      cat_name: catName,
+      cat_images: catImages,
+      detail: detail,
+      province: province,
+      location_detail: locationDetail,
+      email: email,
+      line_link: document.getElementById('lineLink').value.trim(),
+      youtube: document.getElementById('youtube').value.trim(),
+      tiktok: document.getElementById('tiktok').value.trim().replace('@',''),
+      instagram: document.getElementById('instagram').value.trim().replace('@',''),
+      x: document.getElementById('x').value.trim().replace('@','')
+    };
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> กำลังบันทึก...';
+
+    try {
+      const res = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+      const result = await res.json();
+
+      if (result.success) {
+        const banner = document.getElementById('successBanner');
+        banner.classList.add('show');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setTimeout(() => banner.classList.remove('show'), 4000);
+      } else {
+        alert('เกิดข้อผิดพลาด: ' + (result.error || 'ไม่ทราบสาเหตุ'));
+      }
+    } catch (err) {
+      alert('เกิดข้อผิดพลาด: ' + err.message);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '💾 บันทึกการแก้ไข';
+    }
+  });
+</script>
+
+</body>
+</html>
