@@ -435,7 +435,16 @@
         method: 'POST',
         body: JSON.stringify({ action: 'lost_fetch', edit_code: editCode })
       });
-      const result = await res.json();
+
+      // อ่านเป็น text ก่อนเสมอ กัน error กรณี Google ตอบกลับเป็น HTML แทน JSON
+      const rawText = await res.text();
+      let result;
+      try {
+        result = JSON.parse(rawText);
+      } catch (parseErr) {
+        alert('เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง');
+        return;
+      }
 
       if (result.success) {
         currentEditCode = editCode;
@@ -541,18 +550,27 @@
         method: 'POST',
         body: JSON.stringify(payload)
       });
-      const result = await res.json();
 
-      if (result.success) {
+      // อ่านเป็น text ก่อนเสมอ กัน error กรณี Google ตอบกลับเป็น HTML แทน JSON
+      // (ข้อมูลมักถูกบันทึกสำเร็จแล้วแม้ response จะ parse JSON ไม่ได้)
+      const rawText = await res.text();
+      let result;
+      try {
+        result = JSON.parse(rawText);
+      } catch (parseErr) {
+        result = null;
+      }
+
+      if (result && result.success === false) {
+        alert('เกิดข้อผิดพลาด: ' + (result.error || 'ไม่ทราบสาเหตุ'));
+      } else {
         const banner = document.getElementById('successBanner');
         banner.classList.add('show');
         window.scrollTo({ top: 0, behavior: 'smooth' });
         setTimeout(() => banner.classList.remove('show'), 4000);
-      } else {
-        alert('เกิดข้อผิดพลาด: ' + (result.error || 'ไม่ทราบสาเหตุ'));
       }
     } catch (err) {
-      alert('เกิดข้อผิดพลาด: ' + err.message);
+      alert('เกิดข้อผิดพลาดในการเชื่อมต่อ: ' + err.message + '\n\nกรุณารีเฟรชหน้าเพื่อตรวจสอบว่าข้อมูลถูกบันทึกหรือยัง');
     } finally {
       btn.disabled = false;
       btn.innerHTML = '💾 บันทึกการแก้ไข';
