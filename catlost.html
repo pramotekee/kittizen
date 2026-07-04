@@ -896,7 +896,7 @@ async function fetchData() {
 // รองรับลิงก์แชร์แบบ catlost.html?view=lost1 ให้เปิด modal ของประกาศนั้นอัตโนมัติ
 function openModalFromUrlIfPresent() {
   const params = new URLSearchParams(window.location.search);
-  const viewId = params.get('view');
+  const viewId = params.get('id');
   if (viewId && allData.some(d => d.id === viewId)) {
     openModal(viewId);
   }
@@ -1035,20 +1035,20 @@ function openModal(id) {
     ${contactLinks.length ? `<div class="modal-contact">${contactLinks.join('')}</div>` : ''}
 
     <div class="modal-action-row">
-      <button class="modal-share-btn" onclick="shareAnnouncement('${d.id}', '${d.cat_name.replace(/'/g, "\\'")}')">🔗 แชร์ประกาศ</button>
-      <button class="modal-edit-btn" onclick="goToEdit('${d.id}')">✏️ แก้ไขประกาศนี้</button>
+      <button class="modal-share-btn" onclick="shareAnnouncement('${d.id}', '${d.cat_name.replace(/'/g, "\\'")}', '${d.location_detail.replace(/'/g, "\\'")}', '${d.province.replace(/'/g, "\\'")}')">🔗 แชร์</button>
+      <button class="modal-edit-btn" onclick="goToEdit('${d.id}')">✏️ แก้ไข</button>
     </div>
   `;
   document.getElementById('modalOverlay').classList.add('open');
 }
 
-async function shareAnnouncement(id, catName) {
-  const shareUrl = `${window.location.origin}${window.location.pathname.replace('catlost.html','')}catlost.html?view=${encodeURIComponent(id)}`;
-  const shareText = `🚨 ช่วยตามหาน้อง ${catName} หน่อยครับ/ค่ะ`;
+async function shareAnnouncement(id, catName, locationDetail, province) {
+  const shareUrl = `${window.location.origin}${window.location.pathname.replace('catlost.html','')}catlost.html?id=${encodeURIComponent(id)}`;
+  const shareText = `🚨 น้องหลงหายไป...\nหากพบแมวหน้าตาแบบนี้ช่วยติดต่อเจ้าของด้วยนะคะ/ครับ🥺\nชื่อแมว: ${catName}\nสถานที่: ${locationDetail} ${province}\n${shareUrl}`;
 
   if (navigator.share) {
     try {
-      await navigator.share({ title: 'Kittizen — Cat Lost', text: shareText, url: shareUrl });
+      await navigator.share({ text: shareText });
       return;
     } catch (err) {
       // ผู้ใช้กดยกเลิก share sheet หรือ share ไม่ผ่าน — fallback ไป copy link แทน
@@ -1056,10 +1056,10 @@ async function shareAnnouncement(id, catName) {
   }
 
   try {
-    await navigator.clipboard.writeText(shareUrl);
-    showToast('📋 คัดลอกลิงก์ประกาศแล้ว');
+    await navigator.clipboard.writeText(shareText);
+    showToast('📋 คัดลอกข้อความแล้ว');
   } catch (err) {
-    showToast('ไม่สามารถคัดลอกลิงก์ได้');
+    showToast('ไม่สามารถคัดลอกได้');
   }
 }
 
