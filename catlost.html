@@ -918,7 +918,7 @@ async function shareLostProfile(id) {
   const d = allData.find(x => x.id === id);
   if (!d) return;
   const shareURL = window.location.origin + window.location.pathname + '?id=' + id;
-  const shareText = '🚨 ช่วยตามหาแมวด้วยค่ะ/ครับ!\nชื่อแมว: ' + d.cat_name + '\nสถานที่: ' + d.location_detail + ' ' + d.province + '\n' + shareURL;
+  const shareText = '🚨 น้องหลงหายไป... หากพบแมวหน้าตาแบบนี้ช่วยติดต่อเจ้าของด้วยนะคะ/ครับ🥺\nชื่อแมว: ' + d.cat_name + '\nสถานที่: ' + d.location_detail + ' ' + d.province + '\n' + shareURL;
   if (navigator.share) {
     try { await navigator.share({ text: shareText }); } catch (e) {}
   } else {
