@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kittizen — Cat Lost</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Bungee+Shade&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FAF7F4;
+    --surface: #FFFCF9;
+    --accent: #F9B95C;
+    --accent-dark: #E8A043;
+    --accent-light: #FEF3E2;
+    --text-primary: #2C2420;
+    --text-secondary: #7A6E6A;
+    --tag-bg: #F0E8E4;
+    --border: #D2D2D7;
+    --card-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    --card-shadow-hover: 0 8px 28px rgba(0,0,0,0.12);
+    --success: #2ecc71;
+    --success-light: #EAF9F0;
+    --lost-accent: #E8734A;
+    --lost-accent-dark: #D4623A;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+  }
+  .app {
+    max-width: 1400px;
+    margin: 0 auto;
+    min-height: 100vh;
+    padding-bottom: 20px;
+  }
+
+  /* HEADER */
+  .header {
+    text-align: center;
+    padding: 40px 20px 50px;
+    background: linear-gradient(135deg, #F9B95C 0%, #E8A043 100%);
+    border-radius: 0 0 32px 32px;
+    margin-bottom: 20px;
+  }
+  .header h1 {
+    font-family: 'Bungee Shade', cursive;
+    font-size: 52px;
+    font-weight: 700;
+    color: #FFFFFF;
+    letter-spacing: 4px;
+    line-height: 1;
+  }
+  .header .slogan {
+    font-size: 18px;
+    font-weight: 500;
+    color: #FFF5E6;
+    margin-top: 12px;
+  }
+  .header .caption {
+    font-size: 14px;
+    font-weight: 400;
+    color: #8D3C17;
+    max-width: 500px;
+    margin: 8px auto 0;
+  }
+
+  /* MODE SWITCH */
+  .mode-switch {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding: 0 20px 20px;
+    flex-wrap: wrap;
+  }
+  .mode-btn {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 30px;
+    padding: 10px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--text-secondary);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.15s;
+    font-family: 'Inter', sans-serif;
+  }
+  .mode-btn:hover { background: var(--tag-bg); }
+  .mode-btn.active {
+    background: var(--text-primary);
+    color: #fff;
+    border-color: var(--text-primary);
+  }
+  .mode-btn.lost.active {
+    background: var(--lost-accent);
+    border-color: var(--lost-accent);
+  }
+
+  /* DASHBOARD */
+  .dashboard {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 0 20px 20px;
+    justify-content: center;
+  }
+  .dash-item {
+    background: var(--surface);
+    padding: 12px 24px;
+    border-radius: 16px;
+    box-shadow: var(--card-shadow);
+    text-align: center;
+    min-width: 100px;
+    flex: 1;
+    max-width: 180px;
+  }
+  .dash-item .number {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--lost-accent);
+  }
+  .dash-item .label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+  }
+
+  /* SEARCH & ACTIONS */
+  .search-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 0 20px 14px;
+  }
+  .search-box {
+    flex: 2;
+    min-width: 200px;
+    position: relative;
+  }
+  .search-box input {
+    width: 100%;
+    padding: 11px 18px 11px 40px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .search-box input:focus {
+    border-color: var(--lost-accent);
+    box-shadow: 0 0 0 3px rgba(232,115,74,0.12);
+  }
+  .search-box::before {
+    content: "🔍";
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    opacity: 0.4;
+  }
+  .action-btn {
+    padding: 10px 20px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    border: none;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+  }
+  .action-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
+  .action-btn:active { transform: translateY(0px); }
+  .btn-report { background: var(--lost-accent); color: white; }
+  .btn-edit { background: var(--tag-bg); color: var(--text-primary); }
+
+  /* FILTER GROUP */
+  .filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0 20px 14px;
+  }
+  .status-filter-btn {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 30px;
+    padding: 8px 18px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.15s;
+    font-family: 'Inter', sans-serif;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .status-filter-btn:hover { background: var(--tag-bg); }
+  .status-filter-btn.active {
+    background: var(--lost-accent);
+    color: white;
+    border-color: var(--lost-accent);
+  }
+  .filter-group select {
+    padding: 9px 36px 9px 14px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237A6E6A' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    appearance: none;
+    -webkit-appearance: none;
+    font-size: 13px;
+    outline: none;
+    cursor: pointer;
+    min-width: 140px;
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .filter-group select:focus {
+    border-color: var(--lost-accent);
+    box-shadow: 0 0 0 3px rgba(232,115,74,0.15);
+  }
+  .filter-reset {
+    background: var(--tag-bg);
+    border: none;
+    border-radius: 10px;
+    padding: 9px 16px;
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: all 0.15s;
+    font-family: 'Inter', sans-serif;
+  }
+  .filter-reset:hover { background: #D8D8DD; color: var(--text-primary); }
+
+  /* GRID */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    padding: 0 16px 20px;
+  }
+  @media (min-width: 600px) {
+    .grid { grid-template-columns: repeat(3, 1fr); gap: 18px; padding: 0 20px 20px; }
+  }
+  @media (min-width: 900px) {
+    .grid { grid-template-columns: repeat(4, 1fr); gap: 20px; padding: 0 24px 20px; }
+  }
+  @media (min-width: 1200px) {
+    .grid { grid-template-columns: repeat(5, 1fr); gap: 22px; }
+  }
+
+  /* LOST CARD */
+  .lost-card {
+    position: relative;
+    background: var(--surface);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+    cursor: pointer;
+  }
+  .lost-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--card-shadow-hover);
+  }
+  .lost-card:active { transform: scale(0.98); }
+
+  .lost-card-img-wrap {
+    width: 100%;
+    aspect-ratio: 1;
+    background: var(--tag-bg);
+    position: relative;
+    overflow: hidden;
+  }
+  .lost-card-img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .lost-card-edit-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.92);
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    z-index: 2;
+    transition: transform 0.15s;
+  }
+  .lost-card-edit-btn:hover { transform: scale(1.1); }
+
+  .lost-card-body {
+    padding: 12px 14px 14px;
+  }
+  .lost-card-catname {
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 2px;
+  }
+  .lost-card-location {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 32px;
+  }
+  .lost-card-owner {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+
+  .status-list {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .status-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    color: #C4BCB6;
+    font-weight: 500;
+    transition: all 0.15s;
+  }
+  .status-row .status-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 1.5px solid #DCD5D0;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    color: transparent;
+  }
+  .status-row.active {
+    color: var(--text-primary);
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .status-row.active .status-dot {
+    background: var(--success);
+    border-color: var(--success);
+    color: #fff;
+    width: 17px;
+    height: 17px;
+  }
+
+  /* NO DATA */
+  .no-data {
+    grid-column: 1/-1;
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-secondary);
+  }
+  .no-data .emoji { font-size: 48px; display: block; margin-bottom: 12px; }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 300;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.2s ease;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border-radius: 24px;
+    width: 95%;
+    max-width: 560px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 24px;
+    animation: slideUp 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    -webkit-overflow-scrolling: touch;
+  }
+  @media (min-width: 768px) { .modal { max-width: 600px; } }
+  .modal-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .modal-top-label {
+    font-size: 12px;
+    color: var(--lost-accent);
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .modal-close {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+    color: var(--text-secondary);
+  }
+  .modal-close:hover { background: var(--tag-bg); }
+
+  .modal-main-img {
+    width: 100%;
+    aspect-ratio: 4/3;
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--tag-bg);
+    margin-bottom: 12px;
+    cursor: zoom-in;
+  }
+  .modal-main-img img { width: 100%; height: 100%; object-fit: cover; }
+
+  .modal-thumbs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    overflow-x: auto;
+  }
+  .modal-thumbs img {
+    width: 60px;
+    height: 60px;
+    border-radius: 10px;
+    object-fit: cover;
+    cursor: pointer;
+    flex-shrink: 0;
+    border: 2px solid transparent;
+    transition: border-color 0.15s;
+  }
+  .modal-thumbs img:hover { border-color: var(--lost-accent); }
+
+  .modal-catname { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  .modal-location { font-size: 14px; color: var(--text-secondary); margin-bottom: 4px; }
+  .modal-location .pin { margin-right: 4px; }
+  .modal-province {
+    display: inline-block;
+    background: var(--tag-bg);
+    color: var(--text-secondary);
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+  }
+
+  .modal-detail {
+    font-size: 14px;
+    color: var(--text-primary);
+    line-height: 1.7;
+    padding: 12px 0;
+    border-top: 1px solid var(--border);
+    margin-bottom: 12px;
+    white-space: pre-wrap;
+  }
+
+  .modal-status-panel {
+    background: var(--bg);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+  }
+  .modal-status-panel .status-list { margin-top: 4px; }
+  .modal-status-panel .status-row.active { font-size: 14px; }
+
+  .modal-owner {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    margin-bottom: 12px;
+  }
+  .modal-owner-img {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: var(--tag-bg);
+  }
+  .modal-owner-img img { width: 100%; height: 100%; object-fit: cover; }
+  .modal-owner-info .name { font-size: 14px; font-weight: 600; }
+  .modal-owner-info .meta { font-size: 11px; color: var(--text-secondary); }
+
+  .modal-contact {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .contact-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    background: var(--tag-bg);
+    color: var(--text-primary);
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.15s;
+    border: none;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+  }
+  .contact-pill:hover { background: var(--border); transform: translateY(-1px); }
+
+  .modal-edit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    justify-content: center;
+    background: var(--tag-bg);
+    color: var(--text-primary);
+    padding: 12px;
+    border-radius: 14px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: background 0.15s;
+  }
+  .modal-edit-btn:hover { background: #E3D9D3; }
+
+  /* LIGHTBOX */
+  .lightbox-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.92);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+    cursor: zoom-out;
+  }
+  .lightbox-overlay.open { display: flex; }
+  .lightbox-img { max-width: 90%; max-height: 85vh; border-radius: 12px; object-fit: contain; cursor: default; }
+  .lightbox-close {
+    position: absolute; top: 20px; right: 20px;
+    width: 44px; height: 44px; border-radius: 50%;
+    background: rgba(255,255,255,0.12); border: none; color: #fff;
+    font-size: 22px; cursor: pointer; display: flex;
+    align-items: center; justify-content: center; transition: background 0.15s;
+  }
+  .lightbox-close:hover { background: rgba(255,255,255,0.25); }
+  .lightbox-prev, .lightbox-next {
+    position: fixed; top: 50%; transform: translateY(-50%);
+    background: rgba(255,255,255,0.15); color: #fff; border: none;
+    font-size: 36px; padding: 20px 14px; cursor: pointer; z-index: 501;
+    border-radius: 8px; transition: background 0.2s; font-weight: 300;
+  }
+  .lightbox-prev:hover, .lightbox-next:hover { background: rgba(255,255,255,0.25); }
+  .lightbox-prev { left: 16px; }
+  .lightbox-next { right: 16px; }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+  .toast {
+    position: fixed; bottom: 80px; left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background: var(--text-primary); color: #F5F5F7;
+    padding: 10px 24px; border-radius: 20px; font-size: 13px;
+    font-weight: 500; opacity: 0; transition: opacity 0.25s, transform 0.25s;
+    z-index: 999; pointer-events: none; white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* FOOTER reuse */
+  footer a { transition: opacity 0.15s; }
+  footer a:hover { opacity: 0.8; }
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+  <!-- HEADER -->
+  <header class="header">
+    <h1>🐱 KITTIZEN</h1>
+    <p class="slogan">Show your real boss.</p>
+    <p class="caption">ขอดูเจ้านายคุณหน่อยยย</p>
+  </header>
+
+  <!-- MODE SWITCH -->
+  <div class="mode-switch">
+    <a href="index.html" class="mode-btn">🐱 Cat Love</a>
+    <a href="catlost.html" class="mode-btn lost active">🚨 Cat Lost</a>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="dashboard" id="dashboard">
+    <div class="dash-item">
+      <div class="number" id="totalLost">0</div>
+      <div class="label">📋 ประกาศทั้งหมด</div>
+    </div>
+    <div class="dash-item">
+      <div class="number" id="totalSearching">0</div>
+      <div class="label">🔍 กำลังตามหา</div>
+    </div>
+    <div class="dash-item">
+      <div class="number" id="totalFound">0</div>
+      <div class="label">🎉 พบแล้ว</div>
+    </div>
+  </div>
+
+  <!-- SEARCH & ACTIONS -->
+  <div class="search-container">
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="ค้นหาชื่อแมว, พื้นที่, จังหวัด..." oninput="applyFilters()">
+    </div>
+    <div style="display: flex; gap: 8px; flex-shrink: 0;">
+      <a href="catlost-create.html" class="action-btn btn-report">🚨 แจ้งแมวหาย</a>
+      <a href="catlost-edit.html" class="action-btn btn-edit">✏️ Edit</a>
+    </div>
+  </div>
+
+  <!-- STATUS FILTER -->
+  <div class="filter-group" id="statusFilterGroup">
+    <button class="status-filter-btn active" data-status="" onclick="setStatusFilter('', this)">ทั้งหมด</button>
+    <button class="status-filter-btn" data-status="searching" onclick="setStatusFilter('searching', this)">🔍 กำลังตามหา</button>
+    <button class="status-filter-btn" data-status="found" onclick="setStatusFilter('found', this)">🎉 พบแล้ว</button>
+    <button class="status-filter-btn" data-status="closed" onclick="setStatusFilter('closed', this)">🔒 ยุติประกาศ</button>
+  </div>
+
+  <!-- FILTERS: PROVINCE + SORT -->
+  <div class="filter-group">
+    <select id="filterProvince" onchange="applyFilters()">
+      <option value="">📍 จังหวัดทั้งหมด</option>
+    </select>
+    <select id="sortBy" onchange="applyFilters()">
+      <option value="latest">🕒 ล่าสุดก่อน</option>
+      <option value="oldest">🕒 เก่าสุดก่อน</option>
+      <option value="province">📍 เรียงตามจังหวัด (ก-ฮ)</option>
+    </select>
+    <button class="filter-reset" onclick="resetFilters()">✕ รีเซ็ต</button>
+  </div>
+
+  <!-- GRID -->
+  <div class="grid" id="grid"></div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modal" onclick="event.stopPropagation()">
+    <div class="modal-top">
+      <span class="modal-top-label">🚨 Cat Lost</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox-overlay" id="lightboxOverlay" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="event.stopPropagation();closeLightbox()">✕</button>
+  <button class="lightbox-prev" onclick="event.stopPropagation();prevImage()">‹</button>
+  <img class="lightbox-img" id="lightboxImg" src="" alt="รูปแมว" onclick="event.stopPropagation()">
+  <button class="lightbox-next" onclick="event.stopPropagation();nextImage()">›</button>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+const SHEET_ID = '1FMdtivhm9rG4n9lJ20C_Lt5JsoWdfsgPDzSQnvGwhug';
+const SHEET_NAME = 'catlost';
+const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}`;
+
+const PROVINCES = [
+  "กระบี่","กรุงเทพมหานคร","กาญจนบุรี","กาฬสินธุ์","กำแพงเพชร","ขอนแก่น","จันทบุรี","ฉะเชิงเทรา",
+  "ชลบุรี","ชัยนาท","ชัยภูมิ","ชุมพร","เชียงราย","เชียงใหม่","ตรัง","ตราด","ตาก","นครนายก","นครปฐม",
+  "นครพนม","นครราชสีมา","นครศรีธรรมราช","นครสวรรค์","นนทบุรี","นราธิวาส","น่าน","บึงกาฬ","บุรีรัมย์",
+  "ปทุมธานี","ประจวบคีรีขันธ์","ปราจีนบุรี","ปัตตานี","พระนครศรีอยุธยา","พะเยา","พังงา","พัทลุง","พิจิตร",
+  "พิษณุโลก","เพชรบุรี","เพชรบูรณ์","แพร่","ภูเก็ต","มหาสารคาม","มุกดาหาร","แม่ฮ่องสอน","ยโสธร","ยะลา",
+  "ร้อยเอ็ด","ระนอง","ระยอง","ราชบุรี","ลพบุรี","ลำปาง","ลำพูน","เลย","ศรีสะเกษ","สกลนคร","สงขลา","สตูล",
+  "สมุทรปราการ","สมุทรสงคราม","สมุทรสาคร","สระแก้ว","สระบุรี","สิงห์บุรี","สุโขทัย","สุพรรณบุรี",
+  "สุราษฎร์ธานี","สุรินทร์","หนองคาย","หนองบัวลำภู","อ่างทอง","อำนาจเจริญ","อุดรธานี","อุตรดิตถ์",
+  "อุทัยธานี","อุบลราชธานี"
+];
+
+function normalizeImageUrl(url) {
+  if (!url) return '';
+  const gdrive1 = url.match(/drive\.google\.com\/file\/d\/([^\/\?]+)/);
+  const gdrive2 = url.match(/drive\.google\.com\/open\?id=([^&]+)/);
+  const gdrive3 = url.match(/drive\.google\.com\/uc\?export=view&id=([^&]+)/);
+  const id = gdrive1?.[1] || gdrive2?.[1] || gdrive3?.[1];
+  if (id) return `https://lh3.googleusercontent.com/d/${id}`;
+  if (url.includes('dropbox.com')) return url.replace('?dl=0', '?raw=1').replace('?dl=1', '?raw=1');
+  if (url.includes('imgur.com')) {
+    const m = url.match(/imgur\.com\/([a-zA-Z0-9]+)/);
+    if (m) return `https://i.imgur.com/${m[1]}.jpg`;
+  }
+  return url;
+}
+
+let allData = [];
+let filteredData = [];
+let currentStatusFilter = '';
+let currentLightboxImages = [];
+let currentLightboxIndex = 0;
+
+function populateProvinceDropdown() {
+  const sel = document.getElementById('filterProvince');
+  PROVINCES.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p;
+    opt.textContent = p;
+    sel.appendChild(opt);
+  });
+}
+
+function parseRow(row) {
+  return {
+    id: row[0] || '',
+    owner_name: row[1] || '',
+    owner_photo: normalizeImageUrl(row[2] || ''),
+    cat_name: row[3] || '',
+    cat_images: [row[4], row[5], row[6], row[7], row[8]].map(normalizeImageUrl).filter(x => x),
+    detail: row[9] || '',
+    province: row[10] || '',
+    location_detail: row[11] || '',
+    line_link: row[12] || '',
+    youtube: row[13] || '',
+    tiktok: row[14] || '',
+    instagram: row[15] || '',
+    x: row[16] || '',
+    email: row[17] || '',
+    create_date: row[18] || '',
+    create_time: row[19] || '',
+    last_update: row[20] || '',
+    edit_code: row[21] || '',
+    status: row[22] || 'searching'
+  };
+}
+
+function parseThaiDateTime(dateStr, timeStr) {
+  // dateStr: dd/MM/yyyy, timeStr: HH:mm
+  if (!dateStr) return 0;
+  const [d, m, y] = dateStr.split('/').map(Number);
+  let hh = 0, mm = 0;
+  if (timeStr) {
+    const parts = timeStr.split(':').map(Number);
+    hh = parts[0] || 0; mm = parts[1] || 0;
+  }
+  return new Date(y, (m - 1), d, hh, mm).getTime();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+async function fetchData() {
+  try {
+    const resp = await fetch(GVIZ_URL);
+    const text = await resp.text();
+    const json = JSON.parse(text.substring(47, text.length - 2));
+    const rows = json.table.rows || [];
+    allData = rows.map(row => {
+      const values = row.c.map(c => c ? c.v : '');
+      return parseRow(values);
+    }).filter(d => d.id);
+    updateDashboard();
+    applyFilters();
+  } catch (err) {
+    console.error('Error:', err);
+    document.getElementById('grid').innerHTML = `<div class="no-data"><span class="emoji">😿</span><p>ไม่สามารถโหลดข้อมูลได้</p></div>`;
+  }
+}
+
+function updateDashboard() {
+  document.getElementById('totalLost').textContent = allData.length;
+  document.getElementById('totalSearching').textContent = allData.filter(d => d.status === 'searching').length;
+  document.getElementById('totalFound').textContent = allData.filter(d => d.status === 'found').length;
+}
+
+function setStatusFilter(status, btn) {
+  currentStatusFilter = status;
+  document.querySelectorAll('.status-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilters();
+}
+
+function applyFilters() {
+  const search = document.getElementById('searchInput').value.toLowerCase().trim();
+  const province = document.getElementById('filterProvince').value;
+  const sortBy = document.getElementById('sortBy').value;
+
+  filteredData = allData.filter(d => {
+    if (search) {
+      const searchable = [d.cat_name, d.location_detail, d.province, d.owner_name].join(' ').toLowerCase();
+      if (!searchable.includes(search)) return false;
+    }
+    if (province && d.province !== province) return false;
+    if (currentStatusFilter && d.status !== currentStatusFilter) return false;
+    return true;
+  });
+
+  if (sortBy === 'latest') {
+    filteredData.sort((a, b) => parseThaiDateTime(b.last_update?.split(' ')[0] || b.create_date, b.last_update?.split(' ')[1] || b.create_time) - parseThaiDateTime(a.last_update?.split(' ')[0] || a.create_date, a.last_update?.split(' ')[1] || a.create_time));
+  } else if (sortBy === 'oldest') {
+    filteredData.sort((a, b) => parseThaiDateTime(a.create_date, a.create_time) - parseThaiDateTime(b.create_date, b.create_time));
+  } else if (sortBy === 'province') {
+    filteredData.sort((a, b) => (a.province || '').localeCompare(b.province || '', 'th'));
+  }
+
+  renderGrid();
+}
+
+function resetFilters() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('filterProvince').value = '';
+  document.getElementById('sortBy').value = 'latest';
+  currentStatusFilter = '';
+  document.querySelectorAll('.status-filter-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('.status-filter-btn[data-status=""]').classList.add('active');
+  applyFilters();
+}
+
+function statusListHTML(status) {
+  const items = [
+    { key: 'searching', label: 'กำลังตามหา' },
+    { key: 'found', label: 'พบแล้ว' },
+    { key: 'closed', label: 'ยุติประกาศ' }
+  ];
+  return `<div class="status-list">` + items.map(it => {
+    const isActive = it.key === status;
+    return `<div class="status-row ${isActive ? 'active' : ''}"><span class="status-dot">${isActive ? '✓' : ''}</span><span>${it.label}</span></div>`;
+  }).join('') + `</div>`;
+}
+
+function renderGrid() {
+  const grid = document.getElementById('grid');
+  if (filteredData.length === 0) {
+    grid.innerHTML = `<div class="no-data"><span class="emoji">😿</span><p>ไม่พบประกาศที่ตรงกับเงื่อนไข</p></div>`;
+    return;
+  }
+  grid.innerHTML = filteredData.map(d => {
+    const mainImg = d.cat_images[0] || '';
+    return `
+      <div class="lost-card" onclick="openModal('${d.id}')">
+        <div class="lost-card-img-wrap">
+          <img src="${mainImg}" alt="${d.cat_name}" loading="lazy" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%23F0E8E4%22 width=%22100%22 height=%22100%22/%3E%3C/svg%3E'">
+          <button class="lost-card-edit-btn" onclick="event.stopPropagation();goToEdit('${d.id}')" title="แก้ไขประกาศ">✏️</button>
+        </div>
+        <div class="lost-card-body">
+          <div class="lost-card-catname">🐱 ${d.cat_name}</div>
+          <div class="lost-card-location">📍 ${d.location_detail}${d.province ? ' · ' + d.province : ''}</div>
+          <div class="lost-card-owner">ประกาศโดย: ${d.owner_name}</div>
+          ${statusListHTML(d.status)}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function goToEdit(id) {
+  window.location.href = 'catlost-edit.html?id=' + encodeURIComponent(id);
+}
+
+function openModal(id) {
+  const d = allData.find(x => x.id === id);
+  if (!d) return;
+  currentLightboxImages = d.cat_images;
+  currentLightboxIndex = 0;
+
+  const contactLinks = [];
+  if (d.line_link) contactLinks.push(`<a class="contact-pill" href="${d.line_link}" target="_blank">💬 LINE</a>`);
+  if (d.instagram) contactLinks.push(`<a class="contact-pill" href="https://instagram.com/${d.instagram.replace('@','')}" target="_blank">📷 Instagram</a>`);
+  if (d.tiktok) contactLinks.push(`<a class="contact-pill" href="https://tiktok.com/@${d.tiktok.replace('@','')}" target="_blank">🎵 TikTok</a>`);
+  if (d.youtube) contactLinks.push(`<a class="contact-pill" href="${d.youtube}" target="_blank">▶️ YouTube</a>`);
+  if (d.x) contactLinks.push(`<a class="contact-pill" href="https://x.com/${d.x.replace('@','')}" target="_blank">✕ X</a>`);
+
+  const thumbs = d.cat_images.map((img, i) => `<img src="${img}" onclick="switchMainImage(${i})">`).join('');
+
+  document.getElementById('modalBody').innerHTML = `
+    <div class="modal-main-img" id="modalMainImgWrap" onclick="openLightbox(0)">
+      <img src="${d.cat_images[0] || ''}" id="modalMainImg">
+    </div>
+    ${d.cat_images.length > 1 ? `<div class="modal-thumbs">${thumbs}</div>` : ''}
+
+    <div class="modal-catname">🐱 ${d.cat_name}</div>
+    <div class="modal-location"><span class="pin">📍</span>${d.location_detail}</div>
+    <div class="modal-province">${d.province}</div>
+
+    <div class="modal-detail">${d.detail || 'ไม่มีรายละเอียดเพิ่มเติม'}</div>
+
+    <div class="modal-status-panel">
+      <div style="font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">สถานะปัจจุบัน</div>
+      ${statusListHTML(d.status)}
+    </div>
+
+    <div class="modal-owner">
+      <div class="modal-owner-img"><img src="${d.owner_photo}" onerror="this.style.display='none'"></div>
+      <div class="modal-owner-info">
+        <div class="name">ประกาศโดย ${d.owner_name}</div>
+        <div class="meta">เมื่อ ${d.create_date} เวลา ${d.create_time} น.</div>
+      </div>
+    </div>
+
+    ${contactLinks.length ? `<div class="modal-contact">${contactLinks.join('')}</div>` : ''}
+
+    <button class="modal-edit-btn" onclick="goToEdit('${d.id}')">✏️ แก้ไขประกาศนี้</button>
+  `;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function switchMainImage(index) {
+  currentLightboxIndex = index;
+  document.getElementById('modalMainImg').src = currentLightboxImages[index];
+}
+
+function closeModal(e) {
+  if (e && e.target !== e.currentTarget) return;
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+
+function openLightbox(index) {
+  if (currentLightboxImages.length === 0) return;
+  currentLightboxIndex = index;
+  document.getElementById('lightboxImg').src = currentLightboxImages[index];
+  document.getElementById('lightboxOverlay').classList.add('open');
+}
+
+function closeLightbox() {
+  document.getElementById('lightboxOverlay').classList.remove('open');
+}
+
+function prevImage() {
+  if (currentLightboxImages.length === 0) return;
+  currentLightboxIndex = (currentLightboxIndex - 1 + currentLightboxImages.length) % currentLightboxImages.length;
+  document.getElementById('lightboxImg').src = currentLightboxImages[currentLightboxIndex];
+}
+
+function nextImage() {
+  if (currentLightboxImages.length === 0) return;
+  currentLightboxIndex = (currentLightboxIndex + 1) % currentLightboxImages.length;
+  document.getElementById('lightboxImg').src = currentLightboxImages[currentLightboxIndex];
+}
+
+document.addEventListener('keydown', function(e) {
+  if (!document.getElementById('lightboxOverlay').classList.contains('open')) return;
+  if (e.key === 'ArrowLeft') prevImage();
+  if (e.key === 'ArrowRight') nextImage();
+  if (e.key === 'Escape') closeLightbox();
+});
+
+populateProvinceDropdown();
+fetchData();
+</script>
+
+</body>
+</html>
