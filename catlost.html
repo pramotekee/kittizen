@@ -680,6 +680,7 @@
     <select id="sortBy" onchange="applyFilters()">
       <option value="latest">🕒 ล่าสุดก่อน</option>
       <option value="oldest">🕒 เก่าสุดก่อน</option>
+      <option value="province">📍 เรียงตามจังหวัด (ก-ฮ)</option>
     </select>
     <button class="filter-reset" onclick="resetFilters()">✕ รีเซ็ต</button>
   </div>
@@ -761,6 +762,46 @@ function populateProvinceDropdown() {
   });
 }
 
+// gviz บางครั้งส่งค่าวันที่/เวลากลับมาเป็น literal แบบ "Date(2026,6,4)" หรือ
+// "Date(1899,11,30,20,28,0)" (รูปแบบพิเศษของ Google Visualization API) แทนที่จะ
+// เป็น string ธรรมดา ฟังก์ชันนี้แปลงให้กลายเป็นข้อความ dd/MM/yyyy หรือ HH:mm ที่คนอ่านได้
+function pad2(n) { return n.toString().padStart(2, '0'); }
+
+function gvizDateToThai(value) {
+  if (!value) return '';
+  if (typeof value === 'string' && value.startsWith('Date(')) {
+    const nums = value.match(/Date\(([^)]+)\)/)[1].split(',').map(Number);
+    const [y, m, d] = nums; // m เป็น 0-indexed จาก gviz (0=Jan)
+    return `${pad2(d)}/${pad2(m + 1)}/${y}`;
+  }
+  return value; // เป็น string dd/MM/yyyy ปกติอยู่แล้ว
+}
+
+function gvizTimeToThai(value) {
+  if (!value) return '';
+  if (typeof value === 'string' && value.startsWith('Date(')) {
+    const nums = value.match(/Date\(([^)]+)\)/)[1].split(',').map(Number);
+    // gviz เก็บเวลาอย่างเดียวเป็น Date(1899,11,30,HH,mm,ss) เพราะ Google Sheets
+    // ใช้ epoch วันที่ 30 ธ.ค. 1899 เป็นฐานของ time-only value
+    const hh = nums[3] || 0;
+    const mm = nums[4] || 0;
+    return `${pad2(hh)}:${pad2(mm)}`;
+  }
+  return value; // เป็น string HH:mm ปกติอยู่แล้ว
+}
+
+function gvizLastUpdateToThai(value) {
+  if (!value) return '';
+  if (typeof value === 'string' && value.startsWith('Date(')) {
+    // last_update ถูกเก็บเป็น string "dd/MM/yyyy HH:mm" แต่ถ้า Sheets ตีความ
+    // เป็น datetime cell จะกลายเป็น Date(y,m,d,H,i,s) แบบเต็ม
+    const nums = value.match(/Date\(([^)]+)\)/)[1].split(',').map(Number);
+    const [y, m, d, hh = 0, mm = 0] = nums;
+    return `${pad2(d)}/${pad2(m + 1)}/${y} ${pad2(hh)}:${pad2(mm)}`;
+  }
+  return value;
+}
+
 function parseRow(row) {
   return {
     id: row[0] || '',
@@ -777,9 +818,9 @@ function parseRow(row) {
     instagram: row[15] || '',
     x: row[16] || '',
     email: row[17] || '',
-    create_date: row[18] || '',
-    create_time: row[19] || '',
-    last_update: row[20] || '',
+    create_date: gvizDateToThai(row[18]),
+    create_time: gvizTimeToThai(row[19]),
+    last_update: gvizLastUpdateToThai(row[20]),
     edit_code: row[21] || '',
     status: row[22] || 'searching'
   };
@@ -796,6 +837,7 @@ function parseThaiDateTime(dateStr, timeStr) {
   }
   return new Date(y, (m - 1), d, hh, mm).getTime();
 }
+
 
 function showToast(msg) {
   const t = document.getElementById('toast');
@@ -913,18 +955,6 @@ function goToEdit(id) {
   window.location.href = 'catlost-edit.html?id=' + encodeURIComponent(id);
 }
 
-async function shareLostProfile(id) {
-  const d = allData.find(x => x.id === id);
-  if (!d) return;
-  const shareURL = window.location.origin + window.location.pathname + '?id=' + id;
-  const shareText = '🚨 น้องหลงหายไป... หากพบแมวหน้าตาแบบนี้ช่วยติดต่อเจ้าของด้วยนะคะ/ครับ🥺\nชื่อแมว: ' + d.cat_name + '\nสถานที่: ' + d.location_detail + ' ' + d.province + '\n' + shareURL;
-  if (navigator.share) {
-    try { await navigator.share({ text: shareText }); } catch (e) {}
-  } else {
-    try { await navigator.clipboard.writeText(shareText); showToast('📋 คัดลอกลิงก์แล้ว'); } catch (e) { showToast('ไม่สามารถคัดลอกได้'); }
-  }
-}
-
 function openModal(id) {
   const d = allData.find(x => x.id === id);
   if (!d) return;
@@ -967,10 +997,7 @@ function openModal(id) {
 
     ${contactLinks.length ? `<div class="modal-contact">${contactLinks.join('')}</div>` : ''}
 
-    <div style="display:flex;gap:10px;flex-wrap:wrap;">
-      <button class="modal-edit-btn" onclick="shareLostProfile('${d.id}')" style="flex:1;background:var(--accent);color:white;">🔗 Share</button>
-      <button class="modal-edit-btn" onclick="goToEdit('${d.id}')" style="flex:1;">✏️ แก้ไขประกาศนี้</button>
-    </div>
+    <button class="modal-edit-btn" onclick="goToEdit('${d.id}')">✏️ แก้ไขประกาศนี้</button>
   `;
   document.getElementById('modalOverlay').classList.add('open');
 }
