@@ -914,6 +914,18 @@ function goToEdit(id) {
   window.location.href = 'catlost-edit.html?id=' + encodeURIComponent(id);
 }
 
+async function shareLostProfile(id) {
+  const d = allData.find(x => x.id === id);
+  if (!d) return;
+  const shareURL = window.location.origin + window.location.pathname + '?id=' + id;
+  const shareText = '🚨 ช่วยตามหาแมวด้วยค่ะ/ครับ!\nชื่อแมว: ' + d.cat_name + '\nสถานที่: ' + d.location_detail + ' ' + d.province + '\n' + shareURL;
+  if (navigator.share) {
+    try { await navigator.share({ text: shareText }); } catch (e) {}
+  } else {
+    try { await navigator.clipboard.writeText(shareText); showToast('📋 คัดลอกลิงก์แล้ว'); } catch (e) { showToast('ไม่สามารถคัดลอกได้'); }
+  }
+}
+
 function openModal(id) {
   const d = allData.find(x => x.id === id);
   if (!d) return;
@@ -956,7 +968,10 @@ function openModal(id) {
 
     ${contactLinks.length ? `<div class="modal-contact">${contactLinks.join('')}</div>` : ''}
 
-    <button class="modal-edit-btn" onclick="goToEdit('${d.id}')">✏️ แก้ไขประกาศนี้</button>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="modal-edit-btn" onclick="shareLostProfile('${d.id}')" style="flex:1;background:var(--accent);color:white;">🔗 Share</button>
+      <button class="modal-edit-btn" onclick="goToEdit('${d.id}')" style="flex:1;">✏️ แก้ไขประกาศนี้</button>
+    </div>
   `;
   document.getElementById('modalOverlay').classList.add('open');
 }
