@@ -144,6 +144,44 @@
     margin-bottom: 20px;
   }
   .success-banner.show { display: block; }
+
+  .popup-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+  .popup-overlay.open { display: flex; }
+  .popup {
+    background: var(--surface);
+    border-radius: 28px;
+    padding: 32px;
+    max-width: 420px;
+    width: 90%;
+    text-align: center;
+    animation: fadeIn 0.25s ease;
+  }
+  .popup h3 { font-size: 24px; margin-bottom: 8px; }
+  .popup .sub { margin-bottom: 20px; }
+  .popup-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .popup-actions button {
+    padding: 10px 24px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+    font-family: 'Inter', sans-serif;
+  }
+  .btn-copy { background: var(--accent); color: white; }
+  .btn-copy:hover { background: var(--accent-dark); }
+  .btn-home { background: var(--tag-bg); color: var(--text-primary); }
+  .btn-home:hover { background: #d8d8dd; }
+  @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 </style>
 </head>
 <body>
@@ -164,7 +202,6 @@
 
   <!-- EDIT FORM (hidden until unlocked) -->
   <div class="card" id="editCard" style="display:none;">
-    <div class="success-banner" id="successBanner">✅ บันทึกข้อมูลเรียบร้อยแล้ว</div>
     <h1>✏️ แก้ไขประกาศ</h1>
     <div class="sub">แก้ไขข้อมูลหรืออัปเดตสถานะได้ตลอดเวลา (ระบบจะไม่ลบประกาศนี้ออกไม่ว่าสถานะใด)</div>
 
@@ -378,9 +415,22 @@
   </div>
 </div>
 
+<!-- SUCCESS POPUP -->
+<div class="popup-overlay" id="successPopupOverlay">
+  <div class="popup">
+    <h3>✅ บันทึกสำเร็จ!</h3>
+    <p class="sub">ข้อมูลประกาศของคุณถูกอัปเดตเรียบร้อยแล้ว</p>
+    <div class="popup-actions">
+      <button class="btn-copy" id="backToCardBtn">🐱 กลับไปดูการ์ด</button>
+      <button class="btn-home" id="stayEditingBtn">✏️ แก้ไขต่อ</button>
+    </div>
+  </div>
+</div>
+
 <script>
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbylJXLg47otdgqZM6EwLma8AL1q5AEIsYe8uDOlNlTh9gOMOS7sHOgceX4l9h8ia3nGfg/exec';
   let currentEditCode = '';
+  let currentId = '';
 
   function normalizeImageUrl(url) {
     if (!url) return '';
@@ -436,6 +486,7 @@
 
       if (result.success) {
         currentEditCode = editCode;
+        currentId = result.data.id;
         fillForm(result.data);
         document.getElementById('unlockCard').style.display = 'none';
         document.getElementById('editCard').style.display = 'block';
@@ -552,10 +603,7 @@
       if (result && result.success === false) {
         alert('เกิดข้อผิดพลาด: ' + (result.error || 'ไม่ทราบสาเหตุ'));
       } else {
-        const banner = document.getElementById('successBanner');
-        banner.classList.add('show');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        setTimeout(() => banner.classList.remove('show'), 4000);
+        document.getElementById('successPopupOverlay').classList.add('open');
       }
     } catch (err) {
       alert('เกิดข้อผิดพลาดในการเชื่อมต่อ: ' + err.message + '\n\nกรุณารีเฟรชหน้าเพื่อตรวจสอบว่าข้อมูลถูกบันทึกหรือยัง');
@@ -563,6 +611,13 @@
       btn.disabled = false;
       btn.innerHTML = '💾 บันทึกการแก้ไข';
     }
+  });
+
+  document.getElementById('backToCardBtn').addEventListener('click', () => {
+    window.location.href = 'catlost.html?id=' + encodeURIComponent(currentId);
+  });
+  document.getElementById('stayEditingBtn').addEventListener('click', () => {
+    document.getElementById('successPopupOverlay').classList.remove('open');
   });
 </script>
 
