@@ -368,6 +368,7 @@
   <div class="popup">
     <h3>🎉 ประกาศสำเร็จ!</h3>
     <p class="sub">ประกาศแมวหายของคุณถูกเผยแพร่แล้ว</p>
+    <p style="font-size:13px;color:var(--text-secondary);">รหัสประกาศของคุณคือ <b id="idDisplay"></b></p>
     <p style="font-size:13px;color:var(--text-secondary);">Edit code ของคุณคือ</p>
     <div class="code-box" id="editCodeDisplay"></div>
     <p class="warning">⚠️ กรุณาจดบันทึกรหัสนี้ไว้ ใช้สำหรับแก้ไขข้อมูลหรืออัปเดตสถานะ หากลืมจะไม่สามารถแก้ไขได้</p>
@@ -466,13 +467,13 @@
       }
 
       if (result && result.success) {
-        showSuccessPopup();
+        showSuccessPopup(result.id);
       } else if (result && result.success === false) {
         alert('เกิดข้อผิดพลาด: ' + (result.error || 'ไม่ทราบสาเหตุ'));
       } else {
         // Parse ไม่ได้ (response เป็น HTML) แต่ปกติแล้วข้อมูลถูกบันทึกลงชีทแล้ว
         // เนื่องจาก doPost ทำงานสำเร็จก่อนที่ Google จะส่งหน้าตอบกลับแปลกๆ มา
-        showSuccessPopup();
+        showSuccessPopup('-');
       }
     } catch (err) {
       alert('เกิดข้อผิดพลาดในการเชื่อมต่อ: ' + err.message + '\n\nกรุณาตรวจสอบหน้ารวมประกาศว่าข้อมูลของคุณขึ้นแล้วหรือยัง ก่อนกดบันทึกซ้ำ');
@@ -481,7 +482,8 @@
       btn.innerHTML = '🚨 บันทึกประกาศแมวหาย';
     }
 
-    function showSuccessPopup() {
+    function showSuccessPopup(id) {
+      document.getElementById('idDisplay').textContent = id;
       document.getElementById('editCodeDisplay').textContent = editCode;
       document.getElementById('popupOverlay').classList.add('open');
       document.getElementById('copyCodeBtn').onclick = () => {
