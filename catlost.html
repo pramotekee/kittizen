@@ -572,6 +572,33 @@
   }
   .modal-edit-btn:hover { background: #E3D9D3; }
 
+  .modal-action-row {
+    display: flex;
+    gap: 10px;
+  }
+  .modal-action-row .modal-edit-btn,
+  .modal-action-row .modal-share-btn {
+    flex: 1;
+    margin-top: 0;
+  }
+  .modal-share-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    justify-content: center;
+    background: var(--lost-accent);
+    color: #fff;
+    padding: 12px;
+    border-radius: 14px;
+    font-weight: 600;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: background 0.15s;
+  }
+  .modal-share-btn:hover { background: var(--lost-accent-dark); }
+
   /* LIGHTBOX */
   .lightbox-overlay {
     display: none;
@@ -859,9 +886,19 @@ async function fetchData() {
     }).filter(d => d.id);
     updateDashboard();
     applyFilters();
+    openModalFromUrlIfPresent();
   } catch (err) {
     console.error('Error:', err);
     document.getElementById('grid').innerHTML = `<div class="no-data"><span class="emoji">😿</span><p>ไม่สามารถโหลดข้อมูลได้</p></div>`;
+  }
+}
+
+// รองรับลิงก์แชร์แบบ catlost.html?view=lost1 ให้เปิด modal ของประกาศนั้นอัตโนมัติ
+function openModalFromUrlIfPresent() {
+  const params = new URLSearchParams(window.location.search);
+  const viewId = params.get('view');
+  if (viewId && allData.some(d => d.id === viewId)) {
+    openModal(viewId);
   }
 }
 
@@ -997,9 +1034,33 @@ function openModal(id) {
 
     ${contactLinks.length ? `<div class="modal-contact">${contactLinks.join('')}</div>` : ''}
 
-    <button class="modal-edit-btn" onclick="goToEdit('${d.id}')">✏️ แก้ไขประกาศนี้</button>
+    <div class="modal-action-row">
+      <button class="modal-share-btn" onclick="shareAnnouncement('${d.id}', '${d.cat_name.replace(/'/g, "\\'")}')">🔗 แชร์ประกาศ</button>
+      <button class="modal-edit-btn" onclick="goToEdit('${d.id}')">✏️ แก้ไขประกาศนี้</button>
+    </div>
   `;
   document.getElementById('modalOverlay').classList.add('open');
+}
+
+async function shareAnnouncement(id, catName) {
+  const shareUrl = `${window.location.origin}${window.location.pathname.replace('catlost.html','')}catlost.html?view=${encodeURIComponent(id)}`;
+  const shareText = `🚨 ช่วยตามหาน้อง ${catName} หน่อยครับ/ค่ะ`;
+
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: 'Kittizen — Cat Lost', text: shareText, url: shareUrl });
+      return;
+    } catch (err) {
+      // ผู้ใช้กดยกเลิก share sheet หรือ share ไม่ผ่าน — fallback ไป copy link แทน
+    }
+  }
+
+  try {
+    await navigator.clipboard.writeText(shareUrl);
+    showToast('📋 คัดลอกลิงก์ประกาศแล้ว');
+  } catch (err) {
+    showToast('ไม่สามารถคัดลอกลิงก์ได้');
+  }
 }
 
 function switchMainImage(index) {
