@@ -156,15 +156,10 @@
     <h1>🔒 แก้ไขประกาศแมวหาย</h1>
     <div class="sub">กรอกรหัส Edit Code ที่ได้รับตอนแจ้งแมวหายเพื่อปลดล็อกการแก้ไข</div>
     <div class="form-group">
-      <label>รหัสประกาศ (ID) <span class="required">*</span></label>
-      <input type="text" id="lookupId" placeholder="เช่น lost1">
-      <small>หากมาจากการกดปุ่มดินสอในการ์ด ระบบจะกรอกให้อัตโนมัติ</small>
-    </div>
-    <div class="form-group">
       <label>Edit Code <span class="required">*</span></label>
       <input type="text" id="lookupEditCode" placeholder="กรอกรหัส 8 หลัก">
     </div>
-    <button class="btn-unlock" id="unlockBtn">🔓 ปลดล็อก</button>
+    <button class="btn-unlock" id="unlockBtn">GO</button>
   </div>
 
   <!-- EDIT FORM (hidden until unlocked) -->
@@ -399,13 +394,6 @@
     return url;
   }
 
-  // Pre-fill ID from URL param (?id=lost1)
-  document.addEventListener('DOMContentLoaded', () => {
-    const params = new URLSearchParams(window.location.search);
-    const id = params.get('id');
-    if (id) document.getElementById('lookupId').value = id;
-  });
-
   document.getElementById('detail').addEventListener('input', function() {
     document.getElementById('detailCounter').textContent = this.value.length;
   });
@@ -442,7 +430,7 @@
       try {
         result = JSON.parse(rawText);
       } catch (parseErr) {
-        alert('เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง');
+        alert('กรุณาตรวจสอบข้อมูลที่กรอกให้ถูกต้องอีกครั้ง');
         return;
       }
 
@@ -452,13 +440,13 @@
         document.getElementById('unlockCard').style.display = 'none';
         document.getElementById('editCard').style.display = 'block';
       } else {
-        alert('ไม่พบประกาศ: ' + (result.error || 'กรุณาตรวจสอบ Edit Code'));
+        alert('กรุณาตรวจสอบข้อมูลที่กรอกให้ถูกต้องอีกครั้ง');
       }
     } catch (err) {
       alert('เกิดข้อผิดพลาด: ' + err.message);
     } finally {
       btn.disabled = false;
-      btn.innerHTML = '🔓 ปลดล็อก';
+      btn.innerHTML = 'GO';
     }
   });
 
