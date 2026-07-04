@@ -975,7 +975,6 @@ function renderGrid() {
       <div class="lost-card" onclick="openModal('${d.id}')">
         <div class="lost-card-img-wrap">
           <img src="${mainImg}" alt="${d.cat_name}" loading="lazy" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%23F0E8E4%22 width=%22100%22 height=%22100%22/%3E%3C/svg%3E'">
-          <button class="lost-card-edit-btn" onclick="event.stopPropagation();goToEdit('${d.id}')" title="แก้ไขประกาศ">✏️</button>
         </div>
         <div class="lost-card-body">
           <div class="lost-card-catname">🐱 ${d.cat_name}</div>
