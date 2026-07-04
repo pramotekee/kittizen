@@ -71,6 +71,41 @@
     margin: 8px auto 0;
   }
 
+  /* MODE SWITCH */
+  .mode-switch {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding: 0 20px 20px;
+    flex-wrap: wrap;
+  }
+  .mode-btn {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 30px;
+    padding: 10px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--text-secondary);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.15s;
+    font-family: 'Inter', sans-serif;
+  }
+  .mode-btn:hover { background: var(--tag-bg); }
+  .mode-btn.active {
+    background: var(--text-primary);
+    color: #fff;
+    border-color: var(--text-primary);
+  }
+  .mode-btn.lost.active {
+    background: #E8734A;
+    border-color: #E8734A;
+  }
+
   /* DASHBOARD */
   .dashboard {
     display: flex;
@@ -1103,6 +1138,12 @@
     <p class="slogan">Show your real boss.</p>
     <p class="caption">ขอดูเจ้านายคุณหน่อยยย</p>
   </header>
+
+  <!-- MODE SWITCH -->
+  <div class="mode-switch">
+    <a href="index.html" class="mode-btn active">🐱 Cat Love</a>
+    <a href="catlost.html" class="mode-btn lost">🚨 Cat Lost</a>
+  </div>
 
   <!-- DASHBOARD -->
   <div class="dashboard" id="dashboard">
