@@ -812,7 +812,7 @@
   // ============================================================
   // SEARCH
   // ============================================================
- document.getElementById('searchBtn').addEventListener('click', async function() {
+document.getElementById('searchBtn').addEventListener('click', async function() {
   const editCode = document.getElementById('editCode').value.trim();
   const name = document.getElementById('searchName').value.trim().toLowerCase();
 
@@ -825,55 +825,11 @@
   this.innerHTML = '<span class="spinner"></span> กำลังค้นหา...';
 
   try {
-    // ============================================================
-    // STEP 1: ตรวจสอบ edit_code กับ CatAccess
-    // ============================================================
-    const verifyRes = await fetch(SCRIPT_URL, {
-      method: 'POST',
-      body: JSON.stringify({
-        action: 'verifyEditCode',    // ← เรียกฟังก์ชันใหม่
-        catId: '?',                  // ← ยังไม่รู้ id ให้ส่ง '?' ไปก่อน
-        code: editCode
-      })
-    });
-    const verifyResult = await verifyRes.json();
-
-    if (!verifyResult.success) {
-      showAlert('Edit code ไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง', 'error');
-      this.disabled = false;
-      this.innerHTML = '🔍 GO';
-      return;
-    }
-
-    // ============================================================
-    // STEP 2: ถ้า edit_code ถูกต้อง → ดึงข้อมูลจาก Sheet1
-    // ============================================================
-    // ยังไงก็ตาม เราไม่รู้ id จริงๆ เพราะ verifyEditCode ที่ทำไว้
-    // รับแค่ catId กับ code แต่ในกรณีนี้เราไม่ได้ส่ง catId ไป
-    // 
-    // แก้ไข: ให้ verifyEditCode ส่ง id กลับมาด้วย
-    // แต่ถ้าแก้ Apps Script ไม่ได้ตอนนี้ ให้ใช้วิธีเก่าที่ส่ง edit_code ไป
-    // แต่เปลี่ยนไปใช้ action='fetch_by_code' ที่จะไปค้นหาใน Sheet1
-    // 
-    // วิธีที่ดีที่สุด: แก้ Apps Script เพิ่ม function fetchByEditCode
-    // หรือใช้วิธีส่ง edit_code ไปให้ fetch แล้วให้ฝั่ง Script 
-    // ไปเช็ค CatAccess ก่อนแล้วค่อยดึงข้อมูล
-    //
-    // แต่ถ้าไม่อยากแก้ Apps Script อีก (เพราะ Deploy ยาก)
-    // ให้ใช้วิธีนี้แทน: ส่ง edit_code ไปให้ lost_fetch หรือ fetch
-    // แล้วให้ฝั่ง Script เช็ค CatAccess เอง
-    //
-    // ============================================================
-
-    // 🔥 วิธีที่ง่ายที่สุด: ส่ง edit_code ไปเลย แล้วให้ฝั่ง Apps Script
-    // เช็ค CatAccess เอง (ต้องแก้ Apps Script เพิ่มเติม)
-    //
-    // ถ้าคุณไม่แก้ Apps Script อีก ผมแนะนำให้ใช้วิธีนี้:
-    
+    // ✅ เรียก fetch_by_edit_code โดยตรง (เช็ค CatAccess ให้อัตโนมัติ)
     const fetchRes = await fetch(SCRIPT_URL, {
       method: 'POST',
       body: JSON.stringify({
-        action: 'fetch_by_edit_code',  // ← เปลี่ยนเป็น action ใหม่
+        action: 'fetch_by_edit_code',
         edit_code: editCode,
         name: name,
       })
