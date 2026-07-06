@@ -843,7 +843,7 @@ document.getElementById('searchBtn').addEventListener('click', async function() 
       document.getElementById('editSection').classList.add('show');
       showAlert('พบโปรไฟล์แล้ว', 'success');
     } else {
-      showAlert(result.error || 'ไม่พบโปรไฟล์ ตรวจสอบข้อมูลอีกครั้ง', 'error');
+      showAlert('ไม่พบโปรไฟล์ หรือคุณกรอกข้อมูลไม่ถูกต้อง โปรดลองอีกครั้ง', 'error');
     }
 
   } catch (err) {
