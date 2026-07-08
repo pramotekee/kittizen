@@ -1202,32 +1202,13 @@ document.getElementById('searchBtn').addEventListener('click', async function() 
           const imgBase64 = canvas.toDataURL('image/png');
 
           const { jsPDF } = window.jspdf;
-          // ใช้ขนาด A6 แนวนอน แทน mm
-          const doc = new jsPDF({ unit: 'mm', format: [105, 148] }); // A6 แนวตั้ง
+          const doc = new jsPDF({ unit: 'mm', format: [105, 148] });
 
-          // ตั้งค่า font เป็น Helvetica (Standard)
-          doc.setFont('helvetica', 'bold');
-          doc.setFontSize(14);
-          doc.setTextColor(0, 0, 0);
-          doc.text('KITTIZEN', 52.5, 15, { align: 'center' });
-
-          // QR Code ตรงกลาง
-          const qrSize = 75;
+          // QR Code เต็มหน้า ไม่มีข้อความใดๆ
+          const qrSize = 90;
           const xPos = (105 - qrSize) / 2;
-          const yPos = 25;
+          const yPos = (148 - qrSize) / 2;
           doc.addImage(imgBase64, 'PNG', xPos, yPos, qrSize, qrSize);
-
-          // ข้อความใต้ QR
-          doc.setFont('helvetica', 'normal');
-          doc.setFontSize(11);
-          doc.setTextColor(0, 0, 0);
-          doc.text(`สแกนติดต่อคุณ ${catName}`, 52.5, 110, { align: 'center' });
-
-          // Footer
-          doc.setFont('helvetica', 'normal');
-          doc.setFontSize(8);
-          doc.setTextColor(150, 150, 150);
-          doc.text('kittizen.vercel.app', 52.5, 135, { align: 'center' });
 
           // บันทึก PDF
           doc.save(`kittizen-contact-qr-${currentProfile.id}.pdf`);
