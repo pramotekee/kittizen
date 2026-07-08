@@ -1180,9 +1180,22 @@ document.getElementById('searchBtn').addEventListener('click', async function() 
       this.textContent = '⏳ กำลังสร้าง PDF...';
 
       try {
-          // ดึง QR image
+          // ✅ ตรวจสอบ URL
+          if (!qrUrl) {
+              throw new Error('ไม่พบ QR Code กรุณาบันทึกการ์ดก่อน');
+          }
+
+          // ✅ ดึง QR image พร้อมตรวจสอบ
           const imgRes = await fetch(qrUrl);
+          if (!imgRes.ok) {
+              throw new Error(`โหลด QR ไม่สำเร็จ (สถานะ: ${imgRes.status})`);
+          }
+
           const imgBlob = await imgRes.blob();
+          if (!imgBlob.type.startsWith('image/')) {
+              throw new Error('ข้อมูลที่ได้ไม่ใช่รูปภาพ');
+          }
+
           const imgBase64 = await new Promise((resolve, reject) => {
               const reader = new FileReader();
               reader.onload = () => resolve(reader.result);
