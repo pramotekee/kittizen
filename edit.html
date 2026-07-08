@@ -1153,7 +1153,7 @@ document.getElementById('searchBtn').addEventListener('click', async function() 
         return;
       }
 
-      // สร้าง QR หลัง save สำเร็จ — ลิงก์ไป contact-card.html?id=xxx
+      // สร้าง QR หลัง save สำเร็จ — ลิงก์ไป catcontact.html?id=xxx
       const cardUrl = `${CONTACT_CARD_BASE_URL}?id=${encodeURIComponent(result.id)}`;
       const qrUrl = `https://quickchart.io/qr?text=${encodeURIComponent(cardUrl)}&size=500&ecLevel=H&margin=2`;
 
