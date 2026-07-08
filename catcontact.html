@@ -220,7 +220,8 @@
     if (!url) return '';
     const gdrive1 = url.match(/drive\.google\.com\/file\/d\/([^\/\?]+)/);
     const gdrive2 = url.match(/drive\.google\.com\/open\?id=([^&]+)/);
-    const id = gdrive1?.[1] || gdrive2?.[1];
+    const gdrive3 = url.match(/drive\.google\.com\/uc\?.*[?&]id=([^&]+)/);
+    const id = gdrive1?.[1] || gdrive2?.[1] || gdrive3?.[1];
     if (id) return `https://lh3.googleusercontent.com/d/${id}`;
     if (url.includes('dropbox.com')) {
       return url.replace('?dl=0', '?raw=1').replace('?dl=1', '?raw=1');
