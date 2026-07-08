@@ -1172,49 +1172,60 @@ document.getElementById('searchBtn').addEventListener('click', async function() 
   });
 
   document.getElementById('downloadQrPdfBtn').addEventListener('click', async function() {
-    const qrImg = document.getElementById('contactQrPreview');
-    const qrUrl = qrImg.dataset.qrUrl;
-    const catName = currentProfile?.name || 'kittizen';
+      const qrImg = document.getElementById('contactQrPreview');
+      const qrUrl = qrImg.dataset.qrUrl;
+      const catName = currentProfile?.name || 'Kittizen';
 
-    this.disabled = true;
-    this.textContent = '⏳ กำลังสร้าง PDF...';
+      this.disabled = true;
+      this.textContent = '⏳ กำลังสร้าง PDF...';
 
-    try {
-      // โหลด QR image เป็น base64 (client-side, ไม่ผ่าน Apps Script)
-      const imgRes = await fetch(qrUrl);
-      const imgBlob = await imgRes.blob();
-      const imgBase64 = await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(imgBlob);
-      });
+      try {
+          // ดึง QR image
+          const imgRes = await fetch(qrUrl);
+          const imgBlob = await imgRes.blob();
+          const imgBase64 = await new Promise((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onload = () => resolve(reader.result);
+              reader.onerror = reject;
+              reader.readAsDataURL(imgBlob);
+          });
 
-      const { jsPDF } = window.jspdf;
-      // ขนาดห้อยคอ ~6x8 ซม. (พอดีพิมพ์แล้วเจาะรูห้อยได้)
-      const doc = new jsPDF({ unit: 'mm', format: [60, 80] });
+          const { jsPDF } = window.jspdf;
+          // ใช้ขนาด A6 แนวนอน แทน mm
+          const doc = new jsPDF({ unit: 'mm', format: [105, 148] }); // A6 แนวตั้ง
 
-      doc.setFontSize(10);
-      doc.setFont(undefined, 'bold');
-      doc.text('KITTIZEN', 30, 8, { align: 'center' });
+          // ตั้งค่า font เป็น Helvetica (Standard)
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(14);
+          doc.setTextColor(0, 0, 0);
+          doc.text('KITTIZEN', 52.5, 15, { align: 'center' });
 
-      doc.addImage(imgBase64, 'PNG', 8, 12, 44, 44);
+          // QR Code ตรงกลาง
+          const qrSize = 75;
+          const xPos = (105 - qrSize) / 2;
+          const yPos = 25;
+          doc.addImage(imgBase64, 'PNG', xPos, yPos, qrSize, qrSize);
 
-      doc.setFontSize(9);
-      doc.setFont(undefined, 'normal');
-      doc.text(`สแกนติดต่อเจ้าของของ ${catName}`, 30, 62, { align: 'center', maxWidth: 54 });
+          // ข้อความใต้ QR
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(11);
+          doc.setTextColor(0, 0, 0);
+          doc.text(`สแกนติดต่อคุณ ${catName}`, 52.5, 110, { align: 'center' });
 
-      doc.setFontSize(7);
-      doc.setTextColor(120);
-      doc.text('kittizen.vercel.app', 30, 74, { align: 'center' });
+          // Footer
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(8);
+          doc.setTextColor(150, 150, 150);
+          doc.text('kittizen.vercel.app', 52.5, 135, { align: 'center' });
 
-      doc.save(`kittizen-contact-qr-${currentProfile.id}.pdf`);
-    } catch (err) {
-      showAlert('สร้าง PDF ไม่สำเร็จ: ' + err.message, 'error');
-    } finally {
-      this.disabled = false;
-      this.textContent = '⬇️ ดาวน์โหลด QR (PDF)';
-    }
+          // บันทึก PDF
+          doc.save(`kittizen-contact-qr-${currentProfile.id}.pdf`);
+      } catch (err) {
+          showAlert('สร้าง PDF ไม่สำเร็จ: ' + err.message, 'error');
+      } finally {
+          this.disabled = false;
+          this.textContent = '⬇️ ดาวน์โหลด QR (PDF)';
+      }
   });
 
 </script>
