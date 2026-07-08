@@ -432,6 +432,45 @@
           <button type="submit" class="btn-submit" id="updateBtn">💾 อัปเดตข้อมูล</button>
         </div>
       </form>
+
+      <!-- CONTACT CARD (แยกจาก editForm — คนละ action, คนละจุดประสงค์) -->
+      <div class="contact-card-section" style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border);">
+        <button type="button" class="btn-submit" id="openContactCardBtn" style="background:var(--text-primary);">📇 สร้างการ์ดติดต่อ</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTACT CARD MODAL -->
+<div id="contactCardModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:1000;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:var(--surface);border-radius:16px;padding:24px;max-width:420px;width:100%;max-height:85vh;overflow-y:auto;">
+    <h3 style="margin-bottom:6px;">📇 สร้างการ์ดติดต่อ</h3>
+    <div class="sub" style="margin-bottom:20px;">ข้อมูลนี้จะแสดงให้คนที่เจอแมวคุณเห็น หลังสแกน QR code</div>
+
+    <div class="form-group">
+      <label>เบอร์โทร</label>
+      <input type="text" id="contactPhone" placeholder="0891111111">
+    </div>
+    <div class="form-group">
+      <label>LINE (ลิงก์ หรือ LINE ID)</label>
+      <input type="text" id="contactLineId" placeholder="https://lin.ee/xxxxx">
+    </div>
+    <div class="form-group">
+      <label>ข้อความถึงคนที่เจอแมว</label>
+      <textarea id="contactNote" maxlength="300" placeholder="เช่น รบกวนติดต่อเจ้าของด้วยนะครับ/คะ ขอบคุณมากๆ"></textarea>
+      <div class="char-counter"><span id="contactNoteCount">0</span>/300</div>
+    </div>
+
+    <div id="contactCardResult" style="display:none;margin-top:16px;padding:16px;background:var(--bg);border-radius:12px;text-align:center;">
+      <div style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">การ์ดพร้อมแล้ว! ดาวน์โหลด QR ไปพิมพ์ห้อยคอแมวได้เลย</div>
+      <img id="contactQrPreview" style="width:180px;height:180px;border-radius:8px;margin-bottom:12px;">
+      <br>
+      <button type="button" class="btn-submit" id="downloadQrPdfBtn" style="margin-top:0;">⬇️ ดาวน์โหลด QR (PDF)</button>
+    </div>
+
+    <div class="button-group" style="margin-top:20px;">
+      <button type="button" class="btn-danger" id="closeContactModalBtn" style="background:var(--tag-bg);color:var(--text-primary);">ปิด</button>
+      <button type="button" class="btn-submit" id="saveContactBtn">💾 บันทึก</button>
     </div>
   </div>
 </div>
@@ -1054,8 +1093,133 @@ document.getElementById('searchBtn').addEventListener('click', async function() 
       document.getElementById('searchBtn').click();
     }
   });
-  
+
+  // ============================================================
+  // 📇 CONTACT CARD (save_contact + QR + PDF)
+  // ============================================================
+  const CONTACT_CARD_BASE_URL = 'https://kittizen.vercel.app/catcontact.html​';
+
+  document.getElementById('contactNote').addEventListener('input', function() {
+    document.getElementById('contactNoteCount').textContent = this.value.length;
+  });
+
+  document.getElementById('openContactCardBtn').addEventListener('click', function() {
+    if (!currentEditCode || !currentProfile) {
+      showAlert('กรุณาค้นหาโปรไฟล์ก่อน', 'error');
+      return;
+    }
+    document.getElementById('contactCardResult').style.display = 'none';
+    document.getElementById('contactCardModal').style.display = 'flex';
+  });
+
+  document.getElementById('closeContactModalBtn').addEventListener('click', function() {
+    document.getElementById('contactCardModal').style.display = 'none';
+  });
+
+  document.getElementById('saveContactBtn').addEventListener('click', async function() {
+    if (!currentEditCode || !currentProfile) {
+      showAlert('กรุณาค้นหาโปรไฟล์ก่อน', 'error');
+      return;
+    }
+
+    const phone = document.getElementById('contactPhone').value.trim();
+    const lineId = document.getElementById('contactLineId').value.trim();
+    const note = document.getElementById('contactNote').value.trim();
+
+    if (!phone && !lineId) {
+      showAlert('กรุณาใส่เบอร์โทร หรือ LINE อย่างน้อย 1 อย่าง', 'error');
+      return;
+    }
+
+    this.disabled = true;
+    this.innerHTML = '<span class="spinner"></span> กำลังบันทึก...';
+
+    try {
+      const res = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'save_contact',
+          edit_code: currentEditCode,
+          id: currentProfile.id,
+          phone: phone,
+          line_id: lineId,
+          note_to_finder: note
+        })
+      });
+      const result = await res.json();
+
+      if (!result.success) {
+        showAlert(result.error || 'เกิดข้อผิดพลาด', 'error');
+        return;
+      }
+
+      // สร้าง QR หลัง save สำเร็จ — ลิงก์ไป contact-card.html?id=xxx
+      const cardUrl = `${CONTACT_CARD_BASE_URL}?id=${encodeURIComponent(result.id)}`;
+      const qrUrl = `https://quickchart.io/qr?text=${encodeURIComponent(cardUrl)}&size=500&ecLevel=H&margin=2`;
+
+      document.getElementById('contactQrPreview').src = qrUrl;
+      document.getElementById('contactQrPreview').dataset.cardUrl = cardUrl;
+      document.getElementById('contactQrPreview').dataset.qrUrl = qrUrl;
+      document.getElementById('contactCardResult').style.display = 'block';
+
+      showAlert('📇 บันทึกการ์ดติดต่อสำเร็จ!', 'success');
+    } catch (err) {
+      showAlert('เกิดข้อผิดพลาด: ' + err.message, 'error');
+    } finally {
+      this.disabled = false;
+      this.innerHTML = '💾 บันทึก';
+    }
+  });
+
+  document.getElementById('downloadQrPdfBtn').addEventListener('click', async function() {
+    const qrImg = document.getElementById('contactQrPreview');
+    const qrUrl = qrImg.dataset.qrUrl;
+    const catName = currentProfile?.name || 'kittizen';
+
+    this.disabled = true;
+    this.textContent = '⏳ กำลังสร้าง PDF...';
+
+    try {
+      // โหลด QR image เป็น base64 (client-side, ไม่ผ่าน Apps Script)
+      const imgRes = await fetch(qrUrl);
+      const imgBlob = await imgRes.blob();
+      const imgBase64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(imgBlob);
+      });
+
+      const { jsPDF } = window.jspdf;
+      // ขนาดห้อยคอ ~6x8 ซม. (พอดีพิมพ์แล้วเจาะรูห้อยได้)
+      const doc = new jsPDF({ unit: 'mm', format: [60, 80] });
+
+      doc.setFontSize(10);
+      doc.setFont(undefined, 'bold');
+      doc.text('KITTIZEN', 30, 8, { align: 'center' });
+
+      doc.addImage(imgBase64, 'PNG', 8, 12, 44, 44);
+
+      doc.setFontSize(9);
+      doc.setFont(undefined, 'normal');
+      doc.text(`สแกนติดต่อเจ้าของของ ${catName}`, 30, 62, { align: 'center', maxWidth: 54 });
+
+      doc.setFontSize(7);
+      doc.setTextColor(120);
+      doc.text('kittizen.vercel.app', 30, 74, { align: 'center' });
+
+      doc.save(`kittizen-contact-qr-${currentProfile.id}.pdf`);
+    } catch (err) {
+      showAlert('สร้าง PDF ไม่สำเร็จ: ' + err.message, 'error');
+    } finally {
+      this.disabled = false;
+      this.textContent = '⬇️ ดาวน์โหลด QR (PDF)';
+    }
+  });
+
 </script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <!-- SUCCESS MODAL -->
 <div id="successModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:1000;align-items:center;justify-content:center;">
