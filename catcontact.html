@@ -84,10 +84,11 @@
     width: 72px;
     height: 72px;
     border-radius: 50%;
-    background: var(--tag-bg);
+    background: #E8E8ED;
     background-size: cover;
     background-position: center;
     flex-shrink: 0;
+    border: 3px solid var(--accent);
   }
   .owner-name {
     font-size: 26px;
@@ -109,9 +110,10 @@
     width: 100%;
     aspect-ratio: 1;
     border-radius: 14px;
-    background: var(--tag-bg);
+    background: #E8E8ED;
     background-size: cover;
     background-position: center;
+    border: 2px solid var(--border);
   }
   .cat-box .cat-name {
     font-size: 11px;
@@ -135,6 +137,7 @@
     font-size: 15px;
     width: 64px;
     flex-shrink: 0;
+    color: var(--text-secondary);
   }
   .info-value {
     font-size: 15px;
@@ -142,7 +145,13 @@
     word-break: break-word;
     line-height: 1.5;
   }
-  .info-value a { color: var(--accent); text-decoration: none; }
+  .info-value a { 
+    color: var(--accent); 
+    text-decoration: none; 
+  }
+  .info-value a:hover { 
+    text-decoration: underline; 
+  }
   .note-value {
     max-height: 5.5em;
     overflow: hidden;
@@ -176,6 +185,15 @@
     animation: spin 0.8s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Responsive */
+  @media (max-width: 400px) {
+    .header .brand { font-size: 32px; }
+    .header .subtitle { font-size: 26px; }
+    .owner-name { font-size: 22px; }
+    .cats-grid { gap: 8px; }
+    .cat-box .thumb { border-radius: 10px; }
+  }
 </style>
 </head>
 <body>
@@ -207,12 +225,14 @@
   }
 
   function escapeHtml(str) {
+    if (!str) return '';
     const div = document.createElement('div');
-    div.textContent = str || '';
+    div.textContent = str;
     return div.innerHTML;
   }
 
   function linkify(text) {
+    if (!text) return '';
     const escaped = escapeHtml(text);
     return escaped.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
   }
@@ -224,20 +244,23 @@
   }
 
   function renderCard(data) {
+    // ✅ แปลงรูปเจ้าของ
     const ownerPhoto = normalizeImageUrl(data.owner_photo);
-    const ownerPhotoStyle = ownerPhoto ? `style="background-image:url('${ownerPhoto}')"` : '';
+    const ownerPhotoStyle = ownerPhoto ? `background-image:url('${ownerPhoto}')` : 'background:#E8E8ED;';
 
+    // ✅ แปลงรูปแมว
     const catsHtml = (data.cats || []).map(cat => {
       const img = normalizeImageUrl(cat.image);
-      const imgStyle = img ? `style="background-image:url('${img}')"` : '';
+      const imgStyle = img ? `background-image:url('${img}')` : 'background:#E8E8ED;';
       return `
         <div class="cat-box">
-          <div class="thumb" ${imgStyle}></div>
+          <div class="thumb" style="${imgStyle}"></div>
           <div class="cat-name">${escapeHtml(cat.name)}</div>
         </div>
       `;
     }).join('');
 
+    // ✅ แสดง Note
     const noteHtml = data.note_to_finder
       ? `<div class="info-row">
            <div class="info-label">Note</div>
@@ -245,13 +268,16 @@
          </div>`
       : '';
 
-    const phoneHtml = data.phone
+    // ✅ แสดง Phone (บังคับเป็น String)
+    const phone = data.phone ? data.phone.toString() : '';
+    const phoneHtml = phone
       ? `<div class="info-row">
            <div class="info-label">Phone</div>
-           <div class="info-value"><a href="tel:${escapeHtml(data.phone)}">${escapeHtml(data.phone)}</a></div>
+           <div class="info-value"><a href="tel:${escapeHtml(phone)}">${escapeHtml(phone)}</a></div>
          </div>`
       : '';
 
+    // ✅ แสดง LINE
     const lineHtml = data.line_id
       ? `<div class="info-row">
            <div class="info-label">Line</div>
@@ -262,7 +288,7 @@
     document.getElementById('content').innerHTML = `
       <div class="card">
         <div class="owner-row">
-          <div class="owner-photo" ${ownerPhotoStyle}></div>
+          <div class="owner-photo" style="${ownerPhotoStyle}"></div>
           <div class="owner-name">${escapeHtml(data.owner_name)}</div>
         </div>
         <div class="cats-grid">${catsHtml}</div>
