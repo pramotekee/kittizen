@@ -1155,7 +1155,7 @@ document.getElementById('searchBtn').addEventListener('click', async function() 
 
       // สร้าง QR หลัง save สำเร็จ — ลิงก์ไป catcontact.html?id=xxx
       const cardUrl = `${CONTACT_CARD_BASE_URL}?id=${encodeURIComponent(result.id)}`;
-      const qrUrl = `https://quickchart.io/qr?text=${encodeURIComponent(cardUrl)}&size=500&ecLevel=H&margin=2`;
+      const qrUrl = `https://quickchart.io/qr?text=${encodeURIComponent(cardUrl)}&size=500&margin=2&format=png&ecLevel=H&dark=000000&light=ffffff`;
 
       document.getElementById('contactQrPreview').src = qrUrl;
       document.getElementById('contactQrPreview').dataset.cardUrl = cardUrl;
@@ -1185,13 +1185,21 @@ document.getElementById('searchBtn').addEventListener('click', async function() 
               throw new Error('ไม่พบ QR Code กรุณาบันทึกการ์ดก่อน');
           }
 
-          // ✅ ใช้ canvas ดึงภาพจาก <img> ที่แสดงอยู่แล้ว
+          // ✅ โหลดภาพ QR ใหม่จาก qrUrl ตรงๆ (ไม่พึ่ง <img> เดิมที่อาจโดน browser แปะ alt/caption ทับ)
+          const freshImg = new Image();
+          freshImg.crossOrigin = 'anonymous';
+          await new Promise((resolve, reject) => {
+            freshImg.onload = resolve;
+            freshImg.onerror = () => reject(new Error('โหลด QR ไม่สำเร็จ'));
+            freshImg.src = qrUrl + (qrUrl.includes('?') ? '&' : '?') + 'cachebust=' + Date.now();
+          });
           const canvas = document.createElement('canvas');
           const ctx = canvas.getContext('2d');
-          const img = document.getElementById('contactQrPreview');
-          canvas.width = img.naturalWidth || 500;
-          canvas.height = img.naturalHeight || 500;
-          ctx.drawImage(img, 0, 0);
+          canvas.width = 500;
+          canvas.height = 500;
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(freshImg, 0, 0, canvas.width, canvas.height);
           const imgBase64 = canvas.toDataURL('image/png');
 
           const { jsPDF } = window.jspdf;
