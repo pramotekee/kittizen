@@ -538,7 +538,6 @@ function renderPicker(profiles) {
 function renderError(msg) {
   document.getElementById('content').innerHTML = `
     <div class="state-box">
-      <div class="emoji">🙀</div>
       <div class="msg">${escapeHtml(msg)}</div>
     </div>
   `;
@@ -569,7 +568,7 @@ async function loadProfile() {
     currentProfiles = json.profiles || [];
 
     if (currentProfiles.length === 0) {
-      renderError('ยังไม่มีการกรอกข้อมูล Cat Profile สำหรับเจ้าของคนนี้');
+      renderError('ยังไม่มีข้อมูล Cat Profile ของเจ้านายตัวนี้');
       return;
     }
 
