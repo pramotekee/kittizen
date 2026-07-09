@@ -1108,6 +1108,12 @@ document.getElementById('searchBtn').addEventListener('click', async function() 
       showAlert('กรุณาค้นหาโปรไฟล์ก่อน', 'error');
       return;
     }
+    // ✅ ดึงข้อมูล contact card ที่เคยกรอกไว้มาใส่ในช่องกรอก (ถ้ามี)
+    document.getElementById('contactPhone').value = currentProfile.phone || '';
+    document.getElementById('contactLineId').value = currentProfile.line_id || '';
+    document.getElementById('contactNote').value = currentProfile.note_to_finder || '';
+    document.getElementById('contactNoteCount').textContent = (currentProfile.note_to_finder || '').length;
+
     document.getElementById('contactCardResult').style.display = 'none';
     document.getElementById('contactCardModal').style.display = 'flex';
   });
