@@ -459,12 +459,12 @@
             <div class="form-group"><label>สี</label><input type="text" id="cpColor"></div>
           </div>
           <div class="form-row">
-            <div class="form-group"><label>วันเกิด</label><input type="text" id="cpDob" placeholder="วว/ดด/ปปปป"></div>
+            <div class="form-group"><label>วันเกิด</label><input type="date" id="cpDob" placeholder="วว/ดด/ปปปป"></div>
             <div class="form-group"><label>น้ำหนักล่าสุด</label><input type="text" id="cpWeight" placeholder="เช่น 4.2 กก."></div>
           </div>
           <div class="form-row">
             <div class="form-group"><label>เลขที่ไมโครชิพ</label><input type="text" id="cpMicrochip"></div>
-            <div class="form-group"><label>วันทำหมัน</label><input type="text" id="cpSterilizationDate" placeholder="วว/ดด/ปปปป"></div>
+            <div class="form-group"><label>วันทำหมัน</label><input type="date" id="cpSterilizationDate" placeholder="วว/ดด/ปปปป"></div>
           </div>
 
           <hr>
@@ -1308,8 +1308,8 @@ document.getElementById('searchBtn').addEventListener('click', async function() 
           <div style="font-size:13px;font-weight:600;margin-bottom:10px;">${v.label}</div>
           <div class="cat-fields">
             <div><label style="font-size:12px;">ชื่อวัคซีน/ยี่ห้อ</label><input type="text" id="${v.key}_name"></div>
-            <div><label style="font-size:12px;">วันที่ฉีดล่าสุด</label><input type="text" id="${v.key}_date" placeholder="วว/ดด/ปปปป"></div>
-            <div class="full-width"><label style="font-size:12px;">นัดครั้งถัดไป</label><input type="text" id="${v.key}_next" placeholder="วว/ดด/ปปปป"></div>
+            <div><label style="font-size:12px;">วันที่ฉีดล่าสุด</label><input type="date" id="${v.key}_date" placeholder="วว/ดด/ปปปป"></div>
+            <div class="full-width"><label style="font-size:12px;">นัดครั้งถัดไป</label><input type="date" id="${v.key}_next" placeholder="วว/ดด/ปปปป"></div>
           </div>
         </div>`;
     }).join('');
