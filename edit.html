@@ -1343,13 +1343,24 @@ document.getElementById('searchBtn').addEventListener('click', async function() 
     });
   }
 
+  // แปลงค่าวันที่ (ISO string, "22 Nov 24", หรืออื่นๆ) ให้เป็น YYYY-MM-DD สำหรับ <input type="date">
+  function toDateInputValue(v) {
+    if (!v) return '';
+    const d = new Date(v);
+    if (isNaN(d.getTime())) return '';
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
   function fillCatProfileForm(p) {
     document.getElementById('cpBreed').value = p.breed || '';
     document.getElementById('cpColor').value = p.color || '';
-    document.getElementById('cpDob').value = p.dob || '';
+    document.getElementById('cpDob').value = toDateInputValue(p.dob);
     document.getElementById('cpWeight').value = p.weight || '';
     document.getElementById('cpMicrochip').value = p.microchip || '';
-    document.getElementById('cpSterilizationDate').value = p.sterilization_date || '';
+    document.getElementById('cpSterilizationDate').value = toDateInputValue(p.sterilization_date);
     document.getElementById('cpVetClinic').value = p.vet_clinic || '';
     document.getElementById('cpVetName').value = p.vet_name || '';
     document.getElementById('cpVetLicense').value = p.vet_license || '';
@@ -1357,8 +1368,8 @@ document.getElementById('searchBtn').addEventListener('click', async function() 
     document.getElementById('cpNote').value = p.note || '';
     VACCINE_DEFS.forEach(function(v) {
       document.getElementById(v.key + '_name').value = p[v.key + '_name'] || '';
-      document.getElementById(v.key + '_date').value = p[v.key + '_date'] || '';
-      document.getElementById(v.key + '_next').value = p[v.key + '_next'] || '';
+      document.getElementById(v.key + '_date').value = toDateInputValue(p[v.key + '_date']);
+      document.getElementById(v.key + '_next').value = toDateInputValue(p[v.key + '_next']);
     });
   }
 
