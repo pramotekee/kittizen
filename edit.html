@@ -437,6 +437,65 @@
       <div class="contact-card-section" style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border);">
         <button type="button" class="btn-submit" id="openContactCardBtn" style="background:var(--text-primary);">📇 สร้างการ์ดติดต่อไว้คล้องคอเจ้านาย</button>
       </div>
+
+      <!-- 🩺 CAT HEALTH PROFILE (แยกจาก editForm — คนละ action, คนละจุดประสงค์) -->
+      <div class="catprofile-section" id="catprofile" style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border);">
+        <div style="margin-bottom:16px;">
+          <h3 style="font-size:18px;margin-bottom:4px;">🩺 Cat Health Profile</h3>
+          <div style="font-size:12px;color:var(--text-secondary);">บันทึกข้อมูลสุขภาพแมวแต่ละตัว ดูย้อนหลังได้ทุกเมื่อ ไม่ต้องพกสมุด</div>
+        </div>
+
+        <div class="form-group">
+          <label>เลือกแมวที่ต้องการบันทึก/แก้ไขข้อมูลสุขภาพ</label>
+          <select id="catProfileSelector"></select>
+        </div>
+
+        <div id="catProfileFormWrap" style="display:none;">
+          <hr>
+
+          <div style="font-size:13px;font-weight:600;margin-bottom:12px;">📋 ข้อมูลพื้นฐาน</div>
+          <div class="form-row">
+            <div class="form-group"><label>พันธุ์</label><input type="text" id="cpBreed"></div>
+            <div class="form-group"><label>สี</label><input type="text" id="cpColor"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>วันเกิด</label><input type="text" id="cpDob" placeholder="วว/ดด/ปปปป"></div>
+            <div class="form-group"><label>น้ำหนักล่าสุด</label><input type="text" id="cpWeight" placeholder="เช่น 4.2 กก."></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>ไมโครชิพ</label><input type="text" id="cpMicrochip"></div>
+            <div class="form-group"><label>วันทำหมัน</label><input type="text" id="cpSterilizationDate" placeholder="วว/ดด/ปปปป"></div>
+          </div>
+
+          <hr>
+
+          <div style="font-size:13px;font-weight:600;margin-bottom:4px;">💉 วัคซีน</div>
+          <div class="hint" style="margin-bottom:12px;">กรอกเฉพาะเข็มล่าสุดของแต่ละชนิด (ไม่ต้องเก็บประวัติทุกเข็ม)</div>
+          <div id="catProfileVaccineList"></div>
+
+          <hr>
+
+          <div style="font-size:13px;font-weight:600;margin-bottom:12px;">🏥 สัตวแพทย์ / คลินิก</div>
+          <div class="form-row">
+            <div class="form-group"><label>คลินิก/โรงพยาบาล</label><input type="text" id="cpVetClinic"></div>
+            <div class="form-group"><label>ชื่อหมอ</label><input type="text" id="cpVetName"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>เลขที่ใบอนุญาต</label><input type="text" id="cpVetLicense"></div>
+            <div class="form-group"><label>เบอร์โทร</label><input type="text" id="cpVetPhone"></div>
+          </div>
+
+          <hr>
+
+          <div class="form-group">
+            <label>📝 Note</label>
+            <div class="hint">พิมพ์อะไรก็ได้ เช่น แพ้ยา นิสัย โรคประจำตัว ฯลฯ</div>
+            <textarea id="cpNote" rows="3"></textarea>
+          </div>
+
+          <button type="button" class="btn-submit" id="saveCatProfileBtn">💾 บันทึก Cat Profile</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -1225,6 +1284,265 @@ document.getElementById('searchBtn').addEventListener('click', async function() 
           this.textContent = '⬇️ ดาวน์โหลด QR (PDF)';
       }
   });
+
+  // ============================================================
+  // 🩺 CAT HEALTH PROFILE (save_profile + fetch_profile)
+  // ============================================================
+  const VACCINE_DEFS = [
+    { key: 'vac1', label: '3-โรครวม (Panleukopenia, Calicivirus, Rhinotracheitis)' },
+    { key: 'vac2', label: '4-โรครวม (...and Rabies)' },
+    { key: 'vac3', label: 'Leukemia' },
+    { key: 'vac4', label: 'Rabies' },
+    { key: 'vac5', label: 'Microsporum canis' },
+    { key: 'vac6', label: 'อื่นๆ (Other vaccine)' }
+  ];
+
+  let catProfilesCache = {}; // key = cat_index (string) -> profile object ที่โหลดมาแล้ว
+  let catProfileLoadedIds = new Set(); // เก็บว่า cat_index ไหนโหลดจาก server มาแล้วบ้าง (กันโหลดซ้ำ)
+
+  function renderVaccineFields(wrapId) {
+    const wrap = document.getElementById(wrapId);
+    wrap.innerHTML = VACCINE_DEFS.map(function(v) {
+      return `
+        <div class="cat-group" style="margin-bottom:10px;">
+          <div style="font-size:13px;font-weight:600;margin-bottom:10px;">${v.label}</div>
+          <div class="cat-fields">
+            <div><label style="font-size:12px;">ชื่อวัคซีน/ยี่ห้อ</label><input type="text" id="${v.key}_name"></div>
+            <div><label style="font-size:12px;">วันที่ฉีดล่าสุด</label><input type="text" id="${v.key}_date" placeholder="วว/ดด/ปปปป"></div>
+            <div class="full-width"><label style="font-size:12px;">นัดครั้งถัดไป</label><input type="text" id="${v.key}_next" placeholder="วว/ดด/ปปปป"></div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+  renderVaccineFields('catProfileVaccineList');
+
+  function populateCatProfileSelector() {
+    const selector = document.getElementById('catProfileSelector');
+    const groups = document.querySelectorAll('#editCatsContainer .cat-group');
+    selector.innerHTML = '<option value="">— เลือกแมว —</option>';
+    groups.forEach(function(g, i) {
+      const catIndex = i + 1; // 1-indexed ตรงกับ Sheet1 / catprofile
+      const name = g.querySelector('.cat-name')?.value?.trim() || `แมวตัวที่ ${catIndex}`;
+      const opt = document.createElement('option');
+      opt.value = catIndex;
+      opt.textContent = `🐱 ${name}`;
+      selector.appendChild(opt);
+    });
+    document.getElementById('catProfileFormWrap').style.display = 'none';
+  }
+
+  function clearCatProfileForm() {
+    ['cpBreed','cpColor','cpDob','cpWeight','cpMicrochip','cpSterilizationDate',
+     'cpVetClinic','cpVetName','cpVetLicense','cpVetPhone','cpNote'].forEach(function(id) {
+      document.getElementById(id).value = '';
+    });
+    VACCINE_DEFS.forEach(function(v) {
+      document.getElementById(v.key + '_name').value = '';
+      document.getElementById(v.key + '_date').value = '';
+      document.getElementById(v.key + '_next').value = '';
+    });
+  }
+
+  function fillCatProfileForm(p) {
+    document.getElementById('cpBreed').value = p.breed || '';
+    document.getElementById('cpColor').value = p.color || '';
+    document.getElementById('cpDob').value = p.dob || '';
+    document.getElementById('cpWeight').value = p.weight || '';
+    document.getElementById('cpMicrochip').value = p.microchip || '';
+    document.getElementById('cpSterilizationDate').value = p.sterilization_date || '';
+    document.getElementById('cpVetClinic').value = p.vet_clinic || '';
+    document.getElementById('cpVetName').value = p.vet_name || '';
+    document.getElementById('cpVetLicense').value = p.vet_license || '';
+    document.getElementById('cpVetPhone').value = (p.vet_phone || '').toString().replace(/^'/, '');
+    document.getElementById('cpNote').value = p.note || '';
+    VACCINE_DEFS.forEach(function(v) {
+      document.getElementById(v.key + '_name').value = p[v.key + '_name'] || '';
+      document.getElementById(v.key + '_date').value = p[v.key + '_date'] || '';
+      document.getElementById(v.key + '_next').value = p[v.key + '_next'] || '';
+    });
+  }
+
+  async function loadCatProfileForIndex(catIndex) {
+    document.getElementById('catProfileFormWrap').style.display = 'block';
+    clearCatProfileForm();
+
+    // ถ้าเคยโหลดจาก server มาแล้วในเซสชันนี้ ใช้ cache ไม่ต้องยิงซ้ำ
+    if (catProfileLoadedIds.has(catIndex.toString())) {
+      const cached = catProfilesCache[catIndex.toString()];
+      if (cached) fillCatProfileForm(cached);
+      return;
+    }
+
+    try {
+      const res = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'fetch_profile', id: currentProfile.id, cat_index: catIndex.toString() })
+      });
+      const result = await res.json();
+      catProfileLoadedIds.add(catIndex.toString());
+
+      if (result.success && result.profiles && result.profiles.length > 0) {
+        catProfilesCache[catIndex.toString()] = result.profiles[0];
+        fillCatProfileForm(result.profiles[0]);
+      }
+      // ถ้ายังไม่เคยกรอก (ไม่ success หรือ profiles ว่าง) ปล่อยฟอร์มว่างไว้ ไม่ต้องแจ้ง error
+    } catch (err) {
+      showAlert('โหลดข้อมูล Cat Profile ไม่สำเร็จ: ' + err.message, 'error');
+    }
+  }
+
+  document.getElementById('catProfileSelector').addEventListener('change', function() {
+    const catIndex = this.value;
+    if (!catIndex) {
+      document.getElementById('catProfileFormWrap').style.display = 'none';
+      return;
+    }
+    loadCatProfileForIndex(catIndex);
+  });
+
+  document.getElementById('saveCatProfileBtn').addEventListener('click', async function() {
+    if (!currentEditCode || !currentProfile) {
+      showAlert('กรุณาค้นหาโปรไฟล์ก่อน', 'error');
+      return;
+    }
+    const catIndex = document.getElementById('catProfileSelector').value;
+    if (!catIndex) {
+      showAlert('กรุณาเลือกแมวก่อน', 'error');
+      return;
+    }
+
+    const payload = {
+      action: 'save_profile',
+      edit_code: currentEditCode,
+      id: currentProfile.id,
+      cat_index: catIndex,
+      breed: document.getElementById('cpBreed').value.trim(),
+      color: document.getElementById('cpColor').value.trim(),
+      dob: document.getElementById('cpDob').value.trim(),
+      weight: document.getElementById('cpWeight').value.trim(),
+      microchip: document.getElementById('cpMicrochip').value.trim(),
+      sterilization_date: document.getElementById('cpSterilizationDate').value.trim(),
+      vet_clinic: document.getElementById('cpVetClinic').value.trim(),
+      vet_name: document.getElementById('cpVetName').value.trim(),
+      vet_license: document.getElementById('cpVetLicense').value.trim(),
+      vet_phone: document.getElementById('cpVetPhone').value.trim(),
+      note: document.getElementById('cpNote').value.trim()
+    };
+    VACCINE_DEFS.forEach(function(v) {
+      payload[v.key + '_name'] = document.getElementById(v.key + '_name').value.trim();
+      payload[v.key + '_date'] = document.getElementById(v.key + '_date').value.trim();
+      payload[v.key + '_next'] = document.getElementById(v.key + '_next').value.trim();
+    });
+
+    this.disabled = true;
+    this.innerHTML = '<span class="spinner"></span> กำลังบันทึก...';
+
+    try {
+      const res = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+      const result = await res.json();
+
+      if (result.success) {
+        // อัปเดต cache ด้วยค่าที่เพิ่งบันทึก จะได้ไม่ต้องโหลดซ้ำถ้าเปลี่ยนไปแมวตัวอื่นแล้วกลับมา
+        catProfilesCache[catIndex.toString()] = Object.assign({ id: currentProfile.id, cat_index: catIndex }, payload);
+        catProfileLoadedIds.add(catIndex.toString());
+        showToast('🩺 บันทึก Cat Profile สำเร็จ!');
+      } else {
+        showAlert(result.error || 'เกิดข้อผิดพลาด', 'error');
+      }
+    } catch (err) {
+      showAlert('เกิดข้อผิดพลาด: ' + err.message, 'error');
+    } finally {
+      this.disabled = false;
+      this.innerHTML = '💾 บันทึก Cat Profile';
+    }
+  });
+
+  // ============================================================
+  // 🔗 AUTO-FILL จาก URL params (มาจาก catprofile.html กดปุ่ม Edit Profile)
+  // รูปแบบ: edit.html?id=xxx&edit_code=xxx&cat=3#catprofile
+  // ทำให้ไม่ต้องกรอก Edit code + ชื่อซ้ำ (เจ้าของเพิ่งยืนยันตัวตนมาจากหน้า catprofile.html แล้ว)
+  // ============================================================
+  async function autoFillFromUrlParams() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlId = urlParams.get('id');
+    const urlEditCode = urlParams.get('edit_code');
+    const urlCatIndex = urlParams.get('cat');
+
+    if (!urlId || !urlEditCode) return; // ไม่มี param มา ก็ใช้ flow ค้นหาแบบเดิมปกติ
+
+    document.getElementById('searchBtn').disabled = true;
+    document.getElementById('searchBtn').innerHTML = '<span class="spinner"></span> กำลังโหลด...';
+
+    try {
+      // fetch_by_edit_code ต้องการ "name" ด้วย แต่ ณ จุดนี้เรามีแค่ id + edit_code จาก catprofile.html
+      // ใช้ fetch (ธรรมดา, ไม่ต้อง auth) ผ่าน id ตรงๆ ไม่ได้ เพราะ endpoint fetch เดิมต้องการ edit_code คู่กับ name
+      // จึงต้องพึ่ง verifyEditCode ก่อน (เช็คแค่ id+code ไม่ต้องมี name) แล้วค่อย fetch ข้อมูลเจ้าของแบบเบา
+      const verifyRes = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'verifyEditCode', catId: urlId, code: urlEditCode })
+      });
+      const verifyResult = await verifyRes.json();
+
+      if (!verifyResult.success) {
+        showAlert('ลิงก์แก้ไขไม่ถูกต้องหรือหมดอายุ กรุณาค้นหาด้วย Edit code ด้านบนแทน', 'error');
+        return;
+      }
+
+      // ดึงข้อมูลเต็มด้วย action 'fetch' (ใช้ id ตรงๆ ไม่ต้อง name — ตาม zone CAT LOVE เดิม)
+      const fetchRes = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'fetch', id: urlId })
+      });
+      const fetchResult = await fetchRes.json();
+
+      if (fetchResult.success && fetchResult.data) {
+        currentEditCode = urlEditCode;
+        currentProfile = fetchResult.data;
+        document.getElementById('editCode').value = urlEditCode;
+        document.getElementById('searchName').value = fetchResult.data.name || '';
+        fillEditForm(fetchResult.data);
+        document.getElementById('editSection').classList.add('show');
+        populateCatProfileSelector();
+
+        // ถ้ามี ?cat= มาด้วย เลือกแมวตัวนั้นให้อัตโนมัติ แล้วโหลดข้อมูล
+        if (urlCatIndex) {
+          const selector = document.getElementById('catProfileSelector');
+          selector.value = urlCatIndex;
+          if (selector.value === urlCatIndex) {
+            loadCatProfileForIndex(urlCatIndex);
+          }
+        }
+
+        // เลื่อนไปที่ section Cat Profile ให้อัตโนมัติ (ตาม #catprofile hash)
+        setTimeout(function() {
+          document.getElementById('catprofile').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 300);
+
+        showAlert('โหลดโปรไฟล์สำเร็จ', 'success');
+      } else {
+        showAlert('ไม่พบโปรไฟล์', 'error');
+      }
+    } catch (err) {
+      showAlert('เกิดข้อผิดพลาดในการโหลดข้อมูล: ' + err.message, 'error');
+    } finally {
+      document.getElementById('searchBtn').disabled = false;
+      document.getElementById('searchBtn').innerHTML = '🔍 GO';
+    }
+  }
+
+  // เรียก populateCatProfileSelector ทุกครั้งที่ fillEditForm สำเร็จผ่าน flow ค้นหาปกติด้วย (เพิ่ม cats แล้ว selector ต้องอัปเดตตาม)
+  const _originalFillEditForm = fillEditForm;
+  fillEditForm = function(data) {
+    _originalFillEditForm(data);
+    populateCatProfileSelector();
+    catProfilesCache = {};
+    catProfileLoadedIds = new Set();
+  };
+
+  autoFillFromUrlParams();
 
 </script>
 
