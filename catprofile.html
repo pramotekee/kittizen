@@ -415,6 +415,16 @@ function showToast(msg) {
   t._timer = setTimeout(() => t.classList.remove('show'), 2500);
 }
 
+function formatDateDMY(v) {
+  if (!v) return '';
+  const d = new Date(v);
+  if (isNaN(d.getTime())) return v; // ถ้า parse ไม่ได้ ให้โชว์ค่าเดิมไปก่อน ดีกว่าซ่อนข้อมูล
+  const dd = String(d.getDate()).padStart(2, '0');
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const yyyy = d.getFullYear();
+  return `${dd}/${mm}/${yyyy}`;
+}
+
 function fieldRow(label, value) {
   const isEmpty = !value;
   return `<div class="field-item">
@@ -452,8 +462,8 @@ function renderProfile(p) {
       <div class="vac-title">${v.label}</div>
       <div class="vac-fields">
         ${fieldRow('ชื่อวัคซีน/ยี่ห้อ', name)}
-        ${fieldRow('วันที่ฉีดล่าสุด', date)}
-        ${fieldRow('นัดครั้งถัดไป', next)}
+        ${fieldRow('วันที่ฉีดล่าสุด', formatDateDMY(date))}
+        ${fieldRow('นัดครั้งถัดไป', formatDateDMY(next))}
       </div>
     </div>`;
   }).join('');
@@ -471,10 +481,10 @@ function renderProfile(p) {
       <div class="field-grid">
         ${fieldRow('พันธุ์', p.breed)}
         ${fieldRow('สี', p.color)}
-        ${fieldRow('วันเกิด', p.dob)}
+        ${fieldRow('วันเกิด', formatDateDMY(p.dob))}
         ${fieldRow('น้ำหนักล่าสุด', p.weight)}
         ${fieldRow('ไมโครชิพ', p.microchip)}
-        ${fieldRow('วันทำหมัน', p.sterilization_date)}
+        ${fieldRow('วันทำหมัน', formatDateDMY(p.sterilization_date))}
       </div>
     </div>
 
