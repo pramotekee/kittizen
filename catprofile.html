@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cat Profile — KITTIZEN</title>
+<meta property="og:title" content="Cat Profile — KITTIZEN">
+<meta property="og:description" content="สมุดสุขภาพน้องแมว ดูข้อมูลง่ายๆ ที่เดียว 🐱">
+<meta property="og:image" content="https://kittizen.vercel.app/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Bungee+Shade&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FAF7F4;
+    --surface: #FFFCF9;
+    --accent: #F9B95C;
+    --accent-dark: #E8A043;
+    --accent-light: #FEF3E2;
+    --text-primary: #2C2420;
+    --text-secondary: #7A6E6A;
+    --tag-bg: #F0E8E4;
+    --border: #D2D2D7;
+    --card-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    --card-shadow-hover: 0 8px 28px rgba(0,0,0,0.12);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+  }
+  .app {
+    max-width: 640px;
+    margin: 0 auto;
+    min-height: 100vh;
+    padding: 20px 16px 60px;
+  }
+
+  /* TOP BAR */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 4px 20px;
+  }
+  .topbar .brand {
+    font-family: 'Bungee Shade', cursive;
+    font-size: 15px;
+    color: var(--accent-dark);
+    letter-spacing: 1px;
+  }
+  .back-link {
+    font-size: 13px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .back-link:hover { color: var(--text-primary); }
+
+  /* LOADING / ERROR STATES */
+  .state-box {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--text-secondary);
+  }
+  .state-box .emoji { font-size: 40px; margin-bottom: 12px; }
+  .state-box .msg { font-size: 15px; }
+  .spinner {
+    width: 32px; height: 32px;
+    border: 3px solid var(--tag-bg);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    margin: 0 auto 16px;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* CAT PICKER (when owner has multiple cats and no ?cat= specified) */
+  .cat-picker {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 14px;
+    margin-top: 8px;
+  }
+  .cat-picker-item {
+    background: var(--surface);
+    border-radius: 16px;
+    box-shadow: var(--card-shadow);
+    padding: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    text-decoration: none;
+    color: var(--text-primary);
+    display: block;
+  }
+  .cat-picker-item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--card-shadow-hover);
+  }
+  .cat-picker-item .thumb {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--tag-bg);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+  }
+  .cat-picker-item .thumb img {
+    width: 100%; height: 100%; object-fit: cover;
+  }
+  .cat-picker-item .cat-name {
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .picker-title {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+  }
+
+  /* HEADER CARD (cat identity) */
+  .profile-header {
+    background: var(--surface);
+    border-radius: 24px;
+    box-shadow: var(--card-shadow);
+    padding: 24px 20px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .profile-header .avatar {
+    width: 96px; height: 96px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--tag-bg);
+    margin: 0 auto 14px;
+    border: 3px solid var(--accent-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+  }
+  .profile-header .avatar img {
+    width: 100%; height: 100%; object-fit: cover;
+  }
+  .profile-header .cat-name {
+    font-size: 22px;
+    font-weight: 700;
+  }
+  .profile-header .cat-meta {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+  }
+  .profile-header .owner-line {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* SECTION CARDS */
+  .section {
+    background: var(--surface);
+    border-radius: 20px;
+    box-shadow: var(--card-shadow);
+    padding: 18px 20px;
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent-dark);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .field-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 16px;
+  }
+  .field-item .label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-bottom: 2px;
+  }
+  .field-item .value {
+    font-size: 14px;
+    font-weight: 600;
+    word-break: break-word;
+  }
+  .field-item .value.empty {
+    color: var(--border);
+    font-weight: 400;
+  }
+
+  /* VACCINE BLOCK */
+  .vaccine-item {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .vaccine-item:last-child { border-bottom: none; }
+  .vaccine-item .vac-title {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .vaccine-item .vac-fields {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  @media (max-width: 480px) {
+    .vaccine-item .vac-fields { grid-template-columns: 1fr; gap: 6px; }
+  }
+
+  /* NOTE BLOCK */
+  .note-box {
+    font-size: 14px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    color: var(--text-primary);
+  }
+  .note-box.empty { color: var(--border); }
+
+  /* EDIT BUTTON (bottom, full width) */
+  .edit-btn-wrap { margin-top: 24px; }
+  .edit-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 14px;
+    border-radius: 16px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: background 0.15s;
+    font-family: 'Inter', sans-serif;
+  }
+  .edit-btn:hover { background: var(--accent-dark); }
+  .edit-hint {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 8px;
+  }
+
+  /* AUTH MODAL (for edit) */
+  .auth-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+  }
+  .auth-overlay.open { display: flex; }
+  .auth-modal {
+    background: var(--surface);
+    border-radius: 20px;
+    width: 90%;
+    max-width: 360px;
+    padding: 24px;
+  }
+  .auth-modal h3 {
+    font-size: 17px;
+    margin-bottom: 6px;
+  }
+  .auth-modal p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+  }
+  .auth-modal input {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    font-size: 14px;
+    margin-bottom: 10px;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+  }
+  .auth-modal input:focus { border-color: var(--accent); }
+  .auth-modal .auth-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 6px;
+  }
+  .auth-modal .auth-actions button {
+    flex: 1;
+    padding: 12px;
+    border-radius: 12px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+  }
+  .auth-cancel { background: var(--tag-bg); color: var(--text-secondary); }
+  .auth-confirm { background: var(--accent); color: #fff; }
+  .auth-confirm:hover { background: var(--accent-dark); }
+  .auth-error {
+    font-size: 12px;
+    color: #E8734A;
+    margin-top: -4px;
+    margin-bottom: 10px;
+    display: none;
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--text-primary);
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 30px;
+    font-size: 13px;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.25s ease;
+    z-index: 600;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="topbar">
+    <div class="brand">KITTIZEN</div>
+    <a href="index.html" class="back-link">← กลับหน้าหลัก</a>
+  </div>
+
+  <div id="content">
+    <div class="state-box" id="loadingState">
+      <div class="spinner"></div>
+      <div class="msg">กำลังโหลดข้อมูล...</div>
+    </div>
+  </div>
+</div>
+
+<!-- AUTH MODAL: ยืนยันตัวตนก่อนไป Edit -->
+<div class="auth-overlay" id="authOverlay">
+  <div class="auth-modal">
+    <h3>✏️ แก้ไขข้อมูล</h3>
+    <p>กรอก Edit Code และชื่อเจ้าของ เพื่อยืนยันตัวตนก่อนแก้ไข</p>
+    <input type="text" id="authEditCode" placeholder="Edit Code">
+    <input type="text" id="authName" placeholder="ชื่อเจ้าของ">
+    <div class="auth-error" id="authError">Edit Code หรือชื่อไม่ถูกต้อง</div>
+    <div class="auth-actions">
+      <button class="auth-cancel" onclick="closeAuthModal()">ยกเลิก</button>
+      <button class="auth-confirm" onclick="submitAuth()">ยืนยัน</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ⚠️ ต้องแก้เป็น URL จริงของ Apps Script Web App deployment (ตัวเดียวกับที่ edit.html ใช้อยู่)
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbylJXLg47otdgqZM6EwLma8AL1q5AEIsYe8uDOlNlTh9gOMOS7sHOgceX4l9h8ia3nGfg/exec';
+
+const params = new URLSearchParams(window.location.search);
+const catId = params.get('id');
+const catIndexParam = params.get('cat'); // อาจไม่มี ถ้าไม่มี = แสดง picker ให้เลือกตัว
+
+let currentProfiles = [];
+let currentOwnerName = '';
+
+function normalizeImageUrl(url) {
+  if (!url) return '';
+  const gdrive1 = url.match(/drive\.google\.com\/file\/d\/([^\/\?]+)/);
+  const gdrive2 = url.match(/drive\.google\.com\/open\?id=([^&]+)/);
+  const gdrive3 = url.match(/drive\.google\.com\/uc\?export=view&id=([^&]+)/);
+  const id = gdrive1?.[1] || gdrive2?.[1] || gdrive3?.[1];
+  if (id) return `https://lh3.googleusercontent.com/d/${id}`;
+  if (url.includes('dropbox.com')) return url.replace('?dl=0', '?raw=1').replace('?dl=1', '?raw=1');
+  if (url.includes('imgur.com')) {
+    const m = url.match(/imgur\.com\/([a-zA-Z0-9]+)/);
+    if (m) return `https://i.imgur.com/${m[1]}.jpg`;
+  }
+  return url;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function fieldRow(label, value) {
+  const isEmpty = !value;
+  return `<div class="field-item">
+    <div class="label">${label}</div>
+    <div class="value ${isEmpty ? 'empty' : ''}">${isEmpty ? '—' : escapeHtml(value)}</div>
+  </div>`;
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+const VACCINE_LABELS = [
+  { key: 'vac1', label: '3-โรครวม (Panleukopenia, Calicivirus, Rhinotracheitis)' },
+  { key: 'vac2', label: '4-โรครวม (...and Rabies)' },
+  { key: 'vac3', label: 'Leukemia' },
+  { key: 'vac4', label: 'Rabies' },
+  { key: 'vac5', label: 'Microsporum canis' },
+  { key: 'vac6', label: 'อื่นๆ (Other vaccine)' }
+];
+
+function renderProfile(p) {
+  const catImg = normalizeImageUrl(p.cat_image);
+  const avatarHTML = catImg
+    ? `<img src="${catImg}" alt="${escapeHtml(p.cat_name)}" onerror="this.parentElement.innerHTML='🐱'">`
+    : `🐱`;
+
+  const vaccineHTML = VACCINE_LABELS.map(function(v) {
+    const name = p[v.key + '_name'];
+    const date = p[v.key + '_date'];
+    const next = p[v.key + '_next'];
+    return `<div class="vaccine-item">
+      <div class="vac-title">${v.label}</div>
+      <div class="vac-fields">
+        ${fieldRow('ชื่อวัคซีน/ยี่ห้อ', name)}
+        ${fieldRow('วันที่ฉีดล่าสุด', date)}
+        ${fieldRow('นัดครั้งถัดไป', next)}
+      </div>
+    </div>`;
+  }).join('');
+
+  const html = `
+    <div class="profile-header">
+      <div class="avatar">${avatarHTML}</div>
+      <div class="cat-name">${p.cat_name || 'น้องเหมียว'}</div>
+      <div class="cat-meta">${[p.breed, p.cat_gender, p.color].filter(Boolean).join(' · ') || '—'}</div>
+      <div class="owner-line">เจ้าของ: ${escapeHtml(currentOwnerName || '—')}</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">📋 ข้อมูลพื้นฐาน</div>
+      <div class="field-grid">
+        ${fieldRow('พันธุ์', p.breed)}
+        ${fieldRow('สี', p.color)}
+        ${fieldRow('วันเกิด', p.dob)}
+        ${fieldRow('น้ำหนักล่าสุด', p.weight)}
+        ${fieldRow('ไมโครชิพ', p.microchip)}
+        ${fieldRow('วันทำหมัน', p.sterilization_date)}
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">💉 วัคซีน</div>
+      ${vaccineHTML}
+    </div>
+
+    <div class="section">
+      <div class="section-title">🏥 สัตวแพทย์ / คลินิก</div>
+      <div class="field-grid">
+        ${fieldRow('คลินิก/โรงพยาบาล', p.vet_clinic)}
+        ${fieldRow('ชื่อหมอ', p.vet_name)}
+        ${fieldRow('เลขที่ใบอนุญาต', p.vet_license)}
+        ${fieldRow('เบอร์โทร', (p.vet_phone || '').toString().replace(/^'/, ''))}
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">📝 Note</div>
+      <div class="note-box ${p.note ? '' : 'empty'}">${p.note ? escapeHtml(p.note) : '—'}</div>
+    </div>
+
+    <div class="edit-btn-wrap">
+      <button class="edit-btn" onclick="openAuthModal('${p.id}', '${p.cat_index}')">✏️ Edit Profile</button>
+      <div class="edit-hint">แก้ไขได้เฉพาะเจ้าของแมวเท่านั้น</div>
+    </div>
+  `;
+
+  document.getElementById('content').innerHTML = html;
+}
+
+function renderPicker(profiles) {
+  const items = profiles.map(function(p) {
+    const catImg = normalizeImageUrl(p.cat_image);
+    const thumbHTML = catImg
+      ? `<img src="${catImg}" alt="${escapeHtml(p.cat_name)}" onerror="this.parentElement.innerHTML='🐱'">`
+      : '🐱';
+    return `<a class="cat-picker-item" href="?id=${encodeURIComponent(catId)}&cat=${p.cat_index}">
+      <div class="thumb">${thumbHTML}</div>
+      <div class="cat-name">${escapeHtml(p.cat_name || 'ตัวที่ ' + p.cat_index)}</div>
+    </a>`;
+  }).join('');
+
+  document.getElementById('content').innerHTML = `
+    <div class="picker-title">เลือกแมวที่ต้องการดู (${profiles.length} ตัว)</div>
+    <div class="cat-picker">${items}</div>
+  `;
+}
+
+function renderError(msg) {
+  document.getElementById('content').innerHTML = `
+    <div class="state-box">
+      <div class="emoji">🙀</div>
+      <div class="msg">${escapeHtml(msg)}</div>
+    </div>
+  `;
+}
+
+async function loadProfile() {
+  if (!catId) {
+    renderError('ไม่พบ id ในลิงก์ กรุณาตรวจสอบลิงก์อีกครั้ง');
+    return;
+  }
+
+  try {
+    const body = { action: 'fetch_profile', id: catId };
+    if (catIndexParam) body.cat_index = catIndexParam;
+
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify(body)
+    });
+    const json = await res.json();
+
+    if (!json.success) {
+      renderError(json.error || 'ไม่พบข้อมูลโปรไฟล์แมวตัวนี้');
+      return;
+    }
+
+    currentOwnerName = json.owner_name || '';
+    currentProfiles = json.profiles || [];
+
+    if (currentProfiles.length === 0) {
+      renderError('ยังไม่มีการกรอกข้อมูล Cat Profile สำหรับเจ้าของคนนี้');
+      return;
+    }
+
+    if (catIndexParam) {
+      renderProfile(currentProfiles[0]);
+    } else if (currentProfiles.length === 1) {
+      renderProfile(currentProfiles[0]);
+    } else {
+      renderPicker(currentProfiles);
+    }
+  } catch (err) {
+    renderError('เกิดข้อผิดพลาดในการโหลดข้อมูล: ' + err.toString());
+  }
+}
+
+// ====== EDIT AUTH FLOW ======
+let pendingEditId = null;
+let pendingCatIndex = null;
+
+function openAuthModal(id, catIndex) {
+  pendingEditId = id;
+  pendingCatIndex = catIndex;
+  document.getElementById('authError').style.display = 'none';
+  document.getElementById('authEditCode').value = '';
+  document.getElementById('authName').value = '';
+  document.getElementById('authOverlay').classList.add('open');
+}
+
+function closeAuthModal() {
+  document.getElementById('authOverlay').classList.remove('open');
+}
+
+async function submitAuth() {
+  const editCode = document.getElementById('authEditCode').value.trim();
+  const name = document.getElementById('authName').value.trim();
+  const errorBox = document.getElementById('authError');
+
+  if (!editCode || !name) {
+    errorBox.textContent = 'กรุณากรอกให้ครบทั้งสองช่อง';
+    errorBox.style.display = 'block';
+    return;
+  }
+
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'fetch_by_edit_code', edit_code: editCode, name: name })
+    });
+    const json = await res.json();
+
+    if (!json.success) {
+      errorBox.textContent = 'Edit Code หรือชื่อไม่ถูกต้อง';
+      errorBox.style.display = 'block';
+      return;
+    }
+
+    // ยืนยันผ่าน — พาไป edit.html พร้อม edit_code แนบไปด้วย (ไม่ต้อง login ซ้ำ)
+    const editUrl = 'edit.html?id=' + encodeURIComponent(pendingEditId)
+      + '&edit_code=' + encodeURIComponent(editCode)
+      + '&cat=' + encodeURIComponent(pendingCatIndex)
+      + '#catprofile';
+    window.location.href = editUrl;
+  } catch (err) {
+    errorBox.textContent = 'เกิดข้อผิดพลาด กรุณาลองใหม่';
+    errorBox.style.display = 'block';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', loadProfile);
+</script>
+
+</body>
+</html>
