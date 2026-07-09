@@ -320,6 +320,19 @@
   .auth-cancel { background: var(--tag-bg); color: var(--text-secondary); }
   .auth-confirm { background: var(--accent); color: #fff; }
   .auth-confirm:hover { background: var(--accent-dark); }
+  .auth-confirm:disabled { opacity: 0.75; cursor: not-allowed; }
+  .btn-spinner {
+    display: inline-block;
+    width: 13px;
+    height: 13px;
+    border: 2px solid rgba(255,255,255,0.5);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: btn-spin 0.7s linear infinite;
+    vertical-align: -2px;
+    margin-right: 6px;
+  }
+  @keyframes btn-spin { to { transform: rotate(360deg); } }
   .auth-error {
     font-size: 12px;
     color: #E8734A;
@@ -605,12 +618,18 @@ async function submitAuth() {
   const editCode = document.getElementById('authEditCode').value.trim();
   const name = document.getElementById('authName').value.trim();
   const errorBox = document.getElementById('authError');
+  const confirmBtn = document.querySelector('.auth-confirm');
 
   if (!editCode || !name) {
     errorBox.textContent = 'กรุณากรอกให้ครบทั้งสองช่อง';
     errorBox.style.display = 'block';
     return;
   }
+
+  errorBox.style.display = 'none';
+  const originalBtnText = confirmBtn.textContent;
+  confirmBtn.disabled = true;
+  confirmBtn.innerHTML = '<span class="btn-spinner"></span> กำลังตรวจสอบ...';
 
   try {
     const res = await fetch(SCRIPT_URL, {
@@ -622,6 +641,8 @@ async function submitAuth() {
     if (!json.success) {
       errorBox.textContent = 'Edit Code หรือชื่อไม่ถูกต้อง';
       errorBox.style.display = 'block';
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = originalBtnText;
       return;
     }
 
@@ -631,9 +652,12 @@ async function submitAuth() {
       + '&cat=' + encodeURIComponent(pendingCatIndex)
       + '#catprofile';
     window.location.href = editUrl;
+    // ไม่ต้อง reset ปุ่มตรงนี้ เพราะหน้าเว็บกำลังจะเปลี่ยนไปแล้ว
   } catch (err) {
     errorBox.textContent = 'เกิดข้อผิดพลาด กรุณาลองใหม่';
     errorBox.style.display = 'block';
+    confirmBtn.disabled = false;
+    confirmBtn.textContent = originalBtnText;
   }
 }
 
