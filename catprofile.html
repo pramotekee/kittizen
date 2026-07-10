@@ -161,6 +161,16 @@
     color: var(--text-secondary);
     margin-top: 4px;
   }
+  .profile-header .cat-age {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent-dark);
+    background: var(--accent-light);
+    padding: 3px 12px;
+    border-radius: 20px;
+    margin-top: 8px;
+  }
   .profile-header .owner-line {
     font-size: 12px;
     color: var(--text-secondary);
@@ -257,6 +267,25 @@
     font-family: 'Inter', sans-serif;
   }
   .edit-btn:hover { background: var(--accent-dark); }
+  .share-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 14px;
+    border-radius: 16px;
+    background: var(--accent-light);
+    color: var(--accent-dark);
+    font-size: 15px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: background 0.15s;
+    font-family: 'Inter', sans-serif;
+    margin-bottom: 10px;
+  }
+  .share-btn:hover { background: var(--accent); color: #fff; }
   .edit-hint {
     text-align: center;
     font-size: 12px;
@@ -438,6 +467,44 @@ function formatDateDMY(v) {
   return `${dd}/${mm}/${yyyy}`;
 }
 
+function formatGender(g) {
+  if (!g) return '';
+  const s = g.toString().trim().toLowerCase();
+  if (s === 'male' || s === 'ผู้' || s === 'เพศผู้') return 'เพศผู้';
+  if (s === 'female' || s === 'เมีย' || s === 'ผู้เมีย' || s === 'เพศเมีย') return 'เพศเมีย';
+  return g; // ไม่รู้จักค่า ให้โชว์ค่าเดิมไปก่อน ดีกว่าซ่อน
+}
+
+function calculateAge(dobValue) {
+  if (!dobValue) return '';
+  const dob = new Date(dobValue);
+  if (isNaN(dob.getTime())) return '';
+  const now = new Date();
+  if (dob > now) return '';
+
+  let years = now.getFullYear() - dob.getFullYear();
+  let months = now.getMonth() - dob.getMonth();
+  let days = now.getDate() - dob.getDate();
+
+  if (days < 0) {
+    months -= 1;
+    const prevMonthLastDay = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+    days += prevMonthLastDay;
+  }
+  if (months < 0) {
+    years -= 1;
+    months += 12;
+  }
+
+  if (years >= 1) {
+    return years + ' ปี ' + months + ' เดือน';
+  }
+  if (months >= 1) {
+    return months + ' เดือน ' + days + ' วัน';
+  }
+  return days + ' วัน';
+}
+
 function fieldRow(label, value) {
   const isEmpty = !value;
   return `<div class="field-item">
@@ -485,7 +552,8 @@ function renderProfile(p) {
     <div class="profile-header">
       <div class="avatar">${avatarHTML}</div>
       <div class="cat-name">${p.cat_name || 'น้องเหมียว'}</div>
-      <div class="cat-meta">${[p.breed, p.cat_gender, p.color].filter(Boolean).join(' · ') || '—'}</div>
+      <div class="cat-meta">${[p.breed, formatGender(p.cat_gender), p.color].filter(Boolean).join(' · ') || '—'}</div>
+      ${calculateAge(p.dob) ? `<div class="cat-age">🎂 ${calculateAge(p.dob)}</div>` : ''}
       <div class="owner-line">เจ้าของ: ${escapeHtml(currentOwnerName || '—')}</div>
     </div>
 
@@ -522,6 +590,7 @@ function renderProfile(p) {
     </div>
 
     <div class="edit-btn-wrap">
+      <button class="share-btn" onclick="shareProfileLink(this)">🔗 Share</button>
       <button class="edit-btn" onclick="openAuthModal('${p.id}', '${p.cat_index}')">✏️ Edit Profile</button>
       <div class="edit-hint">แก้ไขได้เฉพาะเจ้าของแมวเท่านั้น</div>
     </div>
@@ -612,6 +681,25 @@ function openAuthModal(id, catIndex) {
 
 function closeAuthModal() {
   document.getElementById('authOverlay').classList.remove('open');
+}
+
+async function shareProfileLink(btn) {
+  const url = window.location.href;
+  const originalText = btn.textContent;
+  try {
+    await navigator.clipboard.writeText(url);
+    btn.textContent = '✅ คัดลอกลิงก์แล้ว';
+  } catch (err) {
+    // เบราว์เซอร์เก่า/ไม่รองรับ clipboard API — ใช้ fallback แบบ select+copy
+    const tempInput = document.createElement('input');
+    tempInput.value = url;
+    document.body.appendChild(tempInput);
+    tempInput.select();
+    document.execCommand('copy');
+    document.body.removeChild(tempInput);
+    btn.textContent = '✅ คัดลอกลิงก์แล้ว';
+  }
+  setTimeout(function() { btn.textContent = originalText; }, 2000);
 }
 
 async function submitAuth() {
