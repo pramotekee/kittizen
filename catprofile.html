@@ -432,6 +432,7 @@ const catId = params.get('id');
 const catIndexParam = params.get('cat'); // อาจไม่มี ถ้าไม่มี = แสดง picker ให้เลือกตัว
 
 let currentProfiles = [];
+let currentProfile = null;
 let currentOwnerName = '';
 
 function normalizeImageUrl(url) {
@@ -529,6 +530,7 @@ const VACCINE_LABELS = [
 ];
 
 function renderProfile(p) {
+  currentProfile = p;
   const catImg = normalizeImageUrl(p.cat_image);
   const avatarHTML = catImg
     ? `<img src="${catImg}" alt="${escapeHtml(p.cat_name)}" onerror="this.parentElement.innerHTML='🐱'">`
@@ -552,7 +554,7 @@ function renderProfile(p) {
     <div class="profile-header">
       <div class="avatar">${avatarHTML}</div>
       <div class="cat-name">${p.cat_name || 'น้องเหมียว'}</div>
-      <div class="cat-meta">${[p.breed, formatGender(p.cat_gender), p.color].filter(Boolean).join(' · ') || '—'}</div>
+      <div class="cat-meta">${[p.breed, formatGender(p.cat_gender)].filter(Boolean).join(' · ') || '—'}</div>
       ${calculateAge(p.dob) ? `<div class="cat-age">🎂 ${calculateAge(p.dob)}</div>` : ''}
       <div class="owner-line">เจ้าของ: ${escapeHtml(currentOwnerName || '—')}</div>
     </div>
@@ -684,15 +686,17 @@ function closeAuthModal() {
 }
 
 async function shareProfileLink(btn) {
+  const catName = (currentProfile && currentProfile.cat_name) || 'น้องแมว';
   const url = window.location.href;
+  const shareText = `นี่คือ Cat Profile ของ '${catName}'\n${url}`;
   const originalText = btn.textContent;
   try {
-    await navigator.clipboard.writeText(url);
+    await navigator.clipboard.writeText(shareText);
     btn.textContent = '✅ คัดลอกลิงก์แล้ว';
   } catch (err) {
     // เบราว์เซอร์เก่า/ไม่รองรับ clipboard API — ใช้ fallback แบบ select+copy
-    const tempInput = document.createElement('input');
-    tempInput.value = url;
+    const tempInput = document.createElement('textarea');
+    tempInput.value = shareText;
     document.body.appendChild(tempInput);
     tempInput.select();
     document.execCommand('copy');
