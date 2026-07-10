@@ -1502,10 +1502,10 @@ document.getElementById('searchBtn').addEventListener('click', async function() 
         return;
       }
 
-      // ดึงข้อมูลเต็มด้วย action 'fetch' (ใช้ id ตรงๆ ไม่ต้อง name — ตาม zone CAT LOVE เดิม)
+      // ดึงข้อมูลเต็มด้วย action 'fetch_by_id' (ใช้ id ตรงๆ ไม่ต้อง name เพราะ verifyEditCode เช็คสิทธิ์ผ่านไปแล้วข้างบน)
       const fetchRes = await fetch(SCRIPT_URL, {
         method: 'POST',
-        body: JSON.stringify({ action: 'fetch', id: urlId })
+        body: JSON.stringify({ action: 'fetch_by_id', id: urlId })
       });
       const fetchResult = await fetchRes.json();
 
