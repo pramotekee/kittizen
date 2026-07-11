@@ -600,7 +600,7 @@ function renderProfile(p) {
         ${fieldRow('น้ำหนักล่าสุด', p.weight)}
         ${fieldRow('ไมโครชิพ', p.microchip)}
         ${fieldRow('วันทำหมัน', formatDateDMY(p.sterilization_date))}
-        <div style="grid-column:1/-1;">${fieldRow('แบรนด์อาหารที่ทานประจำ', p.food_brands)}</div>
+        <div style="grid-column:1/-1;">${fieldRow('แบรนด์อาหารที่ทานประจำ', [p.food_brands, p.food_brands_other].filter(Boolean).join(', '))}</div>
         <div style="grid-column:1/-1;">${fieldRow('ลักษณะนิสัย', p.character)}</div>
       </div>
     </div>
