@@ -1429,30 +1429,20 @@ document.getElementById('searchBtn').addEventListener('click', async function() 
     document.getElementById('cpNote').value = p.note || '';
     document.getElementById('cpCharacter').value = p.character || '';
 
-    // แยกค่า food_brands (คั่นด้วย comma) กลับมาติ๊ก checkbox ที่ตรงกัน
-    // ถ้าเจอชื่อที่ไม่อยู่ใน FOOD_BRANDS list ให้ถือเป็น "อื่นๆ" แล้วเติมชื่อลงช่องข้อความ
+    // ติ๊ก checkbox ตามรายชื่อแบรนด์มาตรฐานใน food_brands (คั่นด้วย comma)
     const savedBrands = (p.food_brands || '').split(',').map(function(s) { return s.trim(); }).filter(Boolean);
     document.querySelectorAll('.cp-food-checkbox').forEach(function(cb) { cb.checked = false; });
-    document.getElementById('cpFoodOtherCheckbox').checked = false;
-    document.getElementById('cpFoodBrandOther').value = '';
-    document.getElementById('cpFoodBrandOther').style.display = 'none';
-
-    const otherBrands = [];
     savedBrands.forEach(function(brand) {
-      const match = FOOD_BRANDS.find(function(b) { return b === brand; });
-      if (match) {
-        const safeId = 'cpFood_' + match.replace(/[^a-zA-Z0-9]/g, '');
-        const cb = document.getElementById(safeId);
-        if (cb) cb.checked = true;
-      } else {
-        otherBrands.push(brand);
-      }
+      const safeId = 'cpFood_' + brand.replace(/[^a-zA-Z0-9]/g, '');
+      const cb = document.getElementById(safeId);
+      if (cb) cb.checked = true;
     });
-    if (otherBrands.length > 0) {
-      document.getElementById('cpFoodOtherCheckbox').checked = true;
-      document.getElementById('cpFoodBrandOther').value = otherBrands.join(', ');
-      document.getElementById('cpFoodBrandOther').style.display = 'block';
-    }
+
+    // เติมช่อง "อื่นๆ" จาก field แยก food_brands_other โดยตรง
+    const otherVal = (p.food_brands_other || '').trim();
+    document.getElementById('cpFoodOtherCheckbox').checked = !!otherVal;
+    document.getElementById('cpFoodBrandOther').value = otherVal;
+    document.getElementById('cpFoodBrandOther').style.display = otherVal ? 'block' : 'none';
 
     VACCINE_DEFS.forEach(function(v) {
       document.getElementById(v.key + '_name').value = p[v.key + '_name'] || '';
@@ -1527,14 +1517,10 @@ document.getElementById('searchBtn').addEventListener('click', async function() 
       vet_phone: document.getElementById('cpVetPhone').value.trim(),
       note: document.getElementById('cpNote').value.trim(),
       character: document.getElementById('cpCharacter').value.trim(),
-      food_brands: (function() {
-        const checked = Array.from(document.querySelectorAll('.cp-food-checkbox:checked')).map(function(cb) { return cb.value; });
-        if (document.getElementById('cpFoodOtherCheckbox').checked) {
-          const otherVal = document.getElementById('cpFoodBrandOther').value.trim();
-          if (otherVal) checked.push(otherVal);
-        }
-        return checked.join(', ');
-      })()
+      food_brands: Array.from(document.querySelectorAll('.cp-food-checkbox:checked')).map(function(cb) { return cb.value; }).join(', '),
+      food_brands_other: document.getElementById('cpFoodOtherCheckbox').checked
+        ? document.getElementById('cpFoodBrandOther').value.trim()
+        : ''
     };
     VACCINE_DEFS.forEach(function(v) {
       payload[v.key + '_name'] = document.getElementById(v.key + '_name').value.trim();
