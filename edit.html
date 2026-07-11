@@ -78,6 +78,26 @@
   .form-row { display: flex; gap: 16px; flex-wrap: wrap; }
   .form-row .form-group { flex: 1; min-width: 140px; }
   .hint { font-size: 11px; color: var(--text-secondary); margin-bottom: 6px; line-height: 1.5; }
+  .food-brand-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 8px 12px;
+    margin-bottom: 10px;
+  }
+  .food-brand-grid label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 400;
+    cursor: pointer;
+  }
+  .food-brand-grid input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
 
   .cat-group {
     background: var(--bg);
@@ -465,6 +485,19 @@
           <div class="form-row">
             <div class="form-group"><label>เลขที่ไมโครชิพ</label><input type="text" id="cpMicrochip"></div>
             <div class="form-group"><label>วันทำหมัน</label><input type="date" id="cpSterilizationDate" placeholder="วว/ดด/ปปปป"></div>
+          </div>
+
+          <div class="form-group">
+            <label>แบรนด์อาหารที่ทานประจำ</label>
+            <div class="hint">เลือกได้หลายแบรนด์</div>
+            <div class="food-brand-grid" id="cpFoodBrandGrid"></div>
+            <input type="text" id="cpFoodBrandOther" placeholder="ระบุแบรนด์อื่นๆ" style="display:none;margin-top:6px;">
+          </div>
+
+          <div class="form-group">
+            <label>ลักษณะนิสัย</label>
+            <div class="hint">พิมพ์อธิบายนิสัยแมวได้ตามต้องการ</div>
+            <textarea id="cpCharacter" rows="3"></textarea>
           </div>
 
           <hr>
@@ -1297,6 +1330,15 @@ document.getElementById('searchBtn').addEventListener('click', async function() 
     { key: 'vac6', label: 'วัคซีนอื่นๆ (Other vaccine)' }
   ];
 
+  const FOOD_BRANDS = [
+    'Buzz', "Cat's Taste", 'cat Enjoy', 'Cataholic', 'Canagan', 'DeliSci',
+    "Hill's Science Diet / Hill's", 'Iconic', 'Kaniva', 'Katclub', 'MAOMAO ONE',
+    'Maxima', 'Me-O', 'Miao', 'Monchou', 'Nekko.petnme', 'Neez Plus', 'Perfecta',
+    'Perfector', 'Pramy', 'Purina Felix', 'Purina Friskies', 'Purina One',
+    'Royal Canin', 'SmartHeart', 'Silver', 'Tiffany', 'Whiskas', 'Winstar',
+    'Gourmet Golden'
+  ].sort((a, b) => a.localeCompare(b));
+
   let catProfilesCache = {}; // key = cat_index (string) -> profile object ที่โหลดมาแล้ว
   let catProfileLoadedIds = new Set(); // เก็บว่า cat_index ไหนโหลดจาก server มาแล้วบ้าง (กันโหลดซ้ำ)
 
@@ -1316,6 +1358,21 @@ document.getElementById('searchBtn').addEventListener('click', async function() 
   }
   renderVaccineFields('catProfileVaccineList');
 
+  function renderFoodBrandCheckboxes() {
+    const grid = document.getElementById('cpFoodBrandGrid');
+    const items = FOOD_BRANDS.map(function(brand) {
+      const safeId = 'cpFood_' + brand.replace(/[^a-zA-Z0-9]/g, '');
+      return `<label><input type="checkbox" class="cp-food-checkbox" value="${escapeHtml(brand)}" id="${safeId}"> ${escapeHtml(brand)}</label>`;
+    }).join('');
+    grid.innerHTML = items + `<label><input type="checkbox" id="cpFoodOtherCheckbox" value="อื่นๆ"> อื่นๆ</label>`;
+
+    document.getElementById('cpFoodOtherCheckbox').addEventListener('change', function() {
+      document.getElementById('cpFoodBrandOther').style.display = this.checked ? 'block' : 'none';
+      if (!this.checked) document.getElementById('cpFoodBrandOther').value = '';
+    });
+  }
+  renderFoodBrandCheckboxes();
+
   function populateCatProfileSelector() {
     const selector = document.getElementById('catProfileSelector');
     const groups = document.querySelectorAll('#editCatsContainer .cat-group');
@@ -1333,9 +1390,13 @@ document.getElementById('searchBtn').addEventListener('click', async function() 
 
   function clearCatProfileForm() {
     ['cpBreed','cpColor','cpDob','cpWeight','cpMicrochip','cpSterilizationDate',
-     'cpVetClinic','cpVetName','cpVetLicense','cpVetPhone','cpNote'].forEach(function(id) {
+     'cpVetClinic','cpVetName','cpVetLicense','cpVetPhone','cpNote','cpCharacter'].forEach(function(id) {
       document.getElementById(id).value = '';
     });
+    document.querySelectorAll('.cp-food-checkbox').forEach(function(cb) { cb.checked = false; });
+    document.getElementById('cpFoodOtherCheckbox').checked = false;
+    document.getElementById('cpFoodBrandOther').value = '';
+    document.getElementById('cpFoodBrandOther').style.display = 'none';
     VACCINE_DEFS.forEach(function(v) {
       document.getElementById(v.key + '_name').value = '';
       document.getElementById(v.key + '_date').value = '';
@@ -1366,6 +1427,33 @@ document.getElementById('searchBtn').addEventListener('click', async function() 
     document.getElementById('cpVetLicense').value = p.vet_license || '';
     document.getElementById('cpVetPhone').value = (p.vet_phone || '').toString().replace(/^'/, '');
     document.getElementById('cpNote').value = p.note || '';
+    document.getElementById('cpCharacter').value = p.character || '';
+
+    // แยกค่า food_brands (คั่นด้วย comma) กลับมาติ๊ก checkbox ที่ตรงกัน
+    // ถ้าเจอชื่อที่ไม่อยู่ใน FOOD_BRANDS list ให้ถือเป็น "อื่นๆ" แล้วเติมชื่อลงช่องข้อความ
+    const savedBrands = (p.food_brands || '').split(',').map(function(s) { return s.trim(); }).filter(Boolean);
+    document.querySelectorAll('.cp-food-checkbox').forEach(function(cb) { cb.checked = false; });
+    document.getElementById('cpFoodOtherCheckbox').checked = false;
+    document.getElementById('cpFoodBrandOther').value = '';
+    document.getElementById('cpFoodBrandOther').style.display = 'none';
+
+    const otherBrands = [];
+    savedBrands.forEach(function(brand) {
+      const match = FOOD_BRANDS.find(function(b) { return b === brand; });
+      if (match) {
+        const safeId = 'cpFood_' + match.replace(/[^a-zA-Z0-9]/g, '');
+        const cb = document.getElementById(safeId);
+        if (cb) cb.checked = true;
+      } else {
+        otherBrands.push(brand);
+      }
+    });
+    if (otherBrands.length > 0) {
+      document.getElementById('cpFoodOtherCheckbox').checked = true;
+      document.getElementById('cpFoodBrandOther').value = otherBrands.join(', ');
+      document.getElementById('cpFoodBrandOther').style.display = 'block';
+    }
+
     VACCINE_DEFS.forEach(function(v) {
       document.getElementById(v.key + '_name').value = p[v.key + '_name'] || '';
       document.getElementById(v.key + '_date').value = toDateInputValue(p[v.key + '_date']);
@@ -1437,7 +1525,16 @@ document.getElementById('searchBtn').addEventListener('click', async function() 
       vet_name: document.getElementById('cpVetName').value.trim(),
       vet_license: document.getElementById('cpVetLicense').value.trim(),
       vet_phone: document.getElementById('cpVetPhone').value.trim(),
-      note: document.getElementById('cpNote').value.trim()
+      note: document.getElementById('cpNote').value.trim(),
+      character: document.getElementById('cpCharacter').value.trim(),
+      food_brands: (function() {
+        const checked = Array.from(document.querySelectorAll('.cp-food-checkbox:checked')).map(function(cb) { return cb.value; });
+        if (document.getElementById('cpFoodOtherCheckbox').checked) {
+          const otherVal = document.getElementById('cpFoodBrandOther').value.trim();
+          if (otherVal) checked.push(otherVal);
+        }
+        return checked.join(', ');
+      })()
     };
     VACCINE_DEFS.forEach(function(v) {
       payload[v.key + '_name'] = document.getElementById(v.key + '_name').value.trim();
