@@ -164,21 +164,6 @@
   .dp-status.active { background: #e8f8f0; color: var(--success); }
   .dp-status.inactive { background: var(--tag-bg); color: var(--text-secondary); }
 
-  /* Image preview */
-  .img-preview {
-    margin-top: 10px;
-    display: none;
-    border-radius: 14px;
-    overflow: hidden;
-    border: 1px solid var(--border);
-    background: var(--bg);
-  }
-  .img-preview.show { display: block; }
-  .img-preview img { display: block; width: 100%; object-fit: cover; }
-  .img-preview.logo-preview img { aspect-ratio: 1 / 1; }
-  .img-preview.deal-preview img { aspect-ratio: 16 / 9; }
-  .img-preview .broken { padding: 20px; text-align: center; font-size: 12px; color: var(--error); }
-
   .breadcrumb { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; }
   .breadcrumb a { color: var(--accent); text-decoration: none; }
   .breadcrumb a:hover { text-decoration: underline; }
@@ -225,7 +210,7 @@
 
   <div class="card">
     <h1>✏️ แก้ไขดีลร้านค้า</h1>
-    <div class="sub">กรอก Shop ID และ Edit Code เพื่อแก้ไขข้อมูลดีล</div>
+    <div class="sub">กรอก Shop ID และ Edit Code เพื่อดึงดีลของร้านคุณมาแก้ไข</div>
 
     <!-- SEARCH -->
     <div class="search-section">
@@ -236,7 +221,7 @@
         </div>
         <div class="form-group">
           <label>Edit Code <span class="required">*</span></label>
-          <input type="text" id="searchEditCode" placeholder="รหัสที่คุณตั้งไว้ตอนสร้างดีลแรก" autocomplete="off">
+          <input type="text" id="searchEditCode" placeholder="รหัสที่ตั้งไว้ตอนส่งดีลแรก" autocomplete="off">
         </div>
       </div>
       <button class="btn-submit" id="searchBtn" style="margin-top:0;">🔍 ค้นหาดีลของร้าน</button>
@@ -269,7 +254,6 @@
         <label>โลโก้ร้าน (URL) <span class="required">*</span></label>
         <input type="url" id="editShopLogoImage" required>
         <small>⚠️ ต้องตั้งค่า Share to public — สี่เหลี่ยมจัตุรัส 1:1 ขนาด 400x400px</small>
-        <div class="img-preview logo-preview" id="editLogoPreviewBox"><img id="editLogoPreviewImg" alt="preview โลโก้ร้าน"></div>
       </div>
 
       <div class="form-row">
@@ -301,7 +285,6 @@
         <label>รูปดีล (URL) <span class="required">*</span></label>
         <input type="url" id="editDealImage" required>
         <small>⚠️ ต้องตั้งค่า Share to public — สี่เหลี่ยมผืนผ้า 16:9 ขนาด 1200x675px</small>
-        <div class="img-preview deal-preview" id="editDealPreviewBox"><img id="editDealPreviewImg" alt="preview รูปดีล"></div>
       </div>
 
       <div class="form-group">
@@ -377,41 +360,15 @@
     return url;
   }
 
-  function wireImagePreview(inputId, boxId, imgId) {
+  // เซ็ตค่า input ตอนโหลดข้อมูลเดิมมาแสดง (ตัด live preview ออกแล้ว —
+  // ร้านค้าไปดูรูปจริงตอนดีลขึ้นแสดงผลที่ catdeal.html แทน)
+  function setImageField(inputId) {
     const input = document.getElementById(inputId);
-    const box = document.getElementById(boxId);
-    const img = document.getElementById(imgId);
-    let debounceTimer = null;
-
-    input.addEventListener('input', function () {
-      clearTimeout(debounceTimer);
-      const raw = input.value.trim();
-      if (!raw) { box.classList.remove('show'); return; }
-      debounceTimer = setTimeout(function () {
-        const url = normalizeImageUrl(raw);
-        img.onload = function () {
-          box.classList.add('show');
-          box.querySelector('.broken')?.remove();
-          img.style.display = 'block';
-        };
-        img.onerror = function () {
-          img.style.display = 'none';
-          if (!box.querySelector('.broken')) {
-            const p = document.createElement('div');
-            p.className = 'broken';
-            p.textContent = '⚠️ ไม่สามารถโหลดรูปได้ ตรวจสอบว่าตั้งค่า Share to public แล้ว';
-            box.appendChild(p);
-          }
-          box.classList.add('show');
-        };
-        img.src = url;
-      }, 400);
-    });
-    return function (url) { input.value = url || ''; input.dispatchEvent(new Event('input')); };
+    return function (url) { input.value = url || ''; };
   }
 
-  const triggerLogoPreview = wireImagePreview('editShopLogoImage', 'editLogoPreviewBox', 'editLogoPreviewImg');
-  const triggerDealPreview = wireImagePreview('editDealImage', 'editDealPreviewBox', 'editDealPreviewImg');
+  const triggerLogoPreview = setImageField('editShopLogoImage');
+  const triggerDealPreview = setImageField('editDealImage');
 
   document.getElementById('editDealDetail').addEventListener('input', function () {
     document.getElementById('editDealDetailCounter').textContent = this.value.length;
