@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>Kittizen — Cat Deal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Bungee+Shade&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FAF7F4;
+    --surface: #FFFCF9;
+    --accent: #F9B95C;
+    --accent-dark: #E8A043;
+    --accent-light: #FEF3E2;
+    --deal: #E8734A;
+    --deal-dark: #D4623A;
+    --text-primary: #2C2420;
+    --text-secondary: #7A6E6A;
+    --tag-bg: #F0E8E4;
+    --border: #D2D2D7;
+    --card-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    --error: #e74c3c;
+    --success: #2ecc71;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    padding: 32px 20px;
+  }
+  .container { max-width: 720px; margin: 0 auto; }
+
+  .breadcrumb { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; }
+  .breadcrumb a { color: var(--deal); text-decoration: none; }
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  /* MODE SWITCH — เข้าชุดกับ index.html/catlost.html */
+  .mode-switch {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding: 0 0 20px;
+    flex-wrap: wrap;
+  }
+  .mode-btn {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 30px;
+    padding: 10px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--text-secondary);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.15s;
+    font-family: 'Inter', sans-serif;
+  }
+  .mode-btn:hover { background: var(--tag-bg); }
+  .mode-btn.active {
+    background: var(--text-primary);
+    color: #fff;
+    border-color: var(--text-primary);
+  }
+  .mode-btn.deal.active {
+    background: var(--deal);
+    border-color: var(--deal);
+  }
+  .mode-btn.lost.active {
+    background: var(--deal);
+    border-color: var(--deal);
+  }
+
+  .page-header { padding: 8px 4px 4px; }
+  h1 {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--deal);
+    margin-bottom: 4px;
+  }
+  .sub {
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+    font-size: 14px;
+  }
+
+  /* Empty state */
+  .empty-state {
+    background: var(--surface);
+    border-radius: 24px;
+    padding: 48px 24px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  }
+  .empty-state .emoji { font-size: 48px; margin-bottom: 12px; }
+  .empty-state p { color: var(--text-secondary); font-size: 14px; line-height: 1.7; }
+
+  /* Loading state */
+  .loading-state { text-align: center; padding: 48px 24px; color: var(--text-secondary); font-size: 14px; }
+
+  /* Deal cards grid */
+  .deal-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 600px) {
+    .deal-grid { grid-template-columns: 1fr; }
+  }
+
+  .deal-card {
+    background: var(--surface);
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    display: flex;
+    flex-direction: column;
+  }
+  .deal-card .deal-img-wrap {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: var(--tag-bg);
+    overflow: hidden;
+  }
+  .deal-card .deal-img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .deal-card .deal-body { padding: 16px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+
+  .shop-row { display: flex; align-items: center; gap: 10px; }
+  .shop-logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px; /* จัตุรัส ไม่ครอบวงกลม ตามสเปก */
+    overflow: hidden;
+    background: var(--tag-bg);
+    flex-shrink: 0;
+  }
+  .shop-logo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .shop-info { flex: 1; min-width: 0; }
+  .shop-name { font-weight: 700; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .shop-socials { display: flex; gap: 6px; margin-top: 2px; }
+  .shop-socials a {
+    font-size: 13px;
+    text-decoration: none;
+    opacity: 0.75;
+    transition: opacity 0.15s;
+  }
+  .shop-socials a:hover { opacity: 1; }
+
+  .deal-name { font-weight: 700; font-size: 16px; }
+  .deal-detail { font-size: 13px; color: var(--text-secondary); line-height: 1.6; flex: 1; }
+
+  .deal-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: var(--text-secondary);
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+
+  .btn-claim {
+    background: var(--deal);
+    color: white;
+    border: none;
+    padding: 12px 16px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.15s;
+    font-family: 'Inter', sans-serif;
+  }
+  .btn-claim:hover { background: var(--deal-dark); }
+  .btn-claim:disabled {
+    background: var(--tag-bg);
+    color: var(--text-secondary);
+    cursor: not-allowed;
+  }
+
+  .cross-link {
+    text-align: center;
+    margin-top: 24px;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .cross-link a { color: var(--deal); font-weight: 600; text-decoration: none; }
+  .cross-link a:hover { text-decoration: underline; }
+
+  /* POPUP - claim (กรอก edit code) */
+  .popup-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .popup-overlay.open { display: flex; }
+  .popup {
+    background: var(--surface);
+    border-radius: 28px;
+    padding: 32px;
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+    animation: fadeIn 0.25s ease;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .popup h3 { font-size: 20px; margin-bottom: 6px; }
+  .popup .popup-sub { font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; }
+  .popup .form-group { text-align: left; margin-bottom: 16px; }
+  .popup .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .popup input {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+  }
+  .popup input:focus {
+    outline: none;
+    border-color: var(--deal);
+    box-shadow: 0 0 0 3px rgba(232,115,74,0.12);
+  }
+  .popup-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+  .popup-actions button {
+    padding: 10px 24px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+    font-family: 'Inter', sans-serif;
+  }
+  .btn-confirm { background: var(--deal); color: white; width: 100%; }
+  .btn-confirm:hover { background: var(--deal-dark); }
+  .btn-confirm:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-cancel { background: var(--tag-bg); color: var(--text-primary); width: 100%; }
+  .btn-cancel:hover { background: #d8d8dd; }
+  @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+  .popup .no-profile-hint {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 14px;
+    line-height: 1.6;
+  }
+  .popup .no-profile-hint a { color: var(--deal); font-weight: 600; text-decoration: none; }
+  .popup .no-profile-hint a:hover { text-decoration: underline; }
+
+  .popup .error-msg { color: var(--error); font-size: 12px; margin-top: 6px; text-align: left; display: none; }
+
+  /* TICKET (หลัง redeem สำเร็จ) */
+  .ticket {
+    background: var(--surface);
+    border-radius: 8px;
+    text-align: left;
+  }
+  .ticket .ticket-shop { font-size: 13px; color: var(--text-secondary); margin-bottom: 4px; }
+  .ticket .ticket-deal-name { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .ticket .ticket-detail { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.6; }
+  .ticket .ticket-qr { text-align: center; margin: 16px 0; }
+  .ticket .ticket-qr img { width: 200px; height: 200px; border-radius: 12px; border: 1px solid var(--border); }
+  .ticket .ticket-code {
+    text-align: center;
+    font-family: monospace;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: var(--deal);
+    margin-bottom: 8px;
+  }
+  .ticket .ticket-expiry {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+  }
+
+  .spinner {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 3px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top: 3px solid #ffffff;
+    animation: spin 0.8s linear infinite;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="mode-switch">
+    <a href="index.html" class="mode-btn">🐱 Cat Love</a>
+    <a href="catlost.html" class="mode-btn lost">🚨 Cat Lost</a>
+    <a href="catdeal.html" class="mode-btn deal active">🏷️ Cat Deal</a>
+  </div>
+
+  <div class="page-header">
+    <h1>🏷️ Cat Deal</h1>
+    <div class="sub">ดีลพิเศษจากร้านค้าที่รักแมวเหมือนคุณ</div>
+  </div>
+
+  <div id="dealContent">
+    <div class="loading-state">กำลังโหลดดีล...</div>
+  </div>
+
+  <div class="cross-link">
+    เป็นร้านค้าและอยากลงดีล? <a href="catdealcreate.html">กดที่นี่</a>
+  </div>
+</div>
+
+<!-- POPUP: กรอก edit code เพื่อรับดีล -->
+<div class="popup-overlay" id="claimPopup">
+  <div class="popup">
+    <h3>🎁 รับดีลนี้</h3>
+    <p class="popup-sub" id="claimDealName"></p>
+
+    <div class="form-group">
+      <label>Edit Code ของคุณ <span style="color:var(--error);">*</span></label>
+      <input type="text" id="claimEditCode" placeholder="เช่น 57f3k9mu" autocomplete="off">
+      <div class="error-msg" id="claimError"></div>
+    </div>
+
+    <div class="popup-actions">
+      <button class="btn-confirm" id="claimConfirmBtn">✅ ยืนยันรับดีล</button>
+      <button class="btn-cancel" id="claimCancelBtn">ยกเลิก</button>
+    </div>
+
+    <p class="no-profile-hint">ยังไม่มีโปรไฟล์คนรักแมว? <a href="create.html">สร้างโปรไฟล์ที่นี่</a></p>
+  </div>
+</div>
+
+<!-- POPUP: ticket หลัง redeem สำเร็จ -->
+<div class="popup-overlay" id="ticketPopup">
+  <div class="popup">
+    <h3>🎉 รับดีลสำเร็จ!</h3>
+    <div class="ticket" id="ticketContent"></div>
+    <div class="popup-actions">
+      <button class="btn-confirm" id="saveTicketBtn">📸 บันทึกเป็นรูป</button>
+      <button class="btn-cancel" id="closeTicketBtn">ปิด</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script>
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbylJXLg47otdgqZM6EwLma8AL1q5AEIsYe8uDOlNlTh9gOMOS7sHOgceX4l9h8ia3nGfg/exec';
+
+  let activeDeals = [];
+  let selectedDeal = null;
+
+  // ============================================================
+  // โหลดดีลทุกครั้งที่เปิดหน้า (ไม่ cache ตามสเปก)
+  // ============================================================
+  async function loadDeals() {
+    const content = document.getElementById('dealContent');
+    content.innerHTML = '<div class="loading-state">กำลังโหลดดีล...</div>';
+
+    try {
+      const res = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'deal_fetch_active' })
+      });
+      const result = await res.json();
+
+      if (result.success && result.deals && result.deals.length > 0) {
+        activeDeals = shuffleArray(result.deals);
+        renderDeals();
+      } else {
+        content.innerHTML = `
+          <div class="empty-state">
+            <div class="emoji">🐱</div>
+            <p>อดใจรอดีลเด็ดๆ ที่จะมามอบให้คนรักแมวเช่นคุณ<br>มาเช็คเรื่อยๆ นะ</p>
+          </div>`;
+      }
+    } catch (err) {
+      content.innerHTML = `<div class="empty-state"><div class="emoji">⚠️</div><p>โหลดดีลไม่สำเร็จ: ${err.message}</p></div>`;
+    }
+  }
+
+  // สุ่มลำดับการ์ด (เหมือน Cat Love ไม่เรียง A-Z)
+  function shuffleArray(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function socialIcon(type, value) {
+    if (!value) return '';
+    const links = {
+      fb: 'https://facebook.com/' + value.replace('https://facebook.com/', ''),
+      ig: 'https://instagram.com/' + value.replace('@', ''),
+      tt: 'https://tiktok.com/@' + value.replace('@', ''),
+      yt: value,
+      line: value.startsWith('http') ? value : 'https://line.me/ti/p/~' + value
+    };
+    const emojis = { fb: '📘', ig: '📷', tt: '🎵', yt: '▶️', line: '💬' };
+    const url = type === 'fb' || type === 'yt' ? value : links[type];
+    return `<a href="${url}" target="_blank" rel="noopener">${emojis[type]}</a>`;
+  }
+
+  function renderDeals() {
+    const content = document.getElementById('dealContent');
+    let html = '<div class="deal-grid">';
+
+    activeDeals.forEach(function (deal) {
+      const remaining = Math.max(0, (parseInt(deal.deal_limit, 10) || 0) - (parseInt(deal.redeemed_count, 10) || 0));
+      const isFull = remaining <= 0;
+      const stopDate = deal.stop_display_date || '';
+
+      html += `
+        <div class="deal-card">
+          <div class="deal-img-wrap"><img src="${deal.deal_image || ''}" alt="${escapeHtml(deal.deal_name)}" loading="lazy"></div>
+          <div class="deal-body">
+            <div class="shop-row">
+              <div class="shop-logo"><img src="${deal.shop_logo_image || ''}" alt="${escapeHtml(deal.shop_name)}"></div>
+              <div class="shop-info">
+                <div class="shop-name">${escapeHtml(deal.shop_name)}</div>
+                <div class="shop-socials">
+                  ${socialIcon('fb', deal.shop_fb)}
+                  ${socialIcon('ig', deal.shop_ig)}
+                  ${socialIcon('tt', deal.shop_tt)}
+                  ${socialIcon('yt', deal.shop_yt)}
+                  ${socialIcon('line', deal.shop_line)}
+                </div>
+              </div>
+            </div>
+            <div class="deal-name">${escapeHtml(deal.deal_name)}</div>
+            <div class="deal-detail">${escapeHtml(deal.deal_detail)}</div>
+            <div class="deal-meta">
+              <span>หมดเขต ${stopDate}</span>
+              <span>${isFull ? 'เต็มแล้ว' : 'เหลือ ' + remaining + ' สิทธิ์'}</span>
+            </div>
+            <button class="btn-claim" data-deal-id="${deal.deal_id}" ${isFull ? 'disabled' : ''}>
+              ${isFull ? 'ดีลหมดแล้ว' : '🎁 รับดีลนี้'}
+            </button>
+          </div>
+        </div>`;
+    });
+
+    html += '</div>';
+    content.innerHTML = html;
+
+    document.querySelectorAll('.btn-claim:not(:disabled)').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        const dealId = this.getAttribute('data-deal-id');
+        openClaimPopup(dealId);
+      });
+    });
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  // ============================================================
+  // Claim popup
+  // ============================================================
+  function openClaimPopup(dealId) {
+    selectedDeal = activeDeals.find(d => d.deal_id === dealId);
+    if (!selectedDeal) return;
+
+    document.getElementById('claimDealName').textContent = selectedDeal.deal_name + ' — ' + selectedDeal.shop_name;
+    document.getElementById('claimEditCode').value = '';
+    document.getElementById('claimError').style.display = 'none';
+    document.getElementById('claimPopup').classList.add('open');
+  }
+
+  document.getElementById('claimCancelBtn').addEventListener('click', function () {
+    document.getElementById('claimPopup').classList.remove('open');
+  });
+
+  document.getElementById('claimConfirmBtn').addEventListener('click', async function () {
+    const editCode = document.getElementById('claimEditCode').value.trim();
+    const errorEl = document.getElementById('claimError');
+
+    if (!editCode) {
+      errorEl.textContent = 'กรุณากรอก Edit Code';
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    const btn = this;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> กำลังตรวจสอบ...';
+    errorEl.style.display = 'none';
+
+    try {
+      const res = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'deal_redeem', edit_code: editCode, deal_id: selectedDeal.deal_id })
+      });
+      const result = await res.json();
+
+      if (result.success) {
+        document.getElementById('claimPopup').classList.remove('open');
+        showTicket(result);
+        loadDeals(); // รีเฟรชจำนวนสิทธิ์คงเหลือทันที
+      } else {
+        errorEl.textContent = result.error || 'เกิดข้อผิดพลาด';
+        errorEl.style.display = 'block';
+      }
+    } catch (err) {
+      errorEl.textContent = 'เกิดข้อผิดพลาด: ' + err.message;
+      errorEl.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '✅ ยืนยันรับดีล';
+    }
+  });
+
+  // ============================================================
+  // Ticket popup (หลัง redeem สำเร็จ)
+  // ============================================================
+  function showTicket(data) {
+    const ticketHtml = `
+      <div class="ticket-shop">${escapeHtml(data.shop_name)}</div>
+      <div class="ticket-deal-name">${escapeHtml(data.deal_name)}</div>
+      <div class="ticket-detail">${escapeHtml(data.deal_detail)}</div>
+      <div class="ticket-qr"><img src="${data.qr_image}" alt="QR Code"></div>
+      <div class="ticket-code">${data.deal_code}</div>
+      <div class="ticket-expiry">ใช้สิทธิ์ได้ถึงวันที่ ${data.expired_date}</div>`;
+    document.getElementById('ticketContent').innerHTML = ticketHtml;
+    document.getElementById('ticketPopup').classList.add('open');
+  }
+
+  document.getElementById('closeTicketBtn').addEventListener('click', function () {
+    document.getElementById('ticketPopup').classList.remove('open');
+  });
+
+  document.getElementById('saveTicketBtn').addEventListener('click', function () {
+    const ticketEl = document.getElementById('ticketContent');
+    html2canvas(ticketEl, { backgroundColor: '#ffffff', scale: 2 }).then(function (canvas) {
+      const link = document.createElement('a');
+      link.download = 'cat-deal-ticket.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    });
+  });
+
+  loadDeals();
+</script>
+
+<script defer src="/_vercel/insights/script.js"></script>
+
+</body>
+</html>
