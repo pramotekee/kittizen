@@ -242,29 +242,28 @@
     <h1>🏷️ ลงดีลร้านค้า</h1>
     <div class="sub">ส่งดีลของร้านคุณเข้าระบบ Cat Deal — ทีมงานจะตรวจสอบก่อนขึ้นแสดงผลจริง</div>
     <div class="cross-link cross-link-top">
-      เคยส่งดีลมาแล้ว และต้องการแก้ไข? <a href="catdealedit.html">แก้ไขดีลของร้านที่นี่</a>
+      หากเคยส่งดีลมาแล้ว และต้องการแก้ไข? <a href="catdealedit.html">แก้ไขดีลของร้านที่นี่</a>
     </div>
 
     <div id="alertContainer"></div>
 
     <form id="createForm">
       <!-- SHOP INFO -->
-      <h3 style="font-size:16px;margin-bottom:16px;">🏪 ข้อมูลร้านค้า</h3>
+      <h3 style="font-size:16px;margin-bottom:16px;">🏪 Business Information</h3>
 
       <div class="form-group">
         <label>ชื่อร้าน <span class="required">*</span></label>
         <input type="text" id="shopName" placeholder="เช่น Meaelove Cat Cafe" required>
-        <small>ใช้ 2 ตัวอักษรแรกของชื่อร้านสร้างรหัสร้านค้า (Shop ID) ให้อัตโนมัติ</small>
       </div>
 
       <div class="form-group">
         <label>ตั้งรหัสแก้ไข (Shop Edit Code) <span class="required">*</span></label>
         <input type="text" id="shopEditCode" placeholder="ตั้งรหัสของร้านคุณเอง เช่น meaelove2026" required>
-        <small>⚠️ ใช้รหัสนี้ + Shop ID (ที่ระบบจะออกให้หลังส่งฟอร์มสำเร็จ) สำหรับกลับมาแก้ไขหรือสร้างดีลใหม่ในอนาคต กรุณาจดบันทึกไว้ให้ดี</small>
+        <small>⚠️ ใช้รหัสนี้ + Shop ID (ที่ระบบจะออกให้หลังส่งฟอร์มสำเร็จ) สำหรับกลับมาแก้ไขหรือสร้างดีลใหม่ในอนาคต กรุณาจดเก็บรักษาไว้นะครับ</small>
       </div>
 
       <div class="form-group">
-        <label>โลโก้ร้าน (URL) <span class="required">*</span></label>
+        <label>Brand logo (วางเป็น URL) <span class="required">*</span></label>
         <input type="url" id="shopLogoImage" placeholder="https://drive.google.com/file/d/..." required>
         <small>⚠️ ต้องตั้งค่า Share to public ก่อนวาง URL — แนะนำสร้างรูปสี่เหลี่ยมจัตุรัส 1:1 ขนาด 400x400px (รองรับ Google Drive, Dropbox, Imgur, imgBB หรือ URL รูปภาพของคุณ)</small>
         <div class="img-preview logo-preview" id="logoPreviewBox"><img id="logoPreviewImg" alt="preview โลโก้ร้าน"></div>
@@ -284,7 +283,7 @@
       <hr>
 
       <!-- DEAL INFO -->
-      <h3 style="font-size:16px;margin-bottom:16px;">🎁 ข้อมูลดีล</h3>
+      <h3 style="font-size:16px;margin-bottom:16px;">🎁 Deal Information</h3>
 
       <div class="form-group">
         <label>ชื่อดีล <span class="required">*</span></label>
@@ -312,11 +311,11 @@
 
       <div class="form-row">
         <div class="form-group">
-          <label>วันที่เริ่มแสดงดีล <span class="required">*</span></label>
+          <label>วันที่เริ่มต้นแสดงดีล <span class="required">*</span></label>
           <input type="date" id="startDisplayDate" required>
         </div>
         <div class="form-group">
-          <label>วันที่หยุดแสดงดีล <span class="required">*</span></label>
+          <label>วันที่สิ้นสุดแสดงดีล <span class="required">*</span></label>
           <input type="date" id="stopDisplayDate" required>
         </div>
       </div>
@@ -324,7 +323,7 @@
       <hr>
 
       <!-- SOCIAL -->
-      <h3 style="font-size:16px;margin-bottom:16px;">🔗 ช่องทางติดต่อร้าน (ใส่เท่าที่มี)</h3>
+      <h3 style="font-size:16px;margin-bottom:16px;">🔗 Contact Information (ใส่เท่าที่มี)</h3>
 
       <div class="form-group">
         <label>Facebook</label>
@@ -347,7 +346,7 @@
         </div>
         <div class="form-group">
           <label>LINE</label>
-          <input type="text" id="shopLine" placeholder="LINE ID หรือลิงก์ LINE OA">
+          <input type="text" id="shopLine" placeholder="LINE ID หรือลิงก์ LINE">
         </div>
       </div>
 
