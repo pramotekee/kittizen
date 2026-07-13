@@ -210,6 +210,13 @@
     font-size: 13px;
     color: var(--text-secondary);
   }
+  .cross-link.cross-link-top {
+    margin-top: 6px;
+    margin-bottom: 20px;
+    padding: 10px 14px;
+    background: var(--tag-bg);
+    border-radius: 14px;
+  }
   .cross-link a { color: var(--accent); font-weight: 600; text-decoration: none; }
   .cross-link a:hover { text-decoration: underline; }
 
@@ -234,6 +241,9 @@
   <div class="card">
     <h1>🏷️ ลงดีลร้านค้า</h1>
     <div class="sub">ส่งดีลของร้านคุณเข้าระบบ Cat Deal — ทีมงานจะตรวจสอบก่อนขึ้นแสดงผลจริง</div>
+    <div class="cross-link cross-link-top">
+      เคยส่งดีลมาแล้ว และต้องการแก้ไข? <a href="catdealedit.html">แก้ไขดีลของร้านที่นี่</a>
+    </div>
 
     <div id="alertContainer"></div>
 
@@ -343,10 +353,6 @@
 
       <button type="submit" class="btn-submit" id="submitBtn">🏷️ ส่งดีลเข้าระบบ</button>
     </form>
-
-    <div class="cross-link">
-      เคยส่งดีลมาแล้ว และต้องการแก้ไข? <a href="catdealedit.html">แก้ไขดีลของร้านที่นี่</a>
-    </div>
   </div>
 </div>
 
