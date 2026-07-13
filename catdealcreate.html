@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<title>Kittizen — ลงดีลร้านค้า</title>
+<title>Kittizen — แก้ไขดีลร้านค้า</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -95,7 +95,16 @@
   .btn-submit:hover { background: var(--accent-dark); }
   .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  .error-msg { color: var(--error); font-size: 12px; margin-top: 4px; display: none; }
+  .search-section {
+    background: var(--bg);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .search-section .form-row { margin-bottom: 12px; }
+
+  .edit-section { display: none; }
+  .edit-section.show { display: block; }
 
   .alert {
     padding: 12px 16px;
@@ -123,102 +132,62 @@
   }
   .alert .alert-close:hover { opacity: 1; }
 
-  /* Image preview */
-  .img-preview {
-    margin-top: 10px;
-    display: none;
-    border-radius: 14px;
-    overflow: hidden;
-    border: 1px solid var(--border);
+  /* Deal picker (ถ้าร้านมีหลายดีล) */
+  .deal-picker {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .deal-picker-item {
     background: var(--bg);
-  }
-  .img-preview.show { display: block; }
-  .img-preview img {
-    display: block;
-    width: 100%;
-    object-fit: cover;
-  }
-  .img-preview.logo-preview img { aspect-ratio: 1 / 1; }
-  .img-preview.deal-preview img { aspect-ratio: 16 / 9; }
-  .img-preview .broken {
-    padding: 20px;
-    text-align: center;
-    font-size: 12px;
-    color: var(--error);
-  }
-
-  /* POPUP */
-  .popup-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-  }
-  .popup-overlay.open { display: flex; }
-  .popup {
-    background: var(--surface);
-    border-radius: 28px;
-    padding: 32px;
-    max-width: 420px;
-    width: 90%;
-    text-align: center;
-    animation: fadeIn 0.25s ease;
-  }
-  .popup h3 { font-size: 22px; margin-bottom: 8px; }
-  .popup .desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.6; }
-  .code-box {
-    background: var(--tag-bg);
-    padding: 16px;
+    border: 1px solid var(--border);
     border-radius: 16px;
-    font-family: monospace;
-    font-size: 22px;
-    letter-spacing: 2px;
-    margin: 12px 0;
-    font-weight: 700;
-    color: var(--accent);
-  }
-  .code-label { font-size: 12px; color: var(--text-secondary); margin-top: 12px; text-align: left; }
-  .popup .warning { font-size: 12px; color: var(--text-secondary); margin: 16px 0; line-height: 1.6; }
-  .popup-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
-  .popup-actions button {
-    padding: 10px 24px;
-    border-radius: 30px;
-    font-size: 14px;
-    font-weight: 600;
+    padding: 14px 16px;
     cursor: pointer;
-    border: none;
     transition: all 0.15s;
-    font-family: 'Inter', sans-serif;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
   }
-  .btn-copy { background: var(--accent); color: white; }
-  .btn-copy:hover { background: var(--accent-dark); }
-  .btn-home { background: var(--tag-bg); color: var(--text-primary); }
-  .btn-home:hover { background: #d8d8dd; }
-  @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+  .deal-picker-item:hover { border-color: var(--accent); background: #fde8e0; }
+  .deal-picker-item.selected { border-color: var(--accent); background: #fde8e0; }
+  .deal-picker-item .dp-name { font-weight: 600; font-size: 14px; }
+  .deal-picker-item .dp-status {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    flex-shrink: 0;
+  }
+  .dp-status.pending { background: #FFF4E0; color: #B8860B; }
+  .dp-status.active { background: #e8f8f0; color: var(--success); }
+  .dp-status.inactive { background: var(--tag-bg); color: var(--text-secondary); }
 
-  hr { margin: 20px 0; border-color: var(--border); }
   .breadcrumb { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; }
   .breadcrumb a { color: var(--accent); text-decoration: none; }
   .breadcrumb a:hover { text-decoration: underline; }
 
-  .cross-link {
-    text-align: center;
-    margin-top: 20px;
+  hr { margin: 20px 0; border-color: var(--border); }
+
+  .toast {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background: var(--text-primary);
+    color: #F5F5F7;
+    padding: 10px 24px;
+    border-radius: 20px;
     font-size: 13px;
-    color: var(--text-secondary);
+    font-weight: 500;
+    opacity: 0;
+    transition: opacity 0.25s, transform 0.25s;
+    z-index: 999;
+    pointer-events: none;
+    white-space: nowrap;
   }
-  .cross-link.cross-link-top {
-    margin-top: 6px;
-    margin-bottom: 20px;
-    padding: 10px 14px;
-    background: var(--tag-bg);
-    border-radius: 14px;
-  }
-  .cross-link a { color: var(--accent); font-weight: 600; text-decoration: none; }
-  .cross-link a:hover { text-decoration: underline; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
   .spinner {
     display: inline-block;
@@ -237,209 +206,174 @@
 <body>
 
 <div class="container">
-  <div class="breadcrumb"><a href="catdeal.html">🏷️ Cat Deal</a> &gt; ลงดีลร้านค้า</div>
+  <div class="breadcrumb"><a href="catdeal.html">🏷️ Cat Deal</a> &gt; แก้ไขดีลร้านค้า</div>
+
   <div class="card">
-    <h1>🏷️ ลงดีลร้านค้า</h1>
-    <div class="sub">ส่งดีลของร้านคุณเข้าระบบ Cat Deal — ทีมงานจะตรวจสอบก่อนขึ้นแสดงผลจริง</div>
-    <div class="cross-link cross-link-top">
-      หากเคยส่งดีลมาแล้ว และต้องการแก้ไข? <a href="catdealedit.html">แก้ไขดีลของร้านที่นี่</a>
+    <h1>✏️ แก้ไขดีลร้านค้า</h1>
+    <div class="sub">กรอก Shop ID และ Edit Code เพื่อดึงดีลของร้านคุณมาแก้ไข</div>
+
+    <!-- SEARCH -->
+    <div class="search-section">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Shop ID <span class="required">*</span></label>
+          <input type="text" id="searchShopId" placeholder="เช่น me06261115" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        </div>
+        <div class="form-group">
+          <label>Edit Code <span class="required">*</span></label>
+          <input type="text" id="searchEditCode" placeholder="รหัสที่ตั้งไว้ตอนส่งดีลแรก" autocomplete="off">
+        </div>
+      </div>
+      <button class="btn-submit" id="searchBtn" style="margin-top:0;">🔍 ค้นหาดีลของร้าน</button>
     </div>
 
     <div id="alertContainer"></div>
 
-    <form id="createForm">
-      <!-- SHOP INFO -->
-      <h3 style="font-size:16px;margin-bottom:16px;">🏪 Business Information</h3>
+    <!-- DEAL PICKER (ถ้ามีหลายดีล) -->
+    <div id="dealPickerSection" style="display:none;">
+      <h3 style="font-size:16px;margin-bottom:12px;">เลือกดีลที่ต้องการแก้ไข</h3>
+      <div class="deal-picker" id="dealPicker"></div>
+    </div>
+
+    <!-- EDIT FORM -->
+    <div id="editSection" class="edit-section">
+      <hr>
+      <h3 style="font-size:16px;margin-bottom:16px;">🏪 ข้อมูลร้านค้า</h3>
 
       <div class="form-group">
         <label>ชื่อร้าน <span class="required">*</span></label>
-        <input type="text" id="shopName" placeholder="เช่น Meaelove Cat Cafe" required>
+        <input type="text" id="editShopName" required>
       </div>
 
       <div class="form-group">
-        <label>ตั้งรหัสแก้ไข (Shop Edit Code) <span class="required">*</span></label>
-        <input type="text" id="shopEditCode" placeholder="ตั้งรหัสของร้านคุณเอง เช่น meaelove2026" required>
-        <small>⚠️ ใช้รหัสนี้ + Shop ID (ที่ระบบจะออกให้หลังส่งฟอร์มสำเร็จ) สำหรับกลับมาแก้ไขหรือสร้างดีลใหม่ในอนาคต กรุณาจดเก็บรักษาไว้นะครับ</small>
+        <label>เปลี่ยน Edit Code (ถ้าไม่เปลี่ยน ปล่อยไว้แบบเดิมได้)</label>
+        <input type="text" id="editShopEditCode">
       </div>
 
       <div class="form-group">
-        <label>Brand logo (วางเป็น URL) <span class="required">*</span></label>
-        <input type="url" id="shopLogoImage" placeholder="https://drive.google.com/file/d/..." required>
-        <small>⚠️ ต้องตั้งค่า Share to public ก่อนวาง URL — แนะนำสร้างรูปสี่เหลี่ยมจัตุรัส 1:1 ขนาด 400x400px (รองรับ Google Drive, Dropbox, Imgur, imgBB หรือ URL รูปภาพของคุณ)</small>
-        <div class="img-preview logo-preview" id="logoPreviewBox"><img id="logoPreviewImg" alt="preview โลโก้ร้าน"></div>
+        <label>โลโก้ร้าน (URL) <span class="required">*</span></label>
+        <input type="url" id="editShopLogoImage" required>
+        <small>⚠️ ต้องตั้งค่า Share to public — สี่เหลี่ยมจัตุรัส 1:1 ขนาด 400x400px</small>
       </div>
 
       <div class="form-row">
         <div class="form-group">
           <label>ชื่อผู้ติดต่อ <span class="required">*</span></label>
-          <input type="text" id="shopContact" placeholder="เช่น คุณสมชาย" required>
+          <input type="text" id="editShopContact" required>
         </div>
         <div class="form-group">
           <label>เบอร์โทรติดต่อ <span class="required">*</span></label>
-          <input type="tel" id="shopPhone" placeholder="เช่น 0812345678" required>
+          <input type="tel" id="editShopPhone" required>
         </div>
       </div>
 
       <hr>
-
-      <!-- DEAL INFO -->
-      <h3 style="font-size:16px;margin-bottom:16px;">🎁 Deal Information</h3>
+      <h3 style="font-size:16px;margin-bottom:16px;">🎁 ข้อมูลดีล</h3>
 
       <div class="form-group">
         <label>ชื่อดีล <span class="required">*</span></label>
-        <input type="text" id="dealName" placeholder="เช่น ซื้อ 1 แถม 1 ทรายแมว" required>
+        <input type="text" id="editDealName" required>
       </div>
 
       <div class="form-group">
         <label>รายละเอียดดีล <span class="required">*</span></label>
-        <div class="hint">📝 อธิบายเงื่อนไข/สิทธิพิเศษของดีล (สูงสุด 300 ตัวอักษร)</div>
-        <textarea id="dealDetail" maxlength="300" rows="3" required></textarea>
-        <div class="char-counter"><span id="dealDetailCounter">0</span>/300</div>
+        <textarea id="editDealDetail" maxlength="300" rows="3" required></textarea>
+        <div class="char-counter"><span id="editDealDetailCounter">0</span>/300</div>
       </div>
 
       <div class="form-group">
         <label>รูปดีล (URL) <span class="required">*</span></label>
-        <input type="url" id="dealImage" placeholder="https://drive.google.com/file/d/..." required>
-        <small>⚠️ ต้องตั้งค่า Share to public ก่อนวาง URL — แนะนำสร้างรูปสี่เหลี่ยมผืนผ้า อัตราส่วน 16:9 ขนาด 1200x675px</small>
-        <div class="img-preview deal-preview" id="dealPreviewBox"><img id="dealPreviewImg" alt="preview รูปดีล"></div>
+        <input type="url" id="editDealImage" required>
+        <small>⚠️ ต้องตั้งค่า Share to public — สี่เหลี่ยมผืนผ้า 16:9 ขนาด 1200x675px</small>
       </div>
 
       <div class="form-group">
         <label>จำนวนสิทธิ์ทั้งหมด (Deal Limit) <span class="required">*</span></label>
-        <input type="number" id="dealLimit" placeholder="เช่น 100 (ถ้าไม่จำกัด ใส่ตัวเลขสูงๆ เช่น 10000)" min="1" required>
+        <input type="number" id="editDealLimit" min="1" required>
+        <small id="redeemedCountHint"></small>
       </div>
 
       <div class="form-row">
         <div class="form-group">
-          <label>วันที่เริ่มต้นแสดงดีล <span class="required">*</span></label>
-          <input type="date" id="startDisplayDate" required>
+          <label>วันที่เริ่มแสดงดีล <span class="required">*</span></label>
+          <input type="date" id="editStartDisplayDate" required>
         </div>
         <div class="form-group">
-          <label>วันที่สิ้นสุดแสดงดีล <span class="required">*</span></label>
-          <input type="date" id="stopDisplayDate" required>
+          <label>วันที่หยุดแสดงดีล <span class="required">*</span></label>
+          <input type="date" id="editStopDisplayDate" required>
         </div>
       </div>
 
       <hr>
-
-      <!-- SOCIAL -->
-      <h3 style="font-size:16px;margin-bottom:16px;">🔗 Contact Information (ใส่เท่าที่มี)</h3>
+      <h3 style="font-size:16px;margin-bottom:16px;">🔗 ช่องทางติดต่อร้าน</h3>
 
       <div class="form-group">
         <label>Facebook</label>
-        <input type="url" id="shopFb" placeholder="https://facebook.com/...">
+        <input type="url" id="editShopFb">
       </div>
       <div class="form-row">
         <div class="form-group">
           <label>Instagram</label>
-          <input type="text" id="shopIg" placeholder="username (ไม่ต้องใส่ @)">
+          <input type="text" id="editShopIg">
         </div>
         <div class="form-group">
           <label>TikTok</label>
-          <input type="text" id="shopTt" placeholder="username (ไม่ต้องใส่ @)">
+          <input type="text" id="editShopTt">
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label>YouTube</label>
-          <input type="url" id="shopYt" placeholder="https://youtube.com/@...">
+          <input type="url" id="editShopYt">
         </div>
         <div class="form-group">
           <label>LINE</label>
-          <input type="text" id="shopLine" placeholder="LINE ID หรือลิงก์ LINE">
+          <input type="text" id="editShopLine">
         </div>
       </div>
 
-      <button type="submit" class="btn-submit" id="submitBtn">🏷️ ส่งดีลเข้าระบบ</button>
-    </form>
-  </div>
-</div>
-
-<!-- POPUP -->
-<div class="popup-overlay" id="popupOverlay">
-  <div class="popup">
-    <h3>🎉 ส่งดีลเข้าระบบสำเร็จ!</h3>
-    <p class="desc">หากมีข้อสงสัย Admin จะติดต่อสอบถามไปที่หมายเลขโทรศัพท์ที่ให้ไว้นะครับ ดีลของคุณจะแสดงผลจริงหลังผ่านการตรวจสอบจากทีมงาน</p>
-
-    <div class="code-label">Shop ID ของคุณคือ</div>
-    <div class="code-box" id="shopIdDisplay"></div>
-    <div class="code-label">Edit Code ของคุณคือ</div>
-    <div class="code-box" id="shopEditCodeDisplay"></div>
-
-    <p class="warning">⚠️ กรุณาจดบันทึก Shop ID และ Edit Code นี้ไว้ ใช้สำหรับแก้ไขหรือสร้างดีลใหม่ในอนาคต หากลืมจะไม่สามารถแก้ไขข้อมูลได้</p>
-    <div class="popup-actions">
-      <button class="btn-copy" id="copyCodeBtn">📋 คัดลอกทั้งหมด</button>
-      <button class="btn-home" id="backHomeBtn">🏠 กลับหน้าแรก</button>
+      <button class="btn-submit" id="updateBtn">💾 บันทึกการแก้ไข</button>
+      <small style="display:block;text-align:center;margin-top:10px;">⚠️ การแก้ไขจะถูกส่งกลับไปสถานะ "รอตรวจสอบ" ทุกครั้ง ทีมงานจะตรวจสอบก่อนขึ้นแสดงผลจริงอีกครั้ง</small>
     </div>
   </div>
 </div>
 
+<div class="toast" id="toast"></div>
+
 <script>
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbylJXLg47otdgqZM6EwLma8AL1q5AEIsYe8uDOlNlTh9gOMOS7sHOgceX4l9h8ia3nGfg/exec';
 
-  // ============================================================
-  // แปลง URL ไฟล์รูปอัตโนมัติ (เข้าชุดเดียวกับหน้าอื่นของ KITTIZEN)
-  // ============================================================
+  let currentShopId = '';
+  let currentShopEditCode = '';
+  let currentDeals = [];
+  let selectedDealId = '';
+
   function normalizeImageUrl(url) {
     if (!url) return '';
     const gdrive1 = url.match(/drive\.google\.com\/file\/d\/([^\/\?]+)/);
     const gdrive2 = url.match(/drive\.google\.com\/open\?id=([^&]+)/);
     const id = gdrive1?.[1] || gdrive2?.[1];
     if (id) return `https://drive.google.com/uc?export=view&id=${id}`;
-
     if (url.includes('dropbox.com')) {
       return url.replace('?dl=0', '?raw=1').replace('?dl=1', '?raw=1');
     }
     return url;
   }
 
-  // ============================================================
-  // Image preview แบบ real-time
-  // ============================================================
-  function wireImagePreview(inputId, boxId, imgId) {
+  // เซ็ตค่า input ตอนโหลดข้อมูลเดิมมาแสดง (ตัด live preview ออกแล้ว —
+  // ร้านค้าไปดูรูปจริงตอนดีลขึ้นแสดงผลที่ catdeal.html แทน)
+  function setImageField(inputId) {
     const input = document.getElementById(inputId);
-    const box = document.getElementById(boxId);
-    const img = document.getElementById(imgId);
-    let debounceTimer = null;
-
-    input.addEventListener('input', function () {
-      clearTimeout(debounceTimer);
-      const raw = input.value.trim();
-      if (!raw) {
-        box.classList.remove('show');
-        return;
-      }
-      debounceTimer = setTimeout(function () {
-        const url = normalizeImageUrl(raw);
-        img.onload = function () {
-          box.classList.add('show');
-          box.querySelector('.broken')?.remove();
-          img.style.display = 'block';
-        };
-        img.onerror = function () {
-          img.style.display = 'none';
-          if (!box.querySelector('.broken')) {
-            const p = document.createElement('div');
-            p.className = 'broken';
-            p.textContent = '⚠️ ไม่สามารถโหลดรูปได้ ตรวจสอบว่าตั้งค่า Share to public แล้ว';
-            box.appendChild(p);
-          }
-          box.classList.add('show');
-        };
-        img.src = url;
-      }, 400);
-    });
+    return function (url) { input.value = url || ''; };
   }
 
-  wireImagePreview('shopLogoImage', 'logoPreviewBox', 'logoPreviewImg');
-  wireImagePreview('dealImage', 'dealPreviewBox', 'dealPreviewImg');
+  const triggerLogoPreview = setImageField('editShopLogoImage');
+  const triggerDealPreview = setImageField('editDealImage');
 
-  // Char counter
-  document.getElementById('dealDetail').addEventListener('input', function () {
-    document.getElementById('dealDetailCounter').textContent = this.value.length;
+  document.getElementById('editDealDetail').addEventListener('input', function () {
+    document.getElementById('editDealDetailCounter').textContent = this.value.length;
   });
 
-  // Alert helper
   function showAlert(msg, type) {
     const container = document.getElementById('alertContainer');
     const div = document.createElement('div');
@@ -450,23 +384,137 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // Submit
-  document.getElementById('createForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+  }
 
-    const shopName = document.getElementById('shopName').value.trim();
-    const shopEditCode = document.getElementById('shopEditCode').value.trim();
-    const shopLogoImage = document.getElementById('shopLogoImage').value.trim();
-    const shopContact = document.getElementById('shopContact').value.trim();
-    const shopPhone = document.getElementById('shopPhone').value.trim();
-    const dealName = document.getElementById('dealName').value.trim();
-    const dealDetail = document.getElementById('dealDetail').value.trim();
-    const dealImage = document.getElementById('dealImage').value.trim();
-    const dealLimit = document.getElementById('dealLimit').value.trim();
-    const startDisplayDate = document.getElementById('startDisplayDate').value;
-    const stopDisplayDate = document.getElementById('stopDisplayDate').value;
+  function statusLabel(status) {
+    if (status === 'active') return 'กำลังแสดงผล';
+    if (status === 'inactive') return 'ถูกซ่อน';
+    return 'รอตรวจสอบ';
+  }
 
-    if (!shopName || !shopEditCode || !shopLogoImage || !shopContact || !shopPhone ||
+  function renderDealPicker() {
+    const picker = document.getElementById('dealPicker');
+    picker.innerHTML = '';
+    currentDeals.forEach(function (deal) {
+      const item = document.createElement('div');
+      item.className = 'deal-picker-item';
+      item.innerHTML = `<span class="dp-name">${deal.deal_name || '(ไม่มีชื่อดีล)'}</span>
+        <span class="dp-status ${deal.status}">${statusLabel(deal.status)}</span>`;
+      item.onclick = function () {
+        document.querySelectorAll('.deal-picker-item').forEach(el => el.classList.remove('selected'));
+        item.classList.add('selected');
+        loadDealIntoForm(deal);
+      };
+      picker.appendChild(item);
+    });
+    document.getElementById('dealPickerSection').style.display = 'block';
+  }
+
+  function loadDealIntoForm(deal) {
+    selectedDealId = deal.deal_id;
+
+    document.getElementById('editShopName').value = deal.shop_name || '';
+    document.getElementById('editShopEditCode').value = '';
+    document.getElementById('editShopEditCode').placeholder = 'ปัจจุบัน: ' + (currentShopEditCode || '');
+    document.getElementById('editShopContact').value = deal.shop_contact || '';
+    document.getElementById('editShopPhone').value = deal.shop_phone || '';
+
+    document.getElementById('editDealName').value = deal.deal_name || '';
+    document.getElementById('editDealDetail').value = deal.deal_detail || '';
+    document.getElementById('editDealDetailCounter').textContent = (deal.deal_detail || '').length;
+
+    document.getElementById('editDealLimit').value = deal.deal_limit || '';
+    document.getElementById('redeemedCountHint').textContent =
+      `ตอนนี้มีคนรับดีลนี้ไปแล้ว ${deal.redeemed_count || 0} สิทธิ์ (ไม่สามารถแก้ไขจำนวนนี้ได้จากหน้านี้)`;
+
+    document.getElementById('editStartDisplayDate').value = deal.start_display_date || '';
+    document.getElementById('editStopDisplayDate').value = deal.stop_display_date || '';
+
+    document.getElementById('editShopFb').value = deal.shop_fb || '';
+    document.getElementById('editShopIg').value = deal.shop_ig || '';
+    document.getElementById('editShopTt').value = deal.shop_tt || '';
+    document.getElementById('editShopYt').value = deal.shop_yt || '';
+    document.getElementById('editShopLine').value = deal.shop_line || '';
+
+    triggerLogoPreview(deal.shop_logo_image);
+    triggerDealPreview(deal.deal_image);
+
+    document.getElementById('editSection').classList.add('show');
+    setTimeout(() => document.getElementById('editSection').scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+  }
+
+  // Search
+  document.getElementById('searchBtn').addEventListener('click', async function () {
+    const shopId = document.getElementById('searchShopId').value.trim();
+    const editCode = document.getElementById('searchEditCode').value.trim();
+
+    if (!shopId || !editCode) {
+      showAlert('กรุณากรอก Shop ID และ Edit Code ให้ครบ', 'error');
+      return;
+    }
+
+    this.disabled = true;
+    this.innerHTML = '<span class="spinner"></span> กำลังค้นหา...';
+
+    try {
+      const res = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'deal_edit_fetch', shop_id: shopId, shop_edit_code: editCode })
+      });
+      const result = await res.json();
+
+      if (result.success && result.deals && result.deals.length > 0) {
+        currentShopId = shopId;
+        currentShopEditCode = editCode;
+        currentDeals = result.deals;
+
+        document.getElementById('alertContainer').innerHTML = '';
+        document.getElementById('editSection').classList.remove('show');
+
+        if (currentDeals.length === 1) {
+          document.getElementById('dealPickerSection').style.display = 'none';
+          loadDealIntoForm(currentDeals[0]);
+        } else {
+          renderDealPicker();
+        }
+        showAlert(`พบดีลของร้านนี้ทั้งหมด ${currentDeals.length} ดีล`, 'success');
+      } else {
+        showAlert(result.error || 'ไม่พบดีลของร้านนี้', 'error');
+        document.getElementById('dealPickerSection').style.display = 'none';
+        document.getElementById('editSection').classList.remove('show');
+      }
+    } catch (err) {
+      showAlert('เกิดข้อผิดพลาด: ' + err.message, 'error');
+    } finally {
+      this.disabled = false;
+      this.innerHTML = '🔍 ค้นหาดีลของร้าน';
+    }
+  });
+
+  // Update
+  document.getElementById('updateBtn').addEventListener('click', async function () {
+    if (!selectedDealId) {
+      showAlert('กรุณาเลือกดีลที่ต้องการแก้ไข', 'error');
+      return;
+    }
+
+    const shopName = document.getElementById('editShopName').value.trim();
+    const shopLogoImage = document.getElementById('editShopLogoImage').value.trim();
+    const shopContact = document.getElementById('editShopContact').value.trim();
+    const shopPhone = document.getElementById('editShopPhone').value.trim();
+    const dealName = document.getElementById('editDealName').value.trim();
+    const dealDetail = document.getElementById('editDealDetail').value.trim();
+    const dealImage = document.getElementById('editDealImage').value.trim();
+    const dealLimit = document.getElementById('editDealLimit').value.trim();
+    const startDisplayDate = document.getElementById('editStartDisplayDate').value;
+    const stopDisplayDate = document.getElementById('editStopDisplayDate').value;
+
+    if (!shopName || !shopLogoImage || !shopContact || !shopPhone ||
         !dealName || !dealDetail || !dealImage || !dealLimit || !startDisplayDate || !stopDisplayDate) {
       showAlert('กรุณากรอกข้อมูลให้ครบทุกช่องที่มี *', 'error');
       return;
@@ -477,10 +525,14 @@
       return;
     }
 
+    const newEditCodeInput = document.getElementById('editShopEditCode').value.trim();
+
     const payload = {
-      action: 'deal_submit',
+      action: 'deal_update',
+      shop_id: currentShopId,
+      shop_edit_code: currentShopEditCode, // auth ด้วยรหัสเดิมเสมอ
+      deal_id: selectedDealId,
       shop_name: shopName,
-      shop_edit_code: shopEditCode,
       shop_logo_image: shopLogoImage,
       shop_contact: shopContact,
       shop_phone: shopPhone,
@@ -490,16 +542,21 @@
       deal_limit: parseInt(dealLimit, 10),
       start_display_date: startDisplayDate,
       stop_display_date: stopDisplayDate,
-      shop_fb: document.getElementById('shopFb').value.trim(),
-      shop_ig: document.getElementById('shopIg').value.trim().replace('@', ''),
-      shop_tt: document.getElementById('shopTt').value.trim().replace('@', ''),
-      shop_yt: document.getElementById('shopYt').value.trim(),
-      shop_line: document.getElementById('shopLine').value.trim()
+      shop_fb: document.getElementById('editShopFb').value.trim(),
+      shop_ig: document.getElementById('editShopIg').value.trim().replace('@', ''),
+      shop_tt: document.getElementById('editShopTt').value.trim().replace('@', ''),
+      shop_yt: document.getElementById('editShopYt').value.trim(),
+      shop_line: document.getElementById('editShopLine').value.trim()
     };
 
-    const btn = document.getElementById('submitBtn');
+    // ถ้าร้านค้าอยากเปลี่ยน edit_code ใหม่ ให้ backend เขียนทับด้วยรหัสใหม่นี้แทน
+    if (newEditCodeInput) {
+      payload.shop_edit_code_new = newEditCodeInput;
+    }
+
+    const btn = this;
     btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span> กำลังส่งดีล...';
+    btn.innerHTML = '<span class="spinner"></span> กำลังบันทึก...';
 
     try {
       const res = await fetch(SCRIPT_URL, {
@@ -509,14 +566,12 @@
       const result = await res.json();
 
       if (result.success) {
-        document.getElementById('shopIdDisplay').textContent = result.shop_id;
-        document.getElementById('shopEditCodeDisplay').textContent = result.shop_edit_code;
-        document.getElementById('popupOverlay').classList.add('open');
-        document.getElementById('copyCodeBtn').onclick = () => {
-          navigator.clipboard.writeText(`Shop ID: ${result.shop_id}\nEdit Code: ${result.shop_edit_code}`);
-          alert('คัดลอกแล้ว');
-        };
-        document.getElementById('backHomeBtn').onclick = () => window.location.href = 'catdeal.html';
+        showToast('💾 บันทึกการแก้ไขสำเร็จ! ดีลถูกส่งกลับไปสถานะรอตรวจสอบ');
+        if (newEditCodeInput) {
+          currentShopEditCode = newEditCodeInput;
+          document.getElementById('searchEditCode').value = newEditCodeInput;
+          document.getElementById('editShopEditCode').value = '';
+        }
       } else {
         showAlert(result.error || 'เกิดข้อผิดพลาด ไม่ทราบสาเหตุ', 'error');
       }
@@ -524,7 +579,7 @@
       showAlert('เกิดข้อผิดพลาด: ' + err.message, 'error');
     } finally {
       btn.disabled = false;
-      btn.innerHTML = '🏷️ ส่งดีลเข้าระบบ';
+      btn.innerHTML = '💾 บันทึกการแก้ไข';
     }
   });
 </script>
