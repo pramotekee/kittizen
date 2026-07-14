@@ -156,7 +156,30 @@
   .shop-socials a:hover { opacity: 1; }
 
   .deal-name { font-weight: 700; font-size: 16px; }
-  .deal-detail { font-size: 13px; color: var(--text-secondary); line-height: 1.6; flex: 1; }
+  .deal-detail {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    flex: 1;
+    white-space: pre-line;
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .see-more-btn {
+    background: none;
+    border: none;
+    color: var(--deal);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    text-align: left;
+    font-family: 'Inter', sans-serif;
+    margin-top: -4px;
+  }
+  .see-more-btn:hover { text-decoration: underline; }
 
   .deal-meta {
     display: flex;
@@ -318,7 +341,7 @@
 
   <div class="page-header">
     <h1>🏷️ Cat Deal</h1>
-    <div class="sub">ดีลพิเศษจากแบรนด์, ร้านค้าที่รักแมวเหมือนคุณ</div>
+    <div class="sub">ดีลพิเศษจากร้านค้าที่รักแมวเหมือนคุณ</div>
   </div>
 
   <div id="dealContent">
@@ -326,7 +349,7 @@
   </div>
 
   <div class="cross-link">
-    สำหรับร้านค้าที่ต้องการลงดีล? <a href="catdealcreate.html">สร้าง หรือแก้ไขดีลที่นี่</a>
+    เป็นร้านค้าและอยากลงดีล? <a href="catdealcreate.html">กดที่นี่</a>
   </div>
 </div>
 
@@ -360,6 +383,16 @@
       <button class="btn-confirm" id="saveTicketBtn">📸 บันทึกเป็นรูป</button>
       <button class="btn-cancel" id="closeTicketBtn">ปิด</button>
     </div>
+  </div>
+</div>
+
+<!-- POPUP: รายละเอียดดีลแบบเต็ม (See more) -->
+<div class="popup-overlay" id="detailPopup">
+  <div class="popup" style="text-align:left;">
+    <h3 id="detailPopupTitle" style="margin-bottom:4px;"></h3>
+    <p style="font-size:12px;color:var(--text-secondary);margin-bottom:16px;" id="detailPopupShop"></p>
+    <div style="font-size:14px;line-height:1.7;white-space:pre-line;color:var(--text-primary);margin-bottom:20px;" id="detailPopupContent"></div>
+    <button class="btn-cancel" id="closeDetailBtn" style="width:100%;">ปิด</button>
   </div>
 </div>
 
@@ -431,7 +464,7 @@
     activeDeals.forEach(function (deal) {
       const remaining = Math.max(0, (parseInt(deal.deal_limit, 10) || 0) - (parseInt(deal.redeemed_count, 10) || 0));
       const isFull = remaining <= 0;
-      const stopDate = deal.stop_display_date || '';
+      const stopDate = formatDateThai(deal.stop_display_date) || '';
 
       html += `
         <div class="deal-card">
@@ -451,7 +484,8 @@
               </div>
             </div>
             <div class="deal-name">${escapeHtml(deal.deal_name)}</div>
-            <div class="deal-detail">${escapeHtml(deal.deal_detail)}</div>
+            <div class="deal-detail" id="detail-${deal.deal_id}">${escapeHtml(deal.deal_detail)}</div>
+            <button class="see-more-btn" data-deal-id="${deal.deal_id}" data-role="see-more">อ่านเพิ่มเติม</button>
             <div class="deal-meta">
               <span>หมดเขต ${stopDate}</span>
               <span>${isFull ? 'เต็มแล้ว' : 'เหลือ ' + remaining + ' สิทธิ์'}</span>
@@ -472,13 +506,53 @@
         openClaimPopup(dealId);
       });
     });
+
+    document.querySelectorAll('[data-role="see-more"]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        const dealId = this.getAttribute('data-deal-id');
+        openDetailPopup(dealId);
+      });
+    });
+
+    // ซ่อนปุ่ม "อ่านเพิ่มเติม" อัตโนมัติถ้าเนื้อหาสั้นพอ ไม่เกิน 5 บรรทัดอยู่แล้ว
+    // (เช็คหลัง render เสร็จ ตอน DOM มีขนาดจริงให้วัด)
+    requestAnimationFrame(function () {
+      document.querySelectorAll('.deal-detail').forEach(function (el) {
+        const btn = document.querySelector('[data-role="see-more"][data-deal-id="' + el.id.replace('detail-', '') + '"]');
+        if (btn && el.scrollHeight <= el.clientHeight + 2) {
+          btn.style.display = 'none';
+        }
+      });
+    });
   }
+
+  function openDetailPopup(dealId) {
+    const deal = activeDeals.find(d => d.deal_id === dealId);
+    if (!deal) return;
+    document.getElementById('detailPopupTitle').textContent = deal.deal_name;
+    document.getElementById('detailPopupShop').textContent = deal.shop_name;
+    document.getElementById('detailPopupContent').textContent = deal.deal_detail;
+    document.getElementById('detailPopup').classList.add('open');
+  }
+
+  document.getElementById('closeDetailBtn').addEventListener('click', function () {
+    document.getElementById('detailPopup').classList.remove('open');
+  });
 
   function escapeHtml(str) {
     if (!str) return '';
     const div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
+  }
+
+  // แปลงวันที่จาก yyyy-MM-dd (ที่ backend ส่งมา) เป็น dd/mm/yyyy อ่านง่ายสำหรับคนไทย
+  function formatDateThai(dateStr) {
+    if (!dateStr) return '';
+    const parts = dateStr.split('-');
+    if (parts.length !== 3) return dateStr;
+    const [y, m, d] = parts;
+    return `${d}/${m}/${y}`;
   }
 
   // ============================================================
@@ -547,7 +621,7 @@
       <div class="ticket-detail">${escapeHtml(data.deal_detail)}</div>
       <div class="ticket-qr"><img src="${data.qr_image}" alt="QR Code"></div>
       <div class="ticket-code">${data.deal_code}</div>
-      <div class="ticket-expiry">ใช้สิทธิ์ได้ถึงวันที่ ${data.expired_date}</div>`;
+      <div class="ticket-expiry">ใช้สิทธิ์ได้ถึงวันที่ ${formatDateThai(data.expired_date)}</div>`;
     document.getElementById('ticketContent').innerHTML = ticketHtml;
     document.getElementById('ticketPopup').classList.add('open');
   }
