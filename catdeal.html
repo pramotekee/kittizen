@@ -217,6 +217,13 @@
     font-size: 13px;
     color: var(--text-secondary);
   }
+  .cross-link.cross-link-top {
+    margin-top: 4px;
+    margin-bottom: 18px;
+    padding: 10px 14px;
+    background: var(--tag-bg);
+    border-radius: 14px;
+  }
   .cross-link a { color: var(--deal); font-weight: 600; text-decoration: none; }
   .cross-link a:hover { text-decoration: underline; }
 
@@ -277,6 +284,25 @@
   .btn-cancel { background: var(--tag-bg); color: var(--text-primary); width: 100%; }
   .btn-cancel:hover { background: #d8d8dd; }
   @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+  .popup-close-x {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: none;
+    background: var(--tag-bg);
+    color: var(--text-secondary);
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+  }
+  .popup-close-x:hover { background: #d8d8dd; }
 
   .popup .no-profile-hint {
     font-size: 12px;
@@ -344,12 +370,12 @@
     <div class="sub">ดีลพิเศษจากร้านค้าที่รักแมวเหมือนคุณ</div>
   </div>
 
-  <div id="dealContent">
-    <div class="loading-state">กำลังโหลดดีล...</div>
+  <div class="cross-link cross-link-top">
+    เป็นร้านค้าและอยากลงดีล หรือแก้ไขดีล? <a href="catdealcreate.html">กดที่นี่</a>
   </div>
 
-  <div class="cross-link">
-    สำหรับร้านค้าที่ต้องการลงดีล หรือแก้ไขดีล? <a href="catdealcreate.html">กดที่นี่</a>
+  <div id="dealContent">
+    <div class="loading-state">กำลังโหลดดีล...</div>
   </div>
 </div>
 
@@ -388,11 +414,11 @@
 
 <!-- POPUP: รายละเอียดดีลแบบเต็ม (See more) -->
 <div class="popup-overlay" id="detailPopup">
-  <div class="popup" style="text-align:left;">
-    <h3 id="detailPopupTitle" style="margin-bottom:4px;"></h3>
+  <div class="popup" style="text-align:left; position:relative;">
+    <button id="closeDetailBtn" class="popup-close-x" aria-label="ปิด">✕</button>
+    <h3 id="detailPopupTitle" style="margin-bottom:4px; padding-right:24px;"></h3>
     <p style="font-size:12px;color:var(--text-secondary);margin-bottom:16px;" id="detailPopupShop"></p>
-    <div style="font-size:14px;line-height:1.7;white-space:pre-line;color:var(--text-primary);margin-bottom:20px;" id="detailPopupContent"></div>
-    <button class="btn-cancel" id="closeDetailBtn" style="width:100%;">ปิด</button>
+    <div style="font-size:14px;line-height:1.7;white-space:pre-line;color:var(--text-primary);" id="detailPopupContent"></div>
   </div>
 </div>
 
