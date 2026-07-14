@@ -170,6 +170,46 @@
 
   hr { margin: 20px 0; border-color: var(--border); }
 
+  /* POPUP: บันทึกสำเร็จ */
+  .popup-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .popup-overlay.open { display: flex; }
+  .popup {
+    background: var(--surface);
+    border-radius: 28px;
+    padding: 32px;
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+    animation: fadeIn 0.25s ease;
+  }
+  .popup h3 { font-size: 20px; margin-bottom: 8px; }
+  .popup .desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.6; }
+  .popup-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+  .popup-actions button {
+    padding: 12px 24px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+    font-family: 'Inter', sans-serif;
+  }
+  .btn-copy { background: var(--accent); color: white; }
+  .btn-copy:hover { background: var(--accent-dark); }
+  .btn-home { background: var(--tag-bg); color: var(--text-primary); }
+  .btn-home:hover { background: #d8d8dd; }
+  @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
   .toast {
     position: fixed;
     bottom: 80px;
@@ -339,6 +379,18 @@
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- POPUP: บันทึกการแก้ไขสำเร็จ -->
+<div class="popup-overlay" id="successPopup">
+  <div class="popup">
+    <h3>💾 บันทึกการแก้ไขสำเร็จ!</h3>
+    <p class="desc">การแก้ไขจะถูกส่งกลับไปสถานะ "รอตรวจสอบ" ทุกครั้ง ทีมงานจะตรวจสอบก่อนขึ้นแสดงผลจริงอีกครั้ง</p>
+    <div class="popup-actions">
+      <button class="btn-copy" id="goToCatDealBtn" style="width:100%;">🏷️ กลับไปหน้า Cat Deal</button>
+      <button class="btn-home" id="stayHereBtn" style="width:100%;">แก้ไขดีลอื่นต่อ</button>
+    </div>
+  </div>
+</div>
 
 <script>
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbylJXLg47otdgqZM6EwLma8AL1q5AEIsYe8uDOlNlTh9gOMOS7sHOgceX4l9h8ia3nGfg/exec';
@@ -566,7 +618,7 @@
       const result = await res.json();
 
       if (result.success) {
-        showToast('💾 บันทึกการแก้ไขสำเร็จ! ดีลถูกส่งกลับไปสถานะรอตรวจสอบ');
+        document.getElementById('successPopup').classList.add('open');
         if (newEditCodeInput) {
           currentShopEditCode = newEditCodeInput;
           document.getElementById('searchEditCode').value = newEditCodeInput;
@@ -581,6 +633,14 @@
       btn.disabled = false;
       btn.innerHTML = '💾 บันทึกการแก้ไข';
     }
+  });
+
+  document.getElementById('goToCatDealBtn').addEventListener('click', function () {
+    window.location.href = 'catdeal.html';
+  });
+
+  document.getElementById('stayHereBtn').addEventListener('click', function () {
+    document.getElementById('successPopup').classList.remove('open');
   });
 </script>
 
