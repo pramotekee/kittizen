@@ -684,7 +684,7 @@
     const shareText = 'โปรเด็ดโปรดีเพื่อคนรักแมวเช่นคุณ คลิ๊กดูเลย';
 
     if (navigator.share) {
-      navigator.share({ title: deal.deal_name, text: shareText, url: shareUrl }).catch(function () {});
+      navigator.share({ title: deal.deal_name, text: shareText + '\n' + shareUrl }).catch(function () {});
     } else {
       navigator.clipboard.writeText(shareText + ' ' + shareUrl).then(function () {
         alert('คัดลอกลิงก์ดีลแล้ว 📋');
