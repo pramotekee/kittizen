@@ -445,6 +445,7 @@
     <div class="ticket" id="ticketContent"></div>
     <div class="popup-actions">
       <button class="btn-confirm" id="saveTicketBtn">📤 แชร์เก็บไว้ใช้ (PDF)</button>
+      <button class="btn-cancel" id="saveQrOnlyBtn">💾 บันทึกแค่ QR</button>
       <button class="btn-cancel" id="closeTicketBtn">ปิด</button>
     </div>
   </div>
@@ -728,7 +729,7 @@
       <div class="ticket-shop">${escapeHtml(data.shop_name)}</div>
       <div class="ticket-deal-name">${escapeHtml(data.deal_name)}</div>
       <div class="ticket-detail">${escapeHtml(data.deal_detail)}</div>
-      <div class="ticket-qr"><img src="${data.qr_image}" alt="QR Code"></div>
+      <div class="ticket-qr"><img id="ticketQrImg" src="${data.qr_image}" crossorigin="anonymous" alt="QR Code"></div>
       <div class="ticket-instruction">📍 โปรดนำ QR Code นี้ไปแสดงให้พนักงานสแกนที่ร้านเพื่อรับสิทธิ์</div>
       <div class="ticket-code">${data.deal_code}</div>
       <div class="ticket-expiry">ใช้สิทธิ์ได้ถึงวันที่ ${formatDateThai(data.expired_date)}</div>`;
@@ -741,6 +742,37 @@
     document.getElementById('ticketPopup').classList.remove('open');
   });
 
+  // บันทึก/แชร์เฉพาะรูป QR ตรงๆ (ทางลัดที่ชัวร์สุด ไม่ผ่าน canvas/PDF เลย)
+  async function shareOrSaveQr(qrUrl, dealCode) {
+    try {
+      const resp = await fetch(qrUrl, { mode: 'cors' });
+      const blob = await resp.blob();
+      const qrFile = new File([blob], 'qr-' + dealCode + '.png', { type: 'image/png' });
+
+      if (navigator.canShare && navigator.canShare({ files: [qrFile] })) {
+        await navigator.share({ files: [qrFile], title: 'QR Code Cat Deal' });
+        return;
+      }
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = 'qr-' + dealCode + '.png';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } catch (e) {
+      // ทางสุดท้าย: เปิดรูป QR ตรงๆ ให้ user กดค้างเพื่อบันทึกเอง
+      window.open(qrUrl, '_blank');
+    }
+  }
+
+  document.getElementById('saveQrOnlyBtn').addEventListener('click', function () {
+    const data = window.currentTicketData;
+    if (data && data.qr_image) {
+      shareOrSaveQr(data.qr_image, data.deal_code || 'ticket');
+    }
+  });
+
   document.getElementById('saveTicketBtn').addEventListener('click', async function () {
     const btn = this;
     btn.disabled = true;
@@ -748,7 +780,34 @@
 
     try {
       const ticketEl = document.getElementById('ticketContent');
-      const canvas = await html2canvas(ticketEl, { backgroundColor: '#ffffff', scale: 2 });
+
+      // บั๊กเดิม: รูป QR โหลดจากโดเมนอื่น (QuickChart) แบบไม่มี CORS -> html2canvas
+      // วาดออกมาเป็นช่องว่าง (tainted canvas) ทำให้ QR หายไปในไฟล์ PDF
+      // แก้: รอให้รูปโหลดเสร็จแบบมี crossorigin ก่อน แล้วค่อย capture
+      const qrImgEl = document.getElementById('ticketQrImg');
+      if (qrImgEl && !qrImgEl.complete) {
+        await new Promise(function (resolve) {
+          qrImgEl.onload = resolve;
+          qrImgEl.onerror = resolve; // โหลดพลาดก็ไม่ปล่อยให้ค้าง
+          setTimeout(resolve, 8000); // กันเน็ตช้าเกินไป
+        });
+      }
+
+      // บั๊กเดิม: ไม่มี timeout -> ถ้า html2canvas ค้าง ปุ่มหมุนค้างตลอดไป
+      // (ผู้ใช้ทำอะไรไม่ได้นอกจากกด "ปิด" แล้วเสียโอกาส)
+      // แก้: ใส่ timeout guard บังคับ fallback ไป error path เสมอ
+      const canvas = await Promise.race([
+        html2canvas(ticketEl, {
+          backgroundColor: '#ffffff',
+          scale: 2,
+          useCORS: true,
+          allowTaint: false,
+          imageTimeout: 8000
+        }),
+        new Promise(function (_, reject) {
+          setTimeout(function () { reject(new Error('timeout')); }, 15000);
+        })
+      ]);
 
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF({
@@ -777,12 +836,19 @@
         window.open(blobUrl, '_blank');
       }
     } catch (err) {
-      if (err.name !== 'AbortError') {
-        alert('เกิดข้อผิดพลาดในการสร้างไฟล์: ' + err.message);
+      if (err && err.name !== 'AbortError') {
+        // ทำ PDF เต็มไม่สำเร็จ -> fallback ให้บันทึก/แชร์แค่รูป QR แทนทันที
+        // เพื่อไม่ให้ user เสียโอกาส (ไม่ปล่อยให้ค้างจนต้องกด "ปิด" เฉยๆ)
+        const data = window.currentTicketData;
+        if (data && data.qr_image) {
+          await shareOrSaveQr(data.qr_image, data.deal_code || 'ticket');
+        } else {
+          alert('เกิดข้อผิดพลาดในการสร้างไฟล์ กรุณาสกรีนช็อตหน้าจอเก็บไว้แทน');
+        }
       }
     } finally {
       btn.disabled = false;
-      btn.innerHTML = '📤 แชร์ตั๋วนี้';
+      btn.innerHTML = '📤 แชร์เก็บไว้ใช้ (PDF)';
     }
   });
 
