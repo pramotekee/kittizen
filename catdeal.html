@@ -434,7 +434,7 @@
       <button class="btn-cancel" id="claimCancelBtn">ยกเลิก</button>
     </div>
 
-    <p class="no-profile-hint">ยังไม่มีโปรไฟล์คนรักแมว? <a href="create.html">สร้างโปรไฟล์ที่นี่</a></p>
+    <p class="no-profile-hint">Edit code จะได้รับเมื่อสร้างโปรไฟล์ครั้งแรก หากคุณยังไม่เคยสร้างโปรไฟล์ -> <a href="create.html">สร้างโปรไฟล์ที่นี่</a></p>
   </div>
 </div>
 
@@ -742,6 +742,12 @@
     document.getElementById('ticketPopup').classList.remove('open');
   });
 
+  // in-app browser พวกนี้ (LINE/FB/IG) navigator.share มักค้างไม่จบ -> ข้ามไปเลยดีกว่า
+  function isBrokenShareWebview() {
+    const ua = navigator.userAgent || '';
+    return /Line\//i.test(ua) || /FBAN|FBAV/i.test(ua) || /Instagram/i.test(ua);
+  }
+
   // บันทึก/แชร์เฉพาะรูป QR ตรงๆ (ทางลัดที่ชัวร์สุด ไม่ผ่าน canvas/PDF เลย)
   async function shareOrSaveQr(qrUrl, dealCode) {
     try {
@@ -749,8 +755,13 @@
       const blob = await resp.blob();
       const qrFile = new File([blob], 'qr-' + dealCode + '.png', { type: 'image/png' });
 
-      if (navigator.canShare && navigator.canShare({ files: [qrFile] })) {
-        await navigator.share({ files: [qrFile], title: 'QR Code Cat Deal' });
+      if (!isBrokenShareWebview() && navigator.canShare && navigator.canShare({ files: [qrFile] })) {
+        // บั๊ก: บาง in-app browser (LINE/FB/IG) พอ user ปิด share sheet
+        // Promise นี้จะไม่ resolve/reject เลย ค้างตลอดไป -> ต้องครอบ timeout
+        await Promise.race([
+          navigator.share({ files: [qrFile], title: 'QR Code Cat Deal' }),
+          new Promise(function (resolve) { setTimeout(resolve, 10000); })
+        ]);
         return;
       }
       const blobUrl = URL.createObjectURL(blob);
@@ -823,12 +834,16 @@
 
       // มือถือส่วนใหญ่รองรับ Web Share API แบบแนบไฟล์ -> เด้ง share sheet ของเครื่องเลย
       // (แชร์เข้า LINE/Photos/Files ได้ทันที ไม่ต้องงงว่าไฟล์ที่โหลดไปอยู่ไหน)
-      if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
-        await navigator.share({
-          files: [pdfFile],
-          title: 'Cat Deal Ticket',
-          text: 'ตั๋วรับดีล Cat Deal ของฉัน'
-        });
+      if (!isBrokenShareWebview() && navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+        // เหตุผลเดียวกัน: กัน share sheet ค้างไม่จบใน in-app browser
+        await Promise.race([
+          navigator.share({
+            files: [pdfFile],
+            title: 'Cat Deal Ticket',
+            text: 'ตั๋วรับดีล Cat Deal ของฉัน'
+          }),
+          new Promise(function (resolve) { setTimeout(resolve, 10000); })
+        ]);
       } else {
         // เบราว์เซอร์ไม่รองรับ Web Share -> เปิด PDF ในแท็บใหม่แทนการดาวน์โหลดตรงๆ
         // (บนมือถือจะเปิดด้วย viewer ที่มีปุ่มแชร์/บันทึกในตัวอยู่แล้ว)
