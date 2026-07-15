@@ -156,6 +156,7 @@
       document.getElementById('resultTitle').textContent = 'สแกนสำเร็จ';
       document.getElementById('resultSub').textContent = 'มอบโปรโมชั่นให้ลูกค้าได้เลยค่ะ';
       document.getElementById('resultCodeBox').innerHTML =
+        (payload.shop_name ? '<b>ร้าน:</b> ' + escapeHtml(payload.shop_name) + '<br>' : '') +
         (payload.deal_name ? '<b>ดีล:</b> ' + escapeHtml(payload.deal_name) + '<br>' : '') +
         '<div class="divider-line"></div>' +
         'Deal Code = <span class="deal-code-value">' + escapeHtml(payload.deal_code) + '</span>' +
@@ -164,7 +165,9 @@
       document.getElementById('resultIcon').textContent = '⚠️';
       document.getElementById('resultTitle').textContent = 'สแกนไม่สำเร็จ';
       document.getElementById('resultSub').textContent = 'กรุณาตรวจสอบกับลูกค้าอีกครั้ง';
-      document.getElementById('resultCodeBox').innerHTML = escapeHtml(payload.error || 'เกิดข้อผิดพลาด ไม่ทราบสาเหตุ');
+      document.getElementById('resultCodeBox').innerHTML =
+        (payload.shop_name ? '<b>ร้าน:</b> ' + escapeHtml(payload.shop_name) + '<br><div class="divider-line"></div>' : '') +
+        escapeHtml(payload.error || 'เกิดข้อผิดพลาด ไม่ทราบสาเหตุ');
     }
   }
 
