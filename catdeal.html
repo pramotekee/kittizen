@@ -354,6 +354,16 @@
   .ticket .ticket-detail { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.6; }
   .ticket .ticket-qr { text-align: center; margin: 16px 0; }
   .ticket .ticket-qr img { width: 200px; height: 200px; border-radius: 12px; border: 1px solid var(--border); }
+  .ticket .ticket-instruction {
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--deal-dark);
+    background: var(--tag-bg);
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin: 0 0 14px 0;
+  }
   .ticket .ticket-code {
     text-align: center;
     font-family: monospace;
@@ -424,7 +434,7 @@
       <button class="btn-cancel" id="claimCancelBtn">ยกเลิก</button>
     </div>
 
-    <p class="no-profile-hint">Edit code จะได้รับเมื่อคุณเคยสร้างโปรไฟล์แล้ว หากยังไม่สร้างโปรไฟล์ -> <a href="create.html">สร้างโปรไฟล์ที่นี่</a></p>
+    <p class="no-profile-hint">ยังไม่มีโปรไฟล์คนรักแมว? <a href="create.html">สร้างโปรไฟล์ที่นี่</a></p>
   </div>
 </div>
 
@@ -434,7 +444,7 @@
     <h3>🎉 รับดีลสำเร็จ!</h3>
     <div class="ticket" id="ticketContent"></div>
     <div class="popup-actions">
-      <button class="btn-confirm" id="saveTicketBtn">📸 บันทึกเป็นรูป</button>
+      <button class="btn-confirm" id="saveTicketBtn">📤 แชร์ตั๋วนี้</button>
       <button class="btn-cancel" id="closeTicketBtn">ปิด</button>
     </div>
   </div>
@@ -451,6 +461,7 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbylJXLg47otdgqZM6EwLma8AL1q5AEIsYe8uDOlNlTh9gOMOS7sHOgceX4l9h8ia3nGfg/exec';
@@ -718,24 +729,61 @@
       <div class="ticket-deal-name">${escapeHtml(data.deal_name)}</div>
       <div class="ticket-detail">${escapeHtml(data.deal_detail)}</div>
       <div class="ticket-qr"><img src="${data.qr_image}" alt="QR Code"></div>
+      <div class="ticket-instruction">📍 โปรดนำ QR Code นี้ไปแสดงให้พนักงานสแกนที่ร้านเพื่อรับสิทธิ์</div>
       <div class="ticket-code">${data.deal_code}</div>
       <div class="ticket-expiry">ใช้สิทธิ์ได้ถึงวันที่ ${formatDateThai(data.expired_date)}</div>`;
     document.getElementById('ticketContent').innerHTML = ticketHtml;
     document.getElementById('ticketPopup').classList.add('open');
+    window.currentTicketData = data;
   }
 
   document.getElementById('closeTicketBtn').addEventListener('click', function () {
     document.getElementById('ticketPopup').classList.remove('open');
   });
 
-  document.getElementById('saveTicketBtn').addEventListener('click', function () {
-    const ticketEl = document.getElementById('ticketContent');
-    html2canvas(ticketEl, { backgroundColor: '#ffffff', scale: 2 }).then(function (canvas) {
-      const link = document.createElement('a');
-      link.download = 'cat-deal-ticket.png';
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-    });
+  document.getElementById('saveTicketBtn').addEventListener('click', async function () {
+    const btn = this;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> กำลังเตรียมไฟล์...';
+
+    try {
+      const ticketEl = document.getElementById('ticketContent');
+      const canvas = await html2canvas(ticketEl, { backgroundColor: '#ffffff', scale: 2 });
+
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({
+        orientation: canvas.width > canvas.height ? 'landscape' : 'portrait',
+        unit: 'px',
+        format: [canvas.width, canvas.height]
+      });
+      pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, canvas.width, canvas.height);
+      const pdfBlob = pdf.output('blob');
+
+      const dealCode = (window.currentTicketData && window.currentTicketData.deal_code) || 'ticket';
+      const pdfFile = new File([pdfBlob], 'cat-deal-' + dealCode + '.pdf', { type: 'application/pdf' });
+
+      // มือถือส่วนใหญ่รองรับ Web Share API แบบแนบไฟล์ -> เด้ง share sheet ของเครื่องเลย
+      // (แชร์เข้า LINE/Photos/Files ได้ทันที ไม่ต้องงงว่าไฟล์ที่โหลดไปอยู่ไหน)
+      if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+        await navigator.share({
+          files: [pdfFile],
+          title: 'Cat Deal Ticket',
+          text: 'ตั๋วรับดีล Cat Deal ของฉัน'
+        });
+      } else {
+        // เบราว์เซอร์ไม่รองรับ Web Share -> เปิด PDF ในแท็บใหม่แทนการดาวน์โหลดตรงๆ
+        // (บนมือถือจะเปิดด้วย viewer ที่มีปุ่มแชร์/บันทึกในตัวอยู่แล้ว)
+        const blobUrl = URL.createObjectURL(pdfBlob);
+        window.open(blobUrl, '_blank');
+      }
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        alert('เกิดข้อผิดพลาดในการสร้างไฟล์: ' + err.message);
+      }
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '📤 แชร์ตั๋วนี้';
+    }
   });
 
   loadDeals();
