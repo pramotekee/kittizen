@@ -211,6 +211,34 @@
     cursor: not-allowed;
   }
 
+  .deal-actions { display: flex; gap: 8px; }
+  .deal-actions .btn-claim { width: auto; flex: 4; }
+  .btn-share {
+    flex: 1;
+    background: var(--tag-bg);
+    color: var(--text-primary);
+    border: none;
+    border-radius: 30px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .btn-share:hover { background: #e4dcd7; }
+
+  @keyframes dealHighlightPulse {
+    0% { box-shadow: 0 0 0 0 rgba(232,115,74,0.55); }
+    70% { box-shadow: 0 0 0 12px rgba(232,115,74,0); }
+    100% { box-shadow: 0 0 0 0 rgba(232,115,74,0); }
+  }
+  .deal-card.deal-highlight {
+    animation: dealHighlightPulse 1.4s ease-out 2;
+    outline: 2px solid var(--deal);
+    outline-offset: 2px;
+  }
+
   .cross-link {
     text-align: center;
     margin-top: 24px;
@@ -493,7 +521,7 @@
       const stopDate = formatDateThai(deal.stop_display_date) || '';
 
       html += `
-        <div class="deal-card">
+        <div class="deal-card" data-deal-id="${deal.deal_id}">
           <div class="deal-img-wrap"><img src="${deal.deal_image || ''}" alt="${escapeHtml(deal.deal_name)}" loading="lazy"></div>
           <div class="deal-body">
             <div class="shop-row">
@@ -516,9 +544,12 @@
               <span>หมดเขต ${stopDate}</span>
               <span>${isFull ? 'เต็มแล้ว' : 'เหลือ ' + remaining + ' สิทธิ์'}</span>
             </div>
-            <button class="btn-claim" data-deal-id="${deal.deal_id}" ${isFull ? 'disabled' : ''}>
-              ${isFull ? 'ดีลหมดแล้ว' : '🎁 รับดีลนี้'}
-            </button>
+            <div class="deal-actions">
+              <button class="btn-claim" data-deal-id="${deal.deal_id}" ${isFull ? 'disabled' : ''}>
+                ${isFull ? 'ดีลหมดแล้ว' : '🎁 รับดีลนี้'}
+              </button>
+              <button class="btn-share" data-deal-id="${deal.deal_id}" data-role="share" aria-label="แชร์ดีลนี้">📤</button>
+            </div>
           </div>
         </div>`;
     });
@@ -530,6 +561,13 @@
       btn.addEventListener('click', function () {
         const dealId = this.getAttribute('data-deal-id');
         openClaimPopup(dealId);
+      });
+    });
+
+    document.querySelectorAll('[data-role="share"]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        const dealId = this.getAttribute('data-deal-id');
+        shareDeal(dealId);
       });
     });
 
@@ -549,7 +587,41 @@
           btn.style.display = 'none';
         }
       });
+      highlightDealFromUrl();
     });
+  }
+
+  // ============================================================
+  // แชร์ดีล — deep link ?deal={deal_id} กลับมาที่การ์ดนั้นโดยตรง
+  // ============================================================
+  function shareDeal(dealId) {
+    const deal = activeDeals.find(d => d.deal_id === dealId);
+    if (!deal) return;
+
+    const shareUrl = window.location.origin + window.location.pathname + '?deal=' + encodeURIComponent(dealId);
+    const shareText = 'โปรเด็ดโปรดีเพื่อคนรักแมวเช่นคุณ คลิ๊กดูเลย';
+
+    if (navigator.share) {
+      navigator.share({ title: deal.deal_name, text: shareText, url: shareUrl }).catch(function () {});
+    } else {
+      navigator.clipboard.writeText(shareText + ' ' + shareUrl).then(function () {
+        alert('คัดลอกลิงก์ดีลแล้ว 📋');
+      }).catch(function () {
+        prompt('คัดลอกลิงก์ดีลนี้:', shareUrl);
+      });
+    }
+  }
+
+  // เปิดหน้ามาพร้อม ?deal=xxx -> เลื่อนไปที่การ์ดนั้นอัตโนมัติ + ไฮไลต์ชั่วคราว
+  function highlightDealFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    const dealId = params.get('deal');
+    if (!dealId) return;
+    const card = document.querySelector('.deal-card[data-deal-id="' + CSS.escape(dealId) + '"]');
+    if (!card) return;
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    card.classList.add('deal-highlight');
+    setTimeout(function () { card.classList.remove('deal-highlight'); }, 3000);
   }
 
   function openDetailPopup(dealId) {
