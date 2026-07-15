@@ -269,6 +269,11 @@
 
     <div id="alertContainer"></div>
 
+    <!-- ADD NEW DEAL (โผล่มาหลังค้นหาร้านสำเร็จ) -->
+    <div id="addDealSection" style="display:none; margin-bottom:20px;">
+      <button class="btn-submit" id="addNewDealBtn" style="background:var(--tag-bg); color:var(--text-primary);">➕ เพิ่มดีลใหม่ให้ร้านนี้</button>
+    </div>
+
     <!-- DEAL PICKER (ถ้ามีหลายดีล) -->
     <div id="dealPickerSection" style="display:none;">
       <h3 style="font-size:16px;margin-bottom:12px;">เลือกดีลที่ต้องการแก้ไข</h3>
@@ -527,6 +532,7 @@
 
         document.getElementById('alertContainer').innerHTML = '';
         document.getElementById('editSection').classList.remove('show');
+        document.getElementById('addDealSection').style.display = 'block';
 
         if (currentDeals.length === 1) {
           document.getElementById('dealPickerSection').style.display = 'none';
@@ -539,6 +545,7 @@
         showAlert(result.error || 'ไม่พบดีลของร้านนี้', 'error');
         document.getElementById('dealPickerSection').style.display = 'none';
         document.getElementById('editSection').classList.remove('show');
+        document.getElementById('addDealSection').style.display = 'none';
       }
     } catch (err) {
       showAlert('เกิดข้อผิดพลาด: ' + err.message, 'error');
@@ -635,12 +642,42 @@
     }
   });
 
+  document.getElementById('addNewDealBtn').addEventListener('click', function () {
+    if (currentDeals.length >= 3) {
+      showAlert('ร้านนี้มีดีลครบ 3 ดีลแล้ว ไม่สามารถเพิ่มดีลใหม่ได้ (ลบ/ปิดดีลเดิมก่อน หรือแก้ไขดีลเดิมแทน)', 'error');
+      return;
+    }
+    const baseDeal = currentDeals[0] || {};
+    sessionStorage.setItem('kittizenDealPrefill', JSON.stringify({
+      shop_id: currentShopId,
+      shop_edit_code: currentShopEditCode,
+      shop_name: baseDeal.shop_name || '',
+      shop_logo_image: baseDeal.shop_logo_image || '',
+      shop_contact: baseDeal.shop_contact || '',
+      shop_phone: baseDeal.shop_phone || '',
+      shop_fb: baseDeal.shop_fb || '',
+      shop_ig: baseDeal.shop_ig || '',
+      shop_tt: baseDeal.shop_tt || '',
+      shop_yt: baseDeal.shop_yt || '',
+      shop_line: baseDeal.shop_line || ''
+    }));
+    window.location.href = 'catdealcreate.html';
+  });
+
   document.getElementById('goToCatDealBtn').addEventListener('click', function () {
     window.location.href = 'catdeal.html';
   });
 
   document.getElementById('stayHereBtn').addEventListener('click', function () {
     document.getElementById('successPopup').classList.remove('open');
+    // พากลับไปหน้า list ดีลของร้าน แทนที่จะปิด popup เฉยๆ
+    document.getElementById('editSection').classList.remove('show');
+    if (currentDeals.length > 1) {
+      renderDealPicker();
+    } else {
+      document.getElementById('dealPickerSection').style.display = 'none';
+    }
+    setTimeout(() => document.getElementById('addDealSection').scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
   });
 </script>
 
