@@ -163,6 +163,36 @@
   .dp-status.pending { background: #FFF4E0; color: #B8860B; }
   .dp-status.active { background: #e8f8f0; color: var(--success); }
   .dp-status.inactive { background: var(--tag-bg); color: var(--text-secondary); }
+  .dp-status.paused { background: #FDECEA; color: #C0392B; }
+
+  .deal-picker-item { flex-direction: column; align-items: stretch; cursor: default; }
+  .deal-picker-item:hover { border-color: var(--border); background: var(--bg); }
+  .deal-picker-item.selected { border-color: var(--accent); background: #fde8e0; }
+  .dp-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .dp-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .dp-actions button {
+    flex: 1;
+    min-width: 90px;
+    padding: 8px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    transition: all 0.15s;
+  }
+  .dp-actions button:hover { background: var(--tag-bg); }
+  .dp-actions .dp-edit-btn { border-color: var(--accent); color: var(--accent); }
+  .dp-actions .dp-edit-btn:hover { background: #fde8e0; }
+  .dp-actions .dp-pause-btn { border-color: #C0392B; color: #C0392B; }
+  .dp-actions .dp-pause-btn:hover { background: #FDECEA; }
+  .dp-actions .dp-resume-btn { border-color: var(--success); color: var(--success); }
+  .dp-actions .dp-resume-btn:hover { background: #e8f8f0; }
+  .dp-actions .dp-delete-btn { border-color: var(--error); color: var(--error); }
+  .dp-actions .dp-delete-btn:hover { background: #fdecea; }
 
   .breadcrumb { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; }
   .breadcrumb a { color: var(--accent); text-decoration: none; }
@@ -405,6 +435,30 @@
   </div>
 </div>
 
+<!-- POPUP: ยืนยันหยุด/เปิดดีลอีกครั้ง -->
+<div class="popup-overlay" id="pauseConfirmPopup">
+  <div class="popup">
+    <h3 id="pauseConfirmTitle">⏸️ ยืนยันหยุดดีลนี้?</h3>
+    <p class="desc" id="pauseConfirmDesc">ดีลจะถูกซ่อนจากหน้าลูกค้าทันที ลูกค้าที่รับสิทธิ์ไปแล้วก่อนหน้ายังนำ QR ไปใช้ได้ปกติทุกประการ คุณสามารถกด "เปิดดีลอีกครั้ง" ให้กลับมาแสดงผลได้ทุกเมื่อ</p>
+    <div class="popup-actions">
+      <button class="btn-copy" id="pauseConfirmBtn" style="width:100%;">ยืนยัน</button>
+      <button class="btn-home" id="pauseCancelBtn" style="width:100%;">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+<!-- POPUP: ยืนยันลบดีล (ถาวร) -->
+<div class="popup-overlay" id="deleteConfirmPopup">
+  <div class="popup">
+    <h3>🗑️ ยืนยันลบดีลนี้?</h3>
+    <p class="desc">การลบถาวร ไม่สามารถกู้คืนได้ ดีลจะหายไปจากรายการนี้ และไม่นับรวมโควตา 3 ดีลอีกต่อไป (สร้างดีลใหม่แทนได้เต็มโควตา) ลูกค้าที่รับสิทธิ์ไปแล้วก่อนหน้ายังนำ QR ไปใช้ได้ปกติทุกประการ ไม่ได้รับผลกระทบ</p>
+    <div class="popup-actions">
+      <button class="btn-copy" id="deleteConfirmBtn" style="width:100%; background:var(--error);">ยืนยันลบ</button>
+      <button class="btn-home" id="deleteCancelBtn" style="width:100%;">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
 <script>
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbylJXLg47otdgqZM6EwLma8AL1q5AEIsYe8uDOlNlTh9gOMOS7sHOgceX4l9h8ia3nGfg/exec';
 
@@ -459,6 +513,7 @@
   function statusLabel(status) {
     if (status === 'active') return 'กำลังแสดงผล';
     if (status === 'inactive') return 'ถูกซ่อน';
+    if (status === 'paused') return 'หยุดชั่วคราว';
     return 'รอตรวจสอบ';
   }
 
@@ -468,16 +523,144 @@
     currentDeals.forEach(function (deal) {
       const item = document.createElement('div');
       item.className = 'deal-picker-item';
-      item.innerHTML = `<span class="dp-name">${deal.deal_name || '(ไม่มีชื่อดีล)'}</span>
-        <span class="dp-status ${deal.status}">${statusLabel(deal.status)}</span>`;
-      item.onclick = function () {
-        document.querySelectorAll('.deal-picker-item').forEach(el => el.classList.remove('selected'));
-        item.classList.add('selected');
-        loadDealIntoForm(deal);
-      };
+
+      const isPaused = deal.status === 'paused';
+      const pauseOrResumeBtn = isPaused
+        ? `<button class="dp-resume-btn" data-role="resume" data-deal-id="${deal.deal_id}">▶️ เปิดดีลอีกครั้ง</button>`
+        : `<button class="dp-pause-btn" data-role="pause" data-deal-id="${deal.deal_id}">⏸️ หยุดดีล</button>`;
+
+      item.innerHTML = `
+        <div class="dp-row">
+          <span class="dp-name">${escapeHtml(deal.deal_name || '(ไม่มีชื่อดีล)')}</span>
+          <span class="dp-status ${deal.status}">${statusLabel(deal.status)}</span>
+        </div>
+        <div class="dp-actions">
+          <button class="dp-edit-btn" data-role="edit" data-deal-id="${deal.deal_id}">✏️ แก้ไขดีล</button>
+          ${pauseOrResumeBtn}
+          <button class="dp-delete-btn" data-role="delete" data-deal-id="${deal.deal_id}">🗑️ ลบดีล</button>
+        </div>`;
       picker.appendChild(item);
     });
+
+    // ผูก event ทีละปุ่มหลัง render เสร็จ (ต้องทำใหม่ทุกครั้งที่ innerHTML ถูกเขียนทับ)
+    picker.querySelectorAll('[data-role="edit"]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        const deal = currentDeals.find(function (d) { return d.deal_id === btn.dataset.dealId; });
+        if (deal) {
+          picker.querySelectorAll('.deal-picker-item').forEach(function (el) { el.classList.remove('selected'); });
+          btn.closest('.deal-picker-item').classList.add('selected');
+          loadDealIntoForm(deal);
+        }
+      });
+    });
+    picker.querySelectorAll('[data-role="pause"]').forEach(function (btn) {
+      btn.addEventListener('click', function () { openPauseConfirm(btn.dataset.dealId, 'paused'); });
+    });
+    picker.querySelectorAll('[data-role="resume"]').forEach(function (btn) {
+      btn.addEventListener('click', function () { openPauseConfirm(btn.dataset.dealId, 'active'); });
+    });
+    picker.querySelectorAll('[data-role="delete"]').forEach(function (btn) {
+      btn.addEventListener('click', function () { openDeleteConfirm(btn.dataset.dealId); });
+    });
+
     document.getElementById('dealPickerSection').style.display = 'block';
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str || '';
+    return div.innerHTML;
+  }
+
+  // ============================================================
+  // หยุดดีล / เปิดดีลอีกครั้ง (deal_set_status)
+  // ============================================================
+  let pendingStatusChange = null; // { dealId, newStatus }
+
+  function openPauseConfirm(dealId, newStatus) {
+    pendingStatusChange = { dealId: dealId, newStatus: newStatus };
+    const isResume = newStatus === 'active';
+    document.getElementById('pauseConfirmTitle').textContent = isResume ? '▶️ ยืนยันเปิดดีลนี้อีกครั้ง?' : '⏸️ ยืนยันหยุดดีลนี้?';
+    document.getElementById('pauseConfirmDesc').textContent = isResume
+      ? 'ดีลจะกลับไปแสดงผลที่หน้าลูกค้าทันที ไม่ต้องรอตรวจสอบซ้ำ'
+      : 'ดีลจะถูกซ่อนจากหน้าลูกค้าทันที ลูกค้าที่รับสิทธิ์ไปแล้วก่อนหน้ายังนำ QR ไปใช้ได้ปกติทุกประการ คุณสามารถกด "เปิดดีลอีกครั้ง" ให้กลับมาแสดงผลได้ทุกเมื่อ';
+    document.getElementById('pauseConfirmBtn').textContent = isResume ? 'ยืนยันเปิดอีกครั้ง' : 'ยืนยันหยุดดีล';
+    document.getElementById('pauseConfirmPopup').classList.add('open');
+  }
+
+  document.getElementById('pauseCancelBtn').addEventListener('click', function () {
+    pendingStatusChange = null;
+    document.getElementById('pauseConfirmPopup').classList.remove('open');
+  });
+
+  document.getElementById('pauseConfirmBtn').addEventListener('click', async function () {
+    if (!pendingStatusChange) return;
+    await submitStatusChange(pendingStatusChange.dealId, pendingStatusChange.newStatus, this);
+    document.getElementById('pauseConfirmPopup').classList.remove('open');
+    pendingStatusChange = null;
+  });
+
+  // ============================================================
+  // ลบดีล (ถาวร)
+  // ============================================================
+  let pendingDeleteDealId = null;
+
+  function openDeleteConfirm(dealId) {
+    pendingDeleteDealId = dealId;
+    document.getElementById('deleteConfirmPopup').classList.add('open');
+  }
+
+  document.getElementById('deleteCancelBtn').addEventListener('click', function () {
+    pendingDeleteDealId = null;
+    document.getElementById('deleteConfirmPopup').classList.remove('open');
+  });
+
+  document.getElementById('deleteConfirmBtn').addEventListener('click', async function () {
+    if (!pendingDeleteDealId) return;
+    await submitStatusChange(pendingDeleteDealId, 'deleted', this);
+    document.getElementById('deleteConfirmPopup').classList.remove('open');
+    pendingDeleteDealId = null;
+  });
+
+  async function submitStatusChange(dealId, newStatus, btn) {
+    const originalLabel = btn.textContent;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> กำลังบันทึก...';
+
+    try {
+      const res = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'deal_set_status',
+          shop_id: currentShopId,
+          shop_edit_code: currentShopEditCode,
+          deal_id: dealId,
+          new_status: newStatus
+        })
+      });
+      const result = await res.json();
+
+      if (result.success) {
+        if (newStatus === 'deleted') {
+          // ลบแล้วเหมือนไม่เคยมี — เอาออกจาก list ในเครื่องทันที ไม่ต้องรอ refetch
+          currentDeals = currentDeals.filter(function (d) { return d.deal_id !== dealId; });
+          showToast('ลบดีลเรียบร้อยแล้ว');
+        } else {
+          const deal = currentDeals.find(function (d) { return d.deal_id === dealId; });
+          if (deal) deal.status = newStatus;
+          showToast(newStatus === 'active' ? 'เปิดดีลอีกครั้งเรียบร้อยแล้ว' : 'หยุดดีลเรียบร้อยแล้ว');
+        }
+        document.getElementById('editSection').classList.remove('show');
+        renderDealPicker();
+      } else {
+        showAlert(result.error || 'เกิดข้อผิดพลาด ไม่ทราบสาเหตุ', 'error');
+      }
+    } catch (err) {
+      showAlert('เกิดข้อผิดพลาด: ' + err.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = originalLabel;
+    }
   }
 
   function loadDealIntoForm(deal) {
