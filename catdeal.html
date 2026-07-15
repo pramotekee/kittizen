@@ -76,6 +76,22 @@
   }
 
   .page-header { padding: 8px 4px 4px; }
+  .page-header-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+  .btn-check-code {
+    background: var(--surface);
+    border: 1.5px solid var(--deal);
+    color: var(--deal);
+    padding: 9px 16px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .btn-check-code:hover { background: var(--tag-bg); }
   h1 {
     font-size: 26px;
     font-weight: 700;
@@ -380,6 +396,28 @@
     margin-bottom: 16px;
   }
 
+  /* CHECK DEAL CODE popup — กล่องแสดงผลตรวจสอบโค้ด */
+  .check-code-box {
+    background: var(--bg);
+    border-radius: 16px;
+    padding: 16px 18px;
+    text-align: left;
+    font-size: 14px;
+    line-height: 1.9;
+    margin: 4px 0 16px;
+  }
+  .check-code-box .divider-line { border-top: 1px dashed var(--border); margin: 10px 0; }
+  .check-code-box .deal-code-value {
+    font-family: 'Courier New', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--deal);
+    letter-spacing: 1px;
+    word-break: break-all;
+  }
+  .check-code-box .note { font-size: 12px; color: var(--text-secondary); margin-top: 8px; }
+  .check-code-result-icon { font-size: 40px; text-align: center; margin-bottom: 6px; }
+
   .spinner {
     display: inline-block;
     width: 18px;
@@ -404,12 +442,15 @@
   </div>
 
   <div class="page-header">
-    <h1>🏷️ Cat Deal</h1>
+    <div class="page-header-row">
+      <h1>🏷️ Cat Deal</h1>
+      <button class="btn-check-code" id="openCheckCodeBtn">🔑 Check Deal Code</button>
+    </div>
     <div class="sub">ดีลพิเศษจากร้านค้าที่รักแมวเหมือนคุณ</div>
   </div>
 
   <div class="cross-link cross-link-top">
-    สำหรับร้านค้าที่อยากลงดีล หรือแก้ไขดีล? <a href="catdealcreate.html">กดที่นี่</a>
+    เป็นร้านค้าและอยากลงดีล หรือแก้ไขดีล? <a href="catdealcreate.html">กดที่นี่</a>
   </div>
 
   <div id="dealContent">
@@ -435,6 +476,35 @@
     </div>
 
     <p class="no-profile-hint">Edit code จะได้รับเมื่อสร้างโปรไฟล์ครั้งแรก หากคุณยังไม่เคยสร้างโปรไฟล์ -> <a href="create.html">สร้างโปรไฟล์ที่นี่</a></p>
+  </div>
+</div>
+
+<!-- POPUP: พนักงานร้านกรอก Deal Code เพื่อตรวจสอบ/ใช้สิทธิ์ (fallback เผื่อลูกค้าเอาแต่โค้ดมา ไม่ได้เอา QR มา) -->
+<div class="popup-overlay" id="checkCodePopup">
+  <div class="popup">
+    <h3>🔑 Check Deal Code</h3>
+    <p class="popup-sub">สำหรับร้านค้ารับ Deal Code จากลูกค้า</p>
+
+    <div id="checkCodeFormSection">
+      <div class="form-group">
+        <input type="text" id="checkCodeInput" placeholder="เช่น 6vttxaxc" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        <div class="error-msg" id="checkCodeError"></div>
+      </div>
+      <div class="popup-actions">
+        <button class="btn-confirm" id="checkCodeConfirmBtn">✅ ตรวจสอบ</button>
+        <button class="btn-cancel" id="checkCodeCancelBtn">ยกเลิก</button>
+      </div>
+    </div>
+
+    <div id="checkCodeResultSection" style="display:none;">
+      <div class="check-code-result-icon" id="checkCodeResultIcon">✅</div>
+      <h3 id="checkCodeResultTitle" style="text-align:center;"></h3>
+      <div class="check-code-box" id="checkCodeResultBox"></div>
+      <div class="popup-actions">
+        <button class="btn-confirm" id="checkCodeAnotherBtn">ตรวจสอบโค้ดอื่นต่อ</button>
+        <button class="btn-cancel" id="checkCodeCloseBtn">ปิด</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -864,6 +934,93 @@
     } finally {
       btn.disabled = false;
       btn.innerHTML = '📤 แชร์เก็บไว้ใช้ (PDF)';
+    }
+  });
+
+  // ============================================================
+  // Check Deal Code (ป็อปอัพสำหรับพนักงานร้าน กรอกโค้ดลูกค้าตรง ๆ
+  // เผื่อลูกค้าเอาแต่โค้ดมา ไม่ได้เอา QR มาให้สแกน)
+  // ============================================================
+  function resetCheckCodePopup() {
+    document.getElementById('checkCodeInput').value = '';
+    document.getElementById('checkCodeError').style.display = 'none';
+    document.getElementById('checkCodeError').textContent = '';
+    document.getElementById('checkCodeFormSection').style.display = 'block';
+    document.getElementById('checkCodeResultSection').style.display = 'none';
+  }
+
+  document.getElementById('openCheckCodeBtn').addEventListener('click', function () {
+    resetCheckCodePopup();
+    document.getElementById('checkCodePopup').classList.add('open');
+    setTimeout(function () { document.getElementById('checkCodeInput').focus(); }, 100);
+  });
+
+  document.getElementById('checkCodeCancelBtn').addEventListener('click', function () {
+    document.getElementById('checkCodePopup').classList.remove('open');
+  });
+
+  document.getElementById('checkCodeCloseBtn').addEventListener('click', function () {
+    document.getElementById('checkCodePopup').classList.remove('open');
+  });
+
+  document.getElementById('checkCodeAnotherBtn').addEventListener('click', function () {
+    resetCheckCodePopup();
+    setTimeout(function () { document.getElementById('checkCodeInput').focus(); }, 100);
+  });
+
+  document.getElementById('checkCodeInput').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') document.getElementById('checkCodeConfirmBtn').click();
+  });
+
+  function showCheckCodeResult(success, payload) {
+    document.getElementById('checkCodeFormSection').style.display = 'none';
+    document.getElementById('checkCodeResultSection').style.display = 'block';
+
+    if (success) {
+      document.getElementById('checkCodeResultIcon').textContent = '✅';
+      document.getElementById('checkCodeResultTitle').textContent = 'ตรวจสอบสำเร็จ';
+      document.getElementById('checkCodeResultBox').innerHTML =
+        (payload.shop_name ? '<b>ร้าน:</b> ' + escapeHtml(payload.shop_name) + '<br>' : '') +
+        (payload.deal_name ? '<b>ดีล:</b> ' + escapeHtml(payload.deal_name) + '<br>' : '') +
+        '<div class="divider-line"></div>' +
+        'Deal Code = <span class="deal-code-value">' + escapeHtml(payload.deal_code) + '</span>' +
+        '<div class="note">✅ ใช้สิทธิ์เรียบร้อยแล้ว มอบโปรโมชั่นให้ลูกค้าได้เลย</div>';
+    } else {
+      document.getElementById('checkCodeResultIcon').textContent = '⚠️';
+      document.getElementById('checkCodeResultTitle').textContent = 'ตรวจสอบไม่ผ่าน';
+      document.getElementById('checkCodeResultBox').innerHTML =
+        (payload.shop_name ? '<b>ร้าน:</b> ' + escapeHtml(payload.shop_name) + '<br><div class="divider-line"></div>' : '') +
+        escapeHtml(payload.error || 'เกิดข้อผิดพลาด ไม่ทราบสาเหตุ');
+    }
+  }
+
+  document.getElementById('checkCodeConfirmBtn').addEventListener('click', async function () {
+    const code = document.getElementById('checkCodeInput').value.trim();
+    const errorEl = document.getElementById('checkCodeError');
+
+    if (!code) {
+      errorEl.textContent = 'กรุณากรอก Deal Code';
+      errorEl.style.display = 'block';
+      return;
+    }
+    errorEl.style.display = 'none';
+
+    const btn = this;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> กำลังตรวจสอบ...';
+
+    try {
+      const res = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'deal_scan_redeem', deal_code: code })
+      });
+      const result = await res.json();
+      showCheckCodeResult(result.success, result);
+    } catch (err) {
+      showCheckCodeResult(false, { error: 'เกิดข้อผิดพลาด: ' + err.message });
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '✅ ตรวจสอบ';
     }
   });
 
