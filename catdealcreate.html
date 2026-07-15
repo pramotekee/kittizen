@@ -215,10 +215,10 @@
 <div class="container">
   <div class="breadcrumb"><a href="catdeal.html">🏷️ Cat Deal</a> &gt; ลงดีลร้านค้า</div>
   <div class="card">
-    <h1>🏷️ ลงดีลร้านค้า</h1>
-    <div class="sub">ส่งดีลของร้านคุณเข้าระบบ Cat Deal — ทีมงานจะตรวจสอบก่อนขึ้นแสดงผลจริง</div>
-    <div class="cross-link cross-link-top">
-      เคยส่งดีลมาแล้ว และต้องการแก้ไข? <a href="catdealedit.html">แก้ไขดีลของร้านที่นี่</a>
+    <h1 id="pageTitle">🏷️ ลงดีลร้านค้าใหม่</h1>
+    <div class="sub" id="pageSub">สำหรับร้านที่ยังไม่เคยมี Shop ID ในระบบเท่านั้น — ทีมงานจะตรวจสอบก่อนขึ้นแสดงผลจริง</div>
+    <div class="cross-link cross-link-top" id="crossLinkTop">
+      เคยส่งดีลมาแล้ว และต้องการแก้ไข/เพิ่มดีลใหม่? <a href="catdealedit.html">ไปหน้าแก้ไขดีลที่นี่</a>
     </div>
 
     <div id="alertContainer"></div>
@@ -233,10 +233,15 @@
         <small>ใช้ 2 ตัวอักษรแรกของชื่อร้านสร้างรหัสร้านค้า (Shop ID) ให้อัตโนมัติ</small>
       </div>
 
-      <div class="form-group">
+      <div class="form-group" id="shopEditCodeGroup">
         <label>ตั้งรหัสแก้ไข (Shop Edit Code) <span class="required">*</span></label>
         <input type="text" id="shopEditCode" placeholder="ตั้งรหัสของร้านคุณเอง เช่น meaelove2026" required>
         <small>⚠️ ใช้รหัสนี้ + Shop ID (ที่ระบบจะออกให้หลังส่งฟอร์มสำเร็จ) สำหรับกลับมาแก้ไขหรือสร้างดีลใหม่ในอนาคต กรุณาจดบันทึกไว้ให้ดี</small>
+      </div>
+      <div class="form-group" id="addModeShopIdGroup" style="display:none;">
+        <label>ร้านค้า</label>
+        <input type="text" id="addModeShopIdDisplay" disabled>
+        <small>🔒 กำลังเพิ่มดีลใหม่ให้ร้านนี้ด้วย Shop ID เดิม ใช้ Edit Code เดิมของร้านคุณ ไม่ต้องตั้งใหม่</small>
       </div>
 
       <div class="form-group">
@@ -353,6 +358,48 @@
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbylJXLg47otdgqZM6EwLma8AL1q5AEIsYe8uDOlNlTh9gOMOS7sHOgceX4l9h8ia3nGfg/exec';
 
   // ============================================================
+  // ADD-MODE: ถ้ามาจากหน้า catdealedit.html (กด "เพิ่มดีลใหม่")
+  // จะมี sessionStorage 'kittizenDealPrefill' ส่งข้อมูลร้านเดิมมาให้
+  // ============================================================
+  let addMode = false;
+  let addModeShopId = '';
+  let addModeShopEditCode = '';
+
+  (function initAddMode() {
+    const raw = sessionStorage.getItem('kittizenDealPrefill');
+    if (!raw) return;
+    let prefill;
+    try { prefill = JSON.parse(raw); } catch (e) { return; }
+    if (!prefill || !prefill.shop_id || !prefill.shop_edit_code) return;
+
+    addMode = true;
+    addModeShopId = prefill.shop_id;
+    addModeShopEditCode = prefill.shop_edit_code;
+
+    document.getElementById('pageTitle').textContent = '🏷️ เพิ่มดีลใหม่ให้ร้านเดิม';
+    document.getElementById('pageSub').textContent = 'กำลังเพิ่มดีลใหม่ให้ร้าน "' + (prefill.shop_name || '') + '" ด้วย Shop ID เดิม — ทีมงานจะตรวจสอบก่อนขึ้นแสดงผลจริง';
+    document.getElementById('crossLinkTop').style.display = 'none';
+
+    document.getElementById('shopEditCodeGroup').style.display = 'none';
+    document.getElementById('shopEditCode').required = false;
+    document.getElementById('addModeShopIdGroup').style.display = 'block';
+    document.getElementById('addModeShopIdDisplay').value = prefill.shop_id;
+
+    document.getElementById('shopName').value = prefill.shop_name || '';
+    document.getElementById('shopLogoImage').value = prefill.shop_logo_image || '';
+    document.getElementById('shopContact').value = prefill.shop_contact || '';
+    document.getElementById('shopPhone').value = prefill.shop_phone || '';
+    document.getElementById('shopFb').value = prefill.shop_fb || '';
+    document.getElementById('shopIg').value = prefill.shop_ig || '';
+    document.getElementById('shopTt').value = prefill.shop_tt || '';
+    document.getElementById('shopYt').value = prefill.shop_yt || '';
+    document.getElementById('shopLine').value = prefill.shop_line || '';
+
+    // ใช้ครั้งเดียวแล้วเคลียร์ทิ้ง กัน state ค้างถ้ากลับมาหน้านี้ใหม่แบบไม่ตั้งใจ
+    sessionStorage.removeItem('kittizenDealPrefill');
+  })();
+
+  // ============================================================
   // แปลง URL ไฟล์รูปอัตโนมัติ (เข้าชุดเดียวกับหน้าอื่นของ KITTIZEN)
   // ============================================================
   function normalizeImageUrl(url) {
@@ -400,7 +447,7 @@
     const startDisplayDate = document.getElementById('startDisplayDate').value;
     const stopDisplayDate = document.getElementById('stopDisplayDate').value;
 
-    if (!shopName || !shopEditCode || !shopLogoImage || !shopContact || !shopPhone ||
+    if (!shopName || (!addMode && !shopEditCode) || !shopLogoImage || !shopContact || !shopPhone ||
         !dealName || !dealDetail || !dealImage || !dealLimit || !startDisplayDate || !stopDisplayDate) {
       showAlert('กรุณากรอกข้อมูลให้ครบทุกช่องที่มี *', 'error');
       return;
@@ -414,7 +461,7 @@
     const payload = {
       action: 'deal_submit',
       shop_name: shopName,
-      shop_edit_code: shopEditCode,
+      shop_edit_code: addMode ? addModeShopEditCode : shopEditCode,
       shop_logo_image: shopLogoImage,
       shop_contact: shopContact,
       shop_phone: shopPhone,
@@ -430,6 +477,7 @@
       shop_yt: document.getElementById('shopYt').value.trim(),
       shop_line: document.getElementById('shopLine').value.trim()
     };
+    if (addMode) payload.shop_id = addModeShopId;
 
     const btn = document.getElementById('submitBtn');
     btn.disabled = true;
