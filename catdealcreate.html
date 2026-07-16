@@ -235,8 +235,8 @@
 
       <div class="form-group" id="shopEditCodeGroup">
         <label>ตั้งรหัสแก้ไข (Shop Edit Code) <span class="required">*</span></label>
-        <input type="text" id="shopEditCode" placeholder="ตั้งรหัสของร้านคุณเอง เช่น meaelove2026" required>
-        <small>⚠️ ใช้รหัสนี้ + Shop ID (ที่ระบบจะออกให้หลังส่งฟอร์มสำเร็จ) สำหรับกลับมาแก้ไขหรือสร้างดีลใหม่ในอนาคต กรุณาจดบันทึกไว้ให้ดี</small>
+        <input type="text" id="shopEditCode" placeholder="ตั้งรหัสของร้านคุณเอง เช่น meaelove2026" minlength="6" required>
+        <small>⚠️ ใช้รหัสนี้ + Shop ID (ที่ระบบจะออกให้หลังส่งฟอร์มสำเร็จ) สำหรับกลับมาแก้ไขหรือสร้างดีลใหม่ในอนาคต กรุณาจดบันทึกไว้ให้ดี อย่างน้อย 6 ตัวอักษร</small>
       </div>
       <div class="form-group" id="addModeShopIdGroup" style="display:none;">
         <label>ร้านค้า</label>
@@ -256,7 +256,7 @@
           <input type="text" id="shopContact" placeholder="เช่น คุณสมชาย" required>
         </div>
         <div class="form-group">
-          <label>หมายเลขโทรศัพท์ติดต่อสะดวก <span class="required">*</span></label>
+          <label>หมายเลขโทรศัพท์ติดต่อสะดวก<span class="required">*</span></label>
           <input type="tel" id="shopPhone" placeholder="เช่น 0812345678" required>
         </div>
       </div>
@@ -450,6 +450,11 @@
     if (!shopName || (!addMode && !shopEditCode) || !shopLogoImage || !shopContact || !shopPhone ||
         !dealName || !dealDetail || !dealImage || !dealLimit || !startDisplayDate || !stopDisplayDate) {
       showAlert('กรุณากรอกข้อมูลให้ครบทุกช่องที่มี *', 'error');
+      return;
+    }
+
+    if (!addMode && shopEditCode.length < 6) {
+      showAlert('Shop Edit Code ต้องมีอย่างน้อย 6 ตัวอักษร', 'error');
       return;
     }
 
