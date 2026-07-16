@@ -147,10 +147,9 @@
 <div class="auth-overlay" id="authOverlay">
   <div class="auth-modal">
     <h3>✏️ แก้ไขข้อมูล</h3>
-    <p>กรอก Edit Code และชื่อ เพื่อยืนยันตัวตนก่อนแก้ไข</p>
+    <p>กรอก Edit Code เพื่อยืนยันตัวตนก่อนแก้ไข</p>
     <input type="text" id="authEditCode" placeholder="Edit Code">
-    <input type="text" id="authName" placeholder="ชื่อของคุณ">
-    <div class="auth-error" id="authError">Edit Code หรือชื่อไม่ถูกต้อง</div>
+    <div class="auth-error" id="authError">Edit Code ไม่ถูกต้อง</div>
     <div class="auth-actions">
       <button class="auth-cancel" onclick="closeAuthModal()">ยกเลิก</button>
       <button class="auth-confirm" id="authConfirmBtn" onclick="submitAuth()">ยืนยัน</button>
@@ -214,7 +213,7 @@ const MATCH_THRESHOLD = 70; // % ความเหมือนขั้นต�
 const params = new URLSearchParams(window.location.search);
 const personId = params.get('id');
 
-let currentProfile = null; // {id, name, avatar, q01..q30, staus}
+let currentProfile = null; // {id, name, avatar, q01..q30, status}
 let editMode = false;
 let pendingEditCode = null;
 
@@ -426,19 +425,17 @@ async function shareProfileLink(btn) {
 function openAuthModal() {
   document.getElementById('authError').style.display = 'none';
   document.getElementById('authEditCode').value = '';
-  document.getElementById('authName').value = '';
   document.getElementById('authOverlay').classList.add('open');
 }
 function closeAuthModal() { document.getElementById('authOverlay').classList.remove('open'); }
 
 async function submitAuth() {
   const editCode = document.getElementById('authEditCode').value.trim();
-  const name = document.getElementById('authName').value.trim();
   const errorBox = document.getElementById('authError');
   const confirmBtn = document.getElementById('authConfirmBtn');
 
-  if (!editCode || !name) {
-    errorBox.textContent = 'กรุณากรอกให้ครบทั้งสองช่อง';
+  if (!editCode) {
+    errorBox.textContent = 'กรุณากรอก Edit Code';
     errorBox.style.display = 'block';
     return;
   }
@@ -450,11 +447,11 @@ async function submitAuth() {
   try {
     const res = await fetch(SCRIPT_URL, {
       method: 'POST',
-      body: JSON.stringify({ action: 'fetch_by_edit_code', edit_code: editCode, name: name, id: personId })
+      body: JSON.stringify({ action: 'verifyEditCode', catId: personId, code: editCode })
     });
     const json = await res.json();
     if (!json.success) {
-      errorBox.textContent = 'Edit Code หรือชื่อไม่ถูกต้อง';
+      errorBox.textContent = 'Edit Code ไม่ถูกต้อง';
       errorBox.style.display = 'block';
       confirmBtn.disabled = false;
       confirmBtn.textContent = originalText;
