@@ -817,9 +817,31 @@
     height: 100%;
     object-fit: cover;
   }
+  .modal-owner-info .name-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
   .modal-owner-info .name {
     font-size: 20px;
     font-weight: 700;
+  }
+  .about-me-link {
+    display: inline-flex;
+    align-items: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent-dark);
+    background: var(--accent-light);
+    padding: 4px 10px;
+    border-radius: 20px;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .about-me-link:hover {
+    background: var(--accent);
+    color: #fff;
   }
   .modal-owner-info .job {
     font-size: 14px;
@@ -2163,7 +2185,7 @@ function openModal(id) {
   if (d.instagram) contacts.push('<a href="https://instagram.com/' + d.instagram.replace('@','') + '" target="_blank" class="contact-pill" title="Instagram">📷 Instagram</a>');
   if (d.x) contacts.push('<a href="https://x.com/' + d.x.replace('@','') + '" target="_blank" class="contact-pill" title="X">🐦 X</a>');
   contacts.push('<button class="contact-pill share-btn" onclick="shareProfile(\'' + d.id + '\')">🔗 Share</button>');
-  modal.innerHTML = '<div class="modal-owner"><div class="modal-owner-img">' + ownerPhoto + '</div><div class="modal-owner-info"><div class="name">' + (d.name || 'ไม่ระบุชื่อ') + '</div><div class="job">' + (d.job || '') + '</div><div class="district">📍 ' + (d.district || '') + '</div></div></div>' + (cats.length ? '<div class="modal-cats">' + catsHTML + '</div>' : '') + (d.caption ? '<div class="modal-caption">' + d.caption + '</div>' : '') + (contacts.length ? '<div class="modal-contact">' + contacts.join('') + '</div>' : '');
+  modal.innerHTML = '<div class="modal-owner"><div class="modal-owner-img">' + ownerPhoto + '</div><div class="modal-owner-info"><div class="name-row"><span class="name">' + (d.name || 'ไม่ระบุชื่อ') + '</span><a class="about-me-link" href="humanprofile.html?id=' + encodeURIComponent(d.id) + '" onclick="event.stopPropagation()">🧑 About Me</a></div><div class="job">' + (d.job || '') + '</div><div class="district">📍 ' + (d.district || '') + '</div></div></div>' + (cats.length ? '<div class="modal-cats">' + catsHTML + '</div>' : '') + (d.caption ? '<div class="modal-caption">' + d.caption + '</div>' : '') + (contacts.length ? '<div class="modal-contact">' + contacts.join('') + '</div>' : '');
   document.getElementById('modalOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
