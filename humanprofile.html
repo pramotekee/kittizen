@@ -498,7 +498,7 @@ async function runMatch() {
 function renderMatchWall(matches) {
   const area = document.getElementById('matchArea');
   if (matches.length === 0) {
-    area.innerHTML = `<div class="state-box"><div class="msg">ยังไม่เจอทาสที่คล้ายกันเกิน ${MATCH_THRESHOLD}% เลย ลองใหม่วันหลังนะ</div></div>`;
+    area.innerHTML = `<div class="state-box"><div class="msg">ยังไม่เจอทาสที่คล้ายกันเลย ลองใหม่วันหลังนะ</div></div>`;
     return;
   }
   const items = matches.map(m => `
