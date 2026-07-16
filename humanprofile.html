@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About Me — KITTIZEN</title>
+<meta property="og:title" content="About Me — KITTIZEN">
+<meta property="og:description" content="แต่ละคนเอียงไปทางไหน มาดูกัน 🐾">
+<meta property="og:image" content="https://kittizen.vercel.app/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Bungee+Shade&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FAF7F4;
+    --surface: #FFFCF9;
+    --accent: #F9B95C;
+    --accent-dark: #E8A043;
+    --accent-light: #FEF3E2;
+    --text-primary: #2C2420;
+    --text-secondary: #7A6E6A;
+    --tag-bg: #F0E8E4;
+    --border: #D2D2D7;
+    --card-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    --card-shadow-hover: 0 8px 28px rgba(0,0,0,0.12);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+  }
+  .app { max-width: 640px; margin: 0 auto; min-height: 100vh; padding: 20px 16px 60px; }
+
+  .topbar { display: flex; align-items: center; justify-content: space-between; padding: 4px 4px 20px; }
+  .topbar .brand { font-family: 'Bungee Shade', cursive; font-size: 15px; color: var(--accent-dark); letter-spacing: 1px; }
+  .back-link { font-size: 13px; color: var(--text-secondary); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+  .back-link:hover { color: var(--text-primary); }
+
+  .state-box { text-align: center; padding: 80px 20px; color: var(--text-secondary); }
+  .state-box .emoji { font-size: 40px; margin-bottom: 12px; }
+  .state-box .msg { font-size: 15px; }
+  .spinner { width: 32px; height: 32px; border: 3px solid var(--tag-bg); border-top-color: var(--accent); border-radius: 50%; margin: 0 auto 16px; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* HEADER CARD */
+  .profile-header { background: var(--surface); border-radius: 24px; box-shadow: var(--card-shadow); padding: 24px 20px; text-align: center; margin-bottom: 20px; }
+  .profile-header .avatar { width: 84px; height: 84px; border-radius: 50%; overflow: hidden; background: var(--tag-bg); margin: 0 auto 12px; border: 3px solid var(--accent-light); display: flex; align-items: center; justify-content: center; font-size: 34px; }
+  .profile-header .avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .profile-header .owner-name { font-size: 20px; font-weight: 700; }
+  .profile-header .owner-tag { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+
+  /* SLIDER ROWS */
+  .section { background: var(--surface); border-radius: 20px; box-shadow: var(--card-shadow); padding: 20px 18px; margin-bottom: 16px; }
+  .q-row { padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .q-row:last-child { border-bottom: none; }
+  .q-label { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; margin-bottom: 12px; }
+  .q-label .q-left { text-align: left; }
+  .q-label .q-right { text-align: right; }
+  .q-track {
+    position: relative; height: 8px; border-radius: 10px;
+    background: linear-gradient(to right, var(--accent-light), var(--tag-bg), var(--accent-light));
+    margin: 0 10px; touch-action: none;
+  }
+  .q-track.editable { cursor: pointer; }
+  .q-handle {
+    position: absolute; top: 50%; width: 22px; height: 22px; border-radius: 50%;
+    background: var(--accent); border: 3px solid #fff; box-shadow: var(--card-shadow);
+    transform: translate(-50%, -50%); transition: background 0.15s;
+  }
+  .q-track.editable .q-handle { cursor: grab; }
+  .q-track.editable .q-handle:active { cursor: grabbing; background: var(--accent-dark); }
+  .q-track.readonly .q-handle { background: var(--text-secondary); }
+  .q-hint { text-align: center; font-size: 12px; color: var(--text-secondary); margin: -4px 0 14px; }
+
+  /* BUTTONS */
+  .btn-row { display: flex; gap: 10px; margin-top: 18px; }
+  .btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 14px; border-radius: 16px; font-size: 14px; font-weight: 700; border: none; cursor: pointer; font-family: 'Inter', sans-serif; transition: background 0.15s; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-ghost { background: var(--accent-light); color: var(--accent-dark); }
+  .btn-ghost:hover { background: var(--accent); color: #fff; }
+  .btn-match { background: var(--text-primary); color: #fff; width: 100%; margin-top: 10px; }
+  .btn-match:hover { opacity: 0.85; }
+  .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+  .edit-btn-wrap { margin-top: 24px; }
+  .edit-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 14px; border-radius: 16px; background: var(--accent); color: #fff; font-size: 15px; font-weight: 700; border: none; cursor: pointer; font-family: 'Inter', sans-serif; }
+  .edit-btn:hover { background: var(--accent-dark); }
+  .edit-hint { text-align: center; font-size: 12px; color: var(--text-secondary); margin-top: 8px; }
+
+  /* AUTH MODAL */
+  .auth-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 500; align-items: center; justify-content: center; }
+  .auth-overlay.open { display: flex; }
+  .auth-modal { background: var(--surface); border-radius: 20px; width: 90%; max-width: 360px; padding: 24px; }
+  .auth-modal h3 { font-size: 17px; margin-bottom: 6px; }
+  .auth-modal p { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; }
+  .auth-modal input { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1.5px solid var(--border); font-size: 14px; margin-bottom: 10px; font-family: 'Inter', sans-serif; outline: none; }
+  .auth-modal input:focus { border-color: var(--accent); }
+  .auth-modal .auth-actions { display: flex; gap: 10px; margin-top: 6px; }
+  .auth-modal .auth-actions button { flex: 1; padding: 12px; border-radius: 12px; border: none; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; }
+  .auth-cancel { background: var(--tag-bg); color: var(--text-secondary); }
+  .auth-confirm { background: var(--accent); color: #fff; }
+  .auth-confirm:hover { background: var(--accent-dark); }
+  .auth-confirm:disabled { opacity: 0.75; cursor: not-allowed; }
+  .btn-spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid rgba(255,255,255,0.5); border-top-color: #fff; border-radius: 50%; animation: btn-spin 0.7s linear infinite; vertical-align: -2px; margin-right: 6px; }
+  @keyframes btn-spin { to { transform: rotate(360deg); } }
+  .auth-error { font-size: 12px; color: #E8734A; margin-top: -4px; margin-bottom: 10px; display: none; }
+
+  /* MATCH WALL */
+  .match-header { text-align: center; font-size: 15px; font-weight: 700; margin-bottom: 16px; }
+  .wall-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 14px; }
+  .wall-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+  .wall-item .thumb { width: 68px; height: 68px; border-radius: 50%; overflow: hidden; border: 3px solid var(--accent); background: var(--tag-bg); }
+  .wall-item .thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .wall-item .name { font-size: 11px; margin-top: 6px; text-align: center; font-weight: 600; }
+  .wall-item .pct { font-size: 10px; color: var(--accent-dark); font-weight: 700; }
+
+  /* CARD MODAL (tap wall item -> full card) */
+  .card-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 800; align-items: flex-start; justify-content: center; overflow-y: auto; padding: 30px 16px; }
+  .card-overlay.open { display: flex; }
+  .card-modal { background: var(--surface); border-radius: 20px; width: 100%; max-width: 480px; padding: 20px; position: relative; }
+  .card-close { position: absolute; top: 14px; right: 14px; width: 32px; height: 32px; border-radius: 50%; border: none; background: var(--tag-bg); font-size: 16px; cursor: pointer; }
+
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--text-primary); color: #fff; padding: 12px 20px; border-radius: 30px; font-size: 13px; opacity: 0; pointer-events: none; transition: all 0.25s ease; z-index: 900; white-space: nowrap; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="topbar">
+    <div class="brand">KITTIZEN</div>
+    <a href="index.html" class="back-link">← กลับหน้าหลัก</a>
+  </div>
+
+  <div id="content">
+    <div class="state-box" id="loadingState">
+      <div class="spinner"></div>
+      <div class="msg">กำลังโหลดข้อมูล...</div>
+    </div>
+  </div>
+</div>
+
+<!-- AUTH MODAL -->
+<div class="auth-overlay" id="authOverlay">
+  <div class="auth-modal">
+    <h3>✏️ แก้ไขข้อมูล</h3>
+    <p>กรอก Edit Code และชื่อ เพื่อยืนยันตัวตนก่อนแก้ไข</p>
+    <input type="text" id="authEditCode" placeholder="Edit Code">
+    <input type="text" id="authName" placeholder="ชื่อของคุณ">
+    <div class="auth-error" id="authError">Edit Code หรือชื่อไม่ถูกต้อง</div>
+    <div class="auth-actions">
+      <button class="auth-cancel" onclick="closeAuthModal()">ยกเลิก</button>
+      <button class="auth-confirm" id="authConfirmBtn" onclick="submitAuth()">ยืนยัน</button>
+    </div>
+  </div>
+</div>
+
+<!-- CARD MODAL for wall tap -->
+<div class="card-overlay" id="cardOverlay">
+  <div class="card-modal">
+    <button class="card-close" onclick="closeCardModal()">✕</button>
+    <div id="cardModalBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ⚠️ ต้องแก้เป็น URL จริงของ Apps Script Web App เดียวกับไฟล์อื่นๆ
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbylJXLg47otdgqZM6EwLma8AL1q5AEIsYe8uDOlNlTh9gOMOS7sHOgceX4l9h8ia3nGfg/exec';
+
+// ============================================================
+// 30 หัวข้อ About Me — {key, emoji ซ้าย, คำซ้าย, emoji ขวา, คำขวา}
+// เก็บค่าตำแหน่งเป็น 0-100 ต่อข้อ (float) ลงคอลัมน์ q01..q30
+// ============================================================
+const QUESTIONS = [
+  { key: 'q01', l: '🌅 Sunrise',            r: '🌃 Nightlife' },
+  { key: 'q02', l: '🤫 Introvert',          r: '🎉 Extrovert' },
+  { key: 'q03', l: '🏠 Home Addict',        r: '✈️ Traveller' },
+  { key: 'q04', l: '☕ Coffee',              r: '🍵 Tea' },
+  { key: 'q05', l: '🎁 Save Money',         r: '✨ Spend on Experience' },
+  { key: 'q06', l: '📖 Bookworm',           r: '🎬 Binge Watcher' },
+  { key: 'q07', l: '🛋️ Stay In',            r: '🌆 Go Out' },
+  { key: 'q08', l: '🚶 Walk Everywhere',    r: '🚗 Drive Everywhere' },
+  { key: 'q09', l: '🌳 Park Person',        r: '🏙️ Mall Person' },
+  { key: 'q10', l: '💻 Work From Café',     r: '🏢 Office Person' },
+  { key: 'q11', l: '🌊 Beach Escape',       r: '⛰️ Mountain Escape' },
+  { key: 'q12', l: '🍺 Enjoy Drinking',     r: '🍽️ Enjoy Eating' },
+  { key: 'q13', l: '📷 Take Photos',        r: '🧠 Live the Moment' },
+  { key: 'q14', l: '💬 Small Talk',         r: '❤️ Deep Talk' },
+  { key: 'q15', l: '📅 Plan Everything',    r: '🎲 Go With the Flow' },
+  { key: 'q16', l: '📸 Take Selfie',        r: '🌄 Take Scenery' },
+  { key: 'q17', l: '🌧️ Love Rain',          r: '☀️ Love Sunshine' },
+  { key: 'q18', l: '🧠 Logic',              r: '❤️ Emotion' },
+  { key: 'q19', l: '🧼 Clean Desk',         r: '🎨 Creative Mess' },
+  { key: 'q20', l: '🧍 Solo',               r: '👯 Squad' },
+  { key: 'q21', l: '👨‍👩‍👧 Family First',        r: '🧑‍🤝‍🧑 Friend First' },
+  { key: 'q22', l: '⏳ Live Today',         r: '🔭 Future Plan' },
+  { key: 'q23', l: '🎢 Love Uncertainty',   r: '⚖️ Keep Stability' },
+  { key: 'q24', l: '🦄 Stand Out',          r: '🐑 Fit In' },
+  { key: 'q25', l: '💰 Money First',        r: '🌟 Purpose First' },
+  { key: 'q26', l: '🔬 Specialist',         r: '🧩 Generalist' },
+  { key: 'q27', l: '🏛️ Corporate',          r: '🚀 Startup' },
+  { key: 'q28', l: '🎯 Done is Better',     r: '💎 Perfect is Great' },
+  { key: 'q29', l: '🌍 Curious',            r: '🧸 Comfortable' },
+  { key: 'q30', l: '🔥 Challenge Me',       r: '😌 Keep It Easy' }
+];
+
+const MATCH_THRESHOLD = 70; // % ความเหมือนขั้นต่ำที่ถือว่า match
+
+const params = new URLSearchParams(window.location.search);
+const personId = params.get('id');
+
+let currentProfile = null; // {id, name, avatar, q01..q30, staus}
+let editMode = false;
+let pendingEditCode = null;
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function renderError(msg) {
+  document.getElementById('content').innerHTML = `
+    <div class="state-box"><div class="emoji">⚠️</div><div class="msg">${msg}</div></div>`;
+}
+
+// ============================================================
+// LOAD
+// ============================================================
+async function loadProfile() {
+  if (!personId) { renderError('ไม่พบ id ในลิงก์ กรุณาตรวจสอบลิงก์อีกครั้ง'); return; }
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'human_profile_fetch', id: personId })
+    });
+    const json = await res.json();
+    if (!json.success) { renderError(json.error || 'ไม่พบข้อมูลโปรไฟล์'); return; }
+
+    if (!json.profile) {
+      renderEmptyState(json.owner_name || '', json.owner_avatar || '');
+      return;
+    }
+    currentProfile = json.profile;
+    renderView(currentProfile);
+  } catch (err) {
+    renderError('เกิดข้อผิดพลาดในการโหลดข้อมูล: ' + err.toString());
+  }
+}
+
+function renderEmptyState(ownerName, ownerAvatar) {
+  document.getElementById('content').innerHTML = `
+    <div class="profile-header">
+      <div class="avatar">${ownerAvatar ? `<img src="${ownerAvatar}">` : '🧑'}</div>
+      <div class="owner-name">${ownerName || ''}</div>
+    </div>
+    <div class="state-box">
+      <div class="msg">ยังไม่มีข้อมูล About Me ของทาสคนนี้</div>
+    </div>
+    <div class="edit-btn-wrap">
+      <button class="edit-btn" onclick="openAuthModal()">✏️ Update Profile</button>
+      <div class="edit-hint">แก้ไขได้เฉพาะเจ้าของโปรไฟล์เท่านั้น</div>
+    </div>`;
+}
+
+// ============================================================
+// VIEW MODE — แสดงตำแหน่ง handle แบบ read-only
+// ============================================================
+function renderView(p) {
+  const rows = QUESTIONS.map(q => sliderRowHtml(q, p[q.key], false)).join('');
+  document.getElementById('content').innerHTML = `
+    <div class="profile-header">
+      <div class="avatar">${p.avatar ? `<img src="${p.avatar}">` : '🧑'}</div>
+      <div class="owner-name">${p.name || ''}</div>
+      <div class="owner-tag">About Me</div>
+    </div>
+    <div class="section">${rows}</div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="shareProfileLink(this)">🔗 Share</button>
+      <button class="btn btn-primary" onclick="openAuthModal()">✏️ Edit</button>
+    </div>
+    <button class="btn btn-match" onclick="runMatch()">🔥 Match — หาทาสที่คล้ายกัน</button>
+    <div id="matchArea" style="margin-top:16px;"></div>`;
+  initReadonlyHandles();
+}
+
+function sliderRowHtml(q, value, editable) {
+  return `
+    <div class="q-row">
+      <div class="q-label"><span class="q-left">${q.l}</span><span class="q-right">${q.r}</span></div>
+      <div class="q-track ${editable ? 'editable' : 'readonly'}" data-key="${q.key}" data-value="${value != null ? value : 50}">
+        <div class="q-handle"></div>
+      </div>
+    </div>`;
+}
+
+function initReadonlyHandles() {
+  document.querySelectorAll('.q-track').forEach(track => positionHandle(track));
+  window.addEventListener('resize', () => document.querySelectorAll('.q-track').forEach(t => positionHandle(t)));
+}
+
+function positionHandle(track) {
+  const val = parseFloat(track.dataset.value) || 0;
+  const handle = track.querySelector('.q-handle');
+  handle.style.left = val + '%';
+}
+
+// ============================================================
+// EDIT MODE — ลากอิสระด้วย pointer events, ไม่ snap เป็นเลขกลม
+// ============================================================
+function enterEditMode() {
+  editMode = true;
+  const rows = QUESTIONS.map(q => sliderRowHtml(q, (currentProfile && currentProfile[q.key] != null) ? currentProfile[q.key] : 50, true)).join('');
+  document.getElementById('content').innerHTML = `
+    <div class="profile-header">
+      <div class="avatar">${currentProfile && currentProfile.avatar ? `<img src="${currentProfile.avatar}">` : '🧑'}</div>
+      <div class="owner-name">${(currentProfile && currentProfile.name) || ''}</div>
+      <div class="owner-tag">แตะค้างแล้วลากไปตามตำแหน่งที่ใช่ที่สุด</div>
+    </div>
+    <div class="section">${rows}</div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="renderView(currentProfile)">ยกเลิก</button>
+      <button class="btn btn-primary" id="saveProfileBtn" onclick="saveProfile()">💾 Save</button>
+    </div>`;
+  document.querySelectorAll('.q-track.editable').forEach(track => {
+    positionHandle(track);
+    bindDrag(track);
+  });
+}
+
+function bindDrag(track) {
+  const handle = track.querySelector('.q-handle');
+
+  function setFromClientX(clientX) {
+    const rect = track.getBoundingClientRect();
+    let pct = ((clientX - rect.left) / rect.width) * 100;
+    pct = Math.max(0, Math.min(100, pct));
+    track.dataset.value = pct.toFixed(2);
+    handle.style.left = pct + '%';
+  }
+
+  function onDown(e) {
+    e.preventDefault();
+    setFromClientX(e.touches ? e.touches[0].clientX : e.clientX);
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', onUp);
+  }
+  function onMove(e) { setFromClientX(e.clientX); }
+  function onUp() {
+    document.removeEventListener('pointermove', onMove);
+    document.removeEventListener('pointerup', onUp);
+  }
+
+  handle.addEventListener('pointerdown', onDown);
+  track.addEventListener('pointerdown', onDown); // แตะที่เส้นก็ลากได้เลย ไม่ต้องเล็งโดนจุดพอดี
+}
+
+// ============================================================
+// SAVE
+// ============================================================
+async function saveProfile() {
+  const btn = document.getElementById('saveProfileBtn');
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="btn-spinner"></span> กำลังบันทึก...';
+
+  const payload = {
+    action: 'human_profile_save',
+    id: personId,
+    edit_code: pendingEditCode
+  };
+  document.querySelectorAll('.q-track.editable').forEach(track => {
+    payload[track.dataset.key] = parseFloat(track.dataset.value);
+  });
+
+  try {
+    const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+    const json = await res.json();
+    if (!json.success) {
+      showToast(json.error || 'บันทึกไม่สำเร็จ');
+      btn.disabled = false;
+      btn.textContent = originalText;
+      return;
+    }
+    showToast('✅ บันทึกเรียบร้อยแล้ว');
+    editMode = false;
+    await loadProfile();
+  } catch (err) {
+    showToast('เกิดข้อผิดพลาด: ' + err.message);
+    btn.disabled = false;
+    btn.textContent = originalText;
+  }
+}
+
+// ============================================================
+// SHARE
+// ============================================================
+async function shareProfileLink(btn) {
+  const name = (currentProfile && currentProfile.name) || 'ทาสคนนี้';
+  const shareText = `About Me ของ '${name}'\n${window.location.href}`;
+  const originalText = btn.textContent;
+  try {
+    await navigator.clipboard.writeText(shareText);
+    btn.textContent = '✅ คัดลอกแล้ว';
+  } catch (err) {
+    const tempInput = document.createElement('textarea');
+    tempInput.value = shareText;
+    document.body.appendChild(tempInput);
+    tempInput.select();
+    document.execCommand('copy');
+    document.body.removeChild(tempInput);
+    btn.textContent = '✅ คัดลอกแล้ว';
+  }
+  setTimeout(() => { btn.textContent = originalText; }, 2000);
+}
+
+// ============================================================
+// AUTH (ก่อนเข้าโหมดแก้ไข) — ใช้ pattern เดียวกับ Cat Profile
+// ============================================================
+function openAuthModal() {
+  document.getElementById('authError').style.display = 'none';
+  document.getElementById('authEditCode').value = '';
+  document.getElementById('authName').value = '';
+  document.getElementById('authOverlay').classList.add('open');
+}
+function closeAuthModal() { document.getElementById('authOverlay').classList.remove('open'); }
+
+async function submitAuth() {
+  const editCode = document.getElementById('authEditCode').value.trim();
+  const name = document.getElementById('authName').value.trim();
+  const errorBox = document.getElementById('authError');
+  const confirmBtn = document.getElementById('authConfirmBtn');
+
+  if (!editCode || !name) {
+    errorBox.textContent = 'กรุณากรอกให้ครบทั้งสองช่อง';
+    errorBox.style.display = 'block';
+    return;
+  }
+  errorBox.style.display = 'none';
+  const originalText = confirmBtn.textContent;
+  confirmBtn.disabled = true;
+  confirmBtn.innerHTML = '<span class="btn-spinner"></span> กำลังตรวจสอบ...';
+
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'fetch_by_edit_code', edit_code: editCode, name: name, id: personId })
+    });
+    const json = await res.json();
+    if (!json.success) {
+      errorBox.textContent = 'Edit Code หรือชื่อไม่ถูกต้อง';
+      errorBox.style.display = 'block';
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = originalText;
+      return;
+    }
+    pendingEditCode = editCode;
+    closeAuthModal();
+    enterEditMode();
+  } catch (err) {
+    errorBox.textContent = 'เกิดข้อผิดพลาด กรุณาลองใหม่';
+    errorBox.style.display = 'block';
+    confirmBtn.disabled = false;
+    confirmBtn.textContent = originalText;
+  } finally {
+    confirmBtn.disabled = false;
+    confirmBtn.textContent = originalText;
+  }
+}
+
+// ============================================================
+// MATCH — หากลุ่มที่คล้ายกัน ≥70% ทุกข้อรวมกัน แล้วโชว์เป็น Wall
+// การคำนวณจริงทำฝั่ง backend (Apps Script) เทียบกับทุกคนใน sheet
+// ============================================================
+async function runMatch() {
+  const area = document.getElementById('matchArea');
+  area.innerHTML = '<div class="state-box"><div class="spinner"></div><div class="msg">กำลังหากลุ่มที่คล้ายกัน...</div></div>';
+
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'human_profile_match', id: personId, threshold: MATCH_THRESHOLD })
+    });
+    const json = await res.json();
+    if (!json.success) {
+      area.innerHTML = `<div class="state-box"><div class="msg">${json.error || 'ยังหากลุ่มไม่เจอ'}</div></div>`;
+      return;
+    }
+    renderMatchWall(json.matches || []);
+  } catch (err) {
+    area.innerHTML = `<div class="state-box"><div class="msg">เกิดข้อผิดพลาด: ${err.message}</div></div>`;
+  }
+}
+
+function renderMatchWall(matches) {
+  const area = document.getElementById('matchArea');
+  if (matches.length === 0) {
+    area.innerHTML = `<div class="state-box"><div class="msg">ยังไม่เจอทาสที่คล้ายกันเกิน ${MATCH_THRESHOLD}% เลย ลองใหม่วันหลังนะ</div></div>`;
+    return;
+  }
+  const items = matches.map(m => `
+    <div class="wall-item" onclick='openCardModal(${JSON.stringify(m).replace(/'/g, "&#39;")})'>
+      <div class="thumb">${m.avatar ? `<img src="${m.avatar}">` : '🧑'}</div>
+      <div class="name">${m.name || ''}</div>
+      <div class="pct">${m.match_pct}%</div>
+    </div>`).join('');
+  area.innerHTML = `
+    <div class="section">
+      <div class="match-header">👥 กลุ่มทาสที่มีความคล้ายคลึงกันจำนวน ${matches.length} คน</div>
+      <div class="wall-grid">${items}</div>
+    </div>`;
+}
+
+// ============================================================
+// CARD MODAL — เปิดการ์ดเต็มของคนที่แตะจาก Wall
+// ============================================================
+function openCardModal(person) {
+  const rows = QUESTIONS.map(q => sliderRowHtml(q, person[q.key], false)).join('');
+  document.getElementById('cardModalBody').innerHTML = `
+    <div class="profile-header">
+      <div class="avatar">${person.avatar ? `<img src="${person.avatar}">` : '🧑'}</div>
+      <div class="owner-name">${person.name || ''}</div>
+      <div class="owner-tag">คล้ายกัน ${person.match_pct}%</div>
+    </div>
+    <div class="section">${rows}</div>`;
+  document.getElementById('cardOverlay').classList.add('open');
+  document.querySelectorAll('#cardModalBody .q-track').forEach(t => positionHandle(t));
+}
+function closeCardModal() { document.getElementById('cardOverlay').classList.remove('open'); }
+
+loadProfile();
+</script>
+</body>
+</html>
