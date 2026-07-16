@@ -404,6 +404,16 @@ async function shareProfileLink(btn) {
   const name = (currentProfile && currentProfile.name) || 'ทาสคนนี้';
   const shareText = `About Me ของ '${name}'\n${window.location.href}`;
   const originalText = btn.textContent;
+
+  if (navigator.share) {
+    try {
+      await navigator.share({ text: shareText });
+      return;
+    } catch (err) {
+      // ผู้ใช้กดยกเลิก share sheet หรือ share ไม่ผ่าน — fallback ไป copy link แทน
+    }
+  }
+
   try {
     await navigator.clipboard.writeText(shareText);
     btn.textContent = '✅ คัดลอกแล้ว';
