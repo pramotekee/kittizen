@@ -537,6 +537,9 @@
 <script>
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbylJXLg47otdgqZM6EwLma8AL1q5AEIsYe8uDOlNlTh9gOMOS7sHOgceX4l9h8ia3nGfg/exec';
 
+  // ตั้งเป็น true เมื่อต้องการโชว์ "เหลือ X สิทธิ์" บนการ์ดอีกครั้ง (เช่น ตอนทำระบบ Max สิทธิ์ต่อดีลแบบเข้มงวด)
+  const SHOW_REMAINING_COUNT = false;
+
   let activeDeals = [];
   let selectedDeal = null;
 
@@ -624,7 +627,7 @@
             <button class="see-more-btn" data-deal-id="${deal.deal_id}" data-role="see-more">อ่านเพิ่มเติม</button>
             <div class="deal-meta">
               <span>หมดเขต ${stopDate}</span>
-              <span>${isFull ? 'เต็มแล้ว' : 'เหลือ ' + remaining + ' สิทธิ์'}</span>
+              <span>${isFull ? 'เต็มแล้ว' : (SHOW_REMAINING_COUNT ? 'เหลือ ' + remaining + ' สิทธิ์' : '')}</span>
             </div>
             <div class="deal-actions">
               <button class="btn-claim" data-deal-id="${deal.deal_id}" ${isFull ? 'disabled' : ''}>
