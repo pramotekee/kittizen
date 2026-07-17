@@ -291,12 +291,12 @@ function renderView(p) {
       <button class="btn btn-ghost" onclick="shareProfileLink(this)">🔗 Share</button>
       <button class="btn btn-primary" onclick="openAuthModal()">✏️ Edit</button>
     </div>
-    <div class="q-hint" style="margin-top:18px;">🔥 มีทาสคนไหนที่คล้ายเราบ้างนะ</div>
+    <div class="q-hint" style="margin-top:18px;">🔥 มีทาสคนไหนที่คล้าย หรือต่างจากเราบ้างนะ</div>
     <div class="match-modes">
-      <button class="btn-mode" data-mode="super_same" onclick="runMatch('super_same')">🔥 คล้ายมากๆ</button>
-      <button class="btn-mode" data-mode="most_same" onclick="runMatch('most_same')">👥 คล้ายกัน</button>
-      <button class="btn-mode" data-mode="most_diff" onclick="runMatch('most_diff')">🔄 ต่างกัน</button>
-      <button class="btn-mode" data-mode="super_diff" onclick="runMatch('super_diff')">🌍 ต่างมากๆ</button>
+      <button class="btn-mode" data-mode="super_same" onclick="runMatch('super_same')">🔥 คล้ายเรามากๆ</button>
+      <button class="btn-mode" data-mode="most_same" onclick="runMatch('most_same')">👥 คล้ายกับเรา</button>
+      <button class="btn-mode" data-mode="most_diff" onclick="runMatch('most_diff')">🔄 ต่างกับเรา</button>
+      <button class="btn-mode" data-mode="super_diff" onclick="runMatch('super_diff')">🌍 ต่างกับเรามากๆ</button>
     </div>
     <div id="matchArea" style="margin-top:16px;"></div>`;
   initReadonlyHandles();
@@ -502,10 +502,10 @@ async function submitAuth() {
 // การคำนวณจริงทำฝั่ง backend (Apps Script) เทียบกับทุกคนใน sheet
 // ============================================================
 const MATCH_MODE_LABEL = {
-  super_same: { btn: '🔥 คล้ายมากๆ', header: (n) => `มีคนที่ลักษณะคล้ายคุณมากๆ <b>${n}</b> คน`, empty: 'ยังไม่เจอใครที่คล้ายคุณมากขนาดนั้นเลย ลองโหมดอื่นดูนะ' },
-  most_same:  { btn: '👥 คล้ายกัน',   header: (n) => `มีคนที่ลักษณะคล้ายคุณ <b>${n}</b> คน`,     empty: 'ยังไม่เจอทาสที่คล้ายกันเลย ลองใหม่วันหลังนะ' },
-  most_diff:  { btn: '🔄 ต่างกัน',    header: (n) => `มีคนที่ลักษณะต่างจากคุณ <b>${n}</b> คน`,   empty: 'ยังไม่เจอใครที่ต่างจากคุณเลย ลองโหมดอื่นดูนะ' },
-  super_diff: { btn: '🌍 ต่างมากๆ',   header: (n) => `มีคนที่ลักษณะต่างจากคุณมากๆ <b>${n}</b> คน`, empty: 'ยังไม่เจอใครที่ต่างจากคุณมากขนาดนั้นเลย ลองโหมดอื่นดูนะ' }
+  super_same: { btn: '🔥 คล้ายเรามากๆ', header: (n) => `มีคนที่ลักษณะคล้ายคุณมากๆ <b>${n}</b> คน`, empty: 'ยังไม่เจอใครที่คล้ายคุณมากขนาดนั้นเลย ลองโหมดอื่นดูนะ' },
+  most_same:  { btn: '👥 คล้ายกับเรา',   header: (n) => `มีคนที่ลักษณะคล้ายคุณ <b>${n}</b> คน`,     empty: 'ยังไม่เจอใครที่คล้ายกันเลย ลองโหมดอื่นดูนะ' },
+  most_diff:  { btn: '🔄 ต่างกับเรา',    header: (n) => `มีคนที่ลักษณะต่างจากคุณ <b>${n}</b> คน`,   empty: 'ยังไม่เจอใครที่ต่างจากคุณเลย ลองโหมดอื่นดูนะ' },
+  super_diff: { btn: '🌍 ต่างกับเรามากๆ',   header: (n) => `มีคนที่ลักษณะต่างจากคุณมากๆ <b>${n}</b> คน`, empty: 'ยังไม่เจอใครที่ต่างจากคุณมากขนาดนั้นเลย ลองโหมดอื่นดูนะ' }
 };
 let currentMatchMode = null;
 
