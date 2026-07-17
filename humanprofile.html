@@ -62,7 +62,7 @@
   .q-track {
     position: relative; height: 8px; border-radius: 10px;
     background: linear-gradient(to right, var(--accent-light), var(--tag-bg), var(--accent-light));
-    margin: 0 10px; touch-action: none;
+    margin: 0 10px;
   }
   .q-track.editable { cursor: pointer; }
   .q-handle {
@@ -70,6 +70,7 @@
     background: var(--accent); border: 3px solid #fff; box-shadow: var(--card-shadow);
     transform: translate(-50%, -50%); transition: background 0.15s;
   }
+  .q-track.editable .q-handle { touch-action: none; }
   .q-track.editable .q-handle { cursor: grab; }
   .q-track.editable .q-handle:active { cursor: grabbing; background: var(--accent-dark); }
   .q-track.readonly .q-handle { background: var(--text-secondary); }
@@ -346,7 +347,7 @@ function bindDrag(track) {
 
   function onDown(e) {
     e.preventDefault();
-    setFromClientX(e.touches ? e.touches[0].clientX : e.clientX);
+    setFromClientX(e.clientX);
     document.addEventListener('pointermove', onMove);
     document.addEventListener('pointerup', onUp);
   }
@@ -356,8 +357,10 @@ function bindDrag(track) {
     document.removeEventListener('pointerup', onUp);
   }
 
+  // เฉพาะ handle เท่านั้นที่เริ่มลากได้ — ห้ามผูกกับทั้ง track อีก เพราะ
+  // นิ้วที่แค่ปาดสกอลหน้าจอผ่านแนว track จะโดนตีความเป็นการลาก ทำให้
+  // ค่าถูกเซ็ตแบบสุ่มโดยที่ผู้ใช้ไม่ได้ตั้งใจแตะสไลเดอร์นั้นเลย
   handle.addEventListener('pointerdown', onDown);
-  track.addEventListener('pointerdown', onDown); // แตะที่เส้นก็ลากได้เลย ไม่ต้องเล็งโดนจุดพอดี
 }
 
 // ============================================================
