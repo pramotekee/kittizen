@@ -109,7 +109,15 @@
   @keyframes btn-spin { to { transform: rotate(360deg); } }
   .auth-error { font-size: 12px; color: #E8734A; margin-top: -4px; margin-bottom: 10px; display: none; }
 
+  /* MATCH MODE BUTTONS */
+  .match-modes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 18px; }
+  .btn-mode { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 13px 8px; border-radius: 14px; font-size: 13px; font-weight: 700; border: none; cursor: pointer; font-family: 'Inter', sans-serif; background: var(--accent-light); color: var(--accent-dark); transition: background 0.15s, color 0.15s; text-align: center; }
+  .btn-mode:hover { background: var(--accent); color: #fff; }
+  .btn-mode.active { background: var(--text-primary); color: #fff; }
+
   /* MATCH WALL */
+  .match-count { text-align: center; font-size: 14px; font-weight: 600; color: var(--text-secondary); margin-bottom: 10px; }
+  .match-count b { color: var(--accent-dark); }
   .match-header { text-align: center; font-size: 15px; font-weight: 700; margin-bottom: 16px; }
   .wall-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 14px; }
   .wall-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
@@ -209,8 +217,6 @@ const QUESTIONS = [
   { key: 'q30', l: '🔥 Challenge Me',       r: '😌 Keep It Easy' }
 ];
 
-const MATCH_THRESHOLD = 70; // % ความเหมือนขั้นต่ำที่ถือว่า match
-
 const params = new URLSearchParams(window.location.search);
 const personId = params.get('id');
 
@@ -285,7 +291,13 @@ function renderView(p) {
       <button class="btn btn-ghost" onclick="shareProfileLink(this)">🔗 Share</button>
       <button class="btn btn-primary" onclick="openAuthModal()">✏️ Edit</button>
     </div>
-    <button class="btn btn-match" onclick="runMatch()">🔥 มีทาสคนไหนที่คล้ายเราบ้างนะ</button>
+    <div class="q-hint" style="margin-top:18px;">🔥 มีทาสคนไหนที่คล้ายเราบ้างนะ</div>
+    <div class="match-modes">
+      <button class="btn-mode" data-mode="super_same" onclick="runMatch('super_same')">🔥 คล้ายมากๆ</button>
+      <button class="btn-mode" data-mode="most_same" onclick="runMatch('most_same')">👥 คล้ายกัน</button>
+      <button class="btn-mode" data-mode="most_diff" onclick="runMatch('most_diff')">🔄 ต่างกัน</button>
+      <button class="btn-mode" data-mode="super_diff" onclick="runMatch('super_diff')">🌍 ต่างมากๆ</button>
+    </div>
     <div id="matchArea" style="margin-top:16px;"></div>`;
   initReadonlyHandles();
 }
@@ -485,44 +497,59 @@ async function submitAuth() {
 }
 
 // ============================================================
-// MATCH — หากลุ่มที่คล้ายกัน ≥70% ทุกข้อรวมกัน แล้วโชว์เป็น Wall
+// MATCH — เลือกได้ 4 โหมด (คล้ายมากๆ / คล้ายกัน / ต่างกัน / ต่างมากๆ)
+// เกณฑ์คิดจากค่าเฉลี่ยความเหมือน/ต่างรวมทั้ง 30 ข้อ (ไม่ใช่ทีละข้อ)
 // การคำนวณจริงทำฝั่ง backend (Apps Script) เทียบกับทุกคนใน sheet
 // ============================================================
-async function runMatch() {
+const MATCH_MODE_LABEL = {
+  super_same: { btn: '🔥 คล้ายมากๆ', header: (n) => `มีคนที่ลักษณะคล้ายคุณมากๆ <b>${n}</b> คน`, empty: 'ยังไม่เจอใครที่คล้ายคุณมากขนาดนั้นเลย ลองโหมดอื่นดูนะ' },
+  most_same:  { btn: '👥 คล้ายกัน',   header: (n) => `มีคนที่ลักษณะคล้ายคุณ <b>${n}</b> คน`,     empty: 'ยังไม่เจอทาสที่คล้ายกันเลย ลองใหม่วันหลังนะ' },
+  most_diff:  { btn: '🔄 ต่างกัน',    header: (n) => `มีคนที่ลักษณะต่างจากคุณ <b>${n}</b> คน`,   empty: 'ยังไม่เจอใครที่ต่างจากคุณเลย ลองโหมดอื่นดูนะ' },
+  super_diff: { btn: '🌍 ต่างมากๆ',   header: (n) => `มีคนที่ลักษณะต่างจากคุณมากๆ <b>${n}</b> คน`, empty: 'ยังไม่เจอใครที่ต่างจากคุณมากขนาดนั้นเลย ลองโหมดอื่นดูนะ' }
+};
+let currentMatchMode = null;
+
+async function runMatch(mode) {
+  currentMatchMode = mode;
+  document.querySelectorAll('.btn-mode').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+
   const area = document.getElementById('matchArea');
-  area.innerHTML = '<div class="state-box"><div class="spinner"></div><div class="msg">กำลังหากลุ่มที่คล้ายกัน...</div></div>';
+  area.innerHTML = '<div class="state-box"><div class="spinner"></div><div class="msg">กำลังหากลุ่ม...</div></div>';
 
   try {
     const res = await fetch(SCRIPT_URL, {
       method: 'POST',
-      body: JSON.stringify({ action: 'human_profile_match', id: personId, threshold: MATCH_THRESHOLD })
+      body: JSON.stringify({ action: 'human_profile_match', id: personId, mode: mode })
     });
     const json = await res.json();
     if (!json.success) {
       area.innerHTML = `<div class="state-box"><div class="msg">${json.error || 'ยังหากลุ่มไม่เจอ'}</div></div>`;
       return;
     }
-    renderMatchWall(json.matches || []);
+    renderMatchWall(json.matches || [], mode);
   } catch (err) {
     area.innerHTML = `<div class="state-box"><div class="msg">เกิดข้อผิดพลาด: ${err.message}</div></div>`;
   }
 }
 
-function renderMatchWall(matches) {
+function renderMatchWall(matches, mode) {
   const area = document.getElementById('matchArea');
+  const label = MATCH_MODE_LABEL[mode] || MATCH_MODE_LABEL.most_same;
+  const isDiffMode = (mode === 'most_diff' || mode === 'super_diff');
+
   if (matches.length === 0) {
-    area.innerHTML = `<div class="state-box"><div class="msg">ยังไม่เจอทาสที่คล้ายกันเลย ลองใหม่วันหลังนะ</div></div>`;
+    area.innerHTML = `<div class="state-box"><div class="msg">${label.empty}</div></div>`;
     return;
   }
   const items = matches.map(m => `
     <div class="wall-item" onclick='openCardModal(${JSON.stringify(m).replace(/'/g, "&#39;")})'>
       <div class="thumb">${m.avatar ? `<img src="${m.avatar}">` : '🧑'}</div>
       <div class="name">${m.name || ''}</div>
-      <div class="pct">${m.match_pct}%</div>
+      <div class="pct">${isDiffMode ? m.diff_pct : m.match_pct}%</div>
     </div>`).join('');
   area.innerHTML = `
+    <div class="match-count">${label.header(matches.length)}</div>
     <div class="section">
-      <div class="match-header">👥 กลุ่มทาสที่มีความคล้ายคลึงกันจำนวน ${matches.length} คน</div>
       <div class="wall-grid">${items}</div>
     </div>`;
 }
@@ -536,7 +563,7 @@ function openCardModal(person) {
     <div class="profile-header">
       <div class="avatar">${person.avatar ? `<img src="${person.avatar}">` : '🧑'}</div>
       <div class="owner-name">${person.name || ''}</div>
-      <div class="owner-tag">คล้ายกัน ${person.match_pct}%</div>
+      <div class="owner-tag">${(currentMatchMode === 'most_diff' || currentMatchMode === 'super_diff') ? `ต่างกัน ${person.diff_pct}%` : `คล้ายกัน ${person.match_pct}%`}</div>
     </div>
     <div class="section">${rows}</div>`;
   document.getElementById('cardOverlay').classList.add('open');
