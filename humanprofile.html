@@ -340,7 +340,7 @@ function bindDrag(track) {
   function setFromClientX(clientX) {
     const rect = track.getBoundingClientRect();
     let pct = ((clientX - rect.left) / rect.width) * 100;
-    pct = Math.max(0, Math.min(100, pct));
+    pct = Math.max(1, Math.min(100, pct));
     track.dataset.value = pct.toFixed(2);
     handle.style.left = pct + '%';
   }
