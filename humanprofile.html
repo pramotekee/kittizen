@@ -49,8 +49,12 @@
   .profile-header { background: var(--surface); border-radius: 24px; box-shadow: var(--card-shadow); padding: 24px 20px; text-align: center; margin-bottom: 20px; }
   .profile-header .avatar { width: 84px; height: 84px; border-radius: 50%; overflow: hidden; background: var(--tag-bg); margin: 0 auto 12px; border: 3px solid var(--accent-light); display: flex; align-items: center; justify-content: center; font-size: 34px; }
   .profile-header .avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .profile-header .avatar.clickable img { cursor: zoom-in; transition: opacity 0.15s; }
+  .profile-header .avatar.clickable img:hover { opacity: 0.85; }
   .profile-header .owner-name { font-size: 20px; font-weight: 700; }
   .profile-header .owner-tag { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+  .see-more-link { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; color: var(--accent-dark); background: var(--accent-light); padding: 6px 16px; border-radius: 20px; text-decoration: none; margin-top: 10px; transition: all 0.15s; }
+  .see-more-link:hover { background: var(--accent); color: #fff; }
 
   /* SLIDER ROWS */
   .section { background: var(--surface); border-radius: 20px; box-shadow: var(--card-shadow); padding: 20px 18px; margin-bottom: 16px; }
@@ -115,6 +119,23 @@
   .btn-mode:hover { background: var(--accent); color: #fff; }
   .btn-mode.active { background: var(--text-primary); color: #fff; }
 
+  /* แยกสีตามกลุ่ม: super_same = ชมพู, most_same = ฟ้า, most_diff = เขียว, super_diff = ม่วง */
+  .btn-mode[data-mode="super_same"] { background: #FCE1EC; color: #C2266F; }
+  .btn-mode[data-mode="super_same"]:hover { background: #F472A0; color: #fff; }
+  .btn-mode[data-mode="super_same"].active { background: #D6266F; color: #fff; }
+
+  .btn-mode[data-mode="most_same"] { background: #DFEEFC; color: #1C6FB0; }
+  .btn-mode[data-mode="most_same"]:hover { background: #5FA8E0; color: #fff; }
+  .btn-mode[data-mode="most_same"].active { background: #1C6FB0; color: #fff; }
+
+  .btn-mode[data-mode="most_diff"] { background: #DFF3E6; color: #218848; }
+  .btn-mode[data-mode="most_diff"]:hover { background: #5FC585; color: #fff; }
+  .btn-mode[data-mode="most_diff"].active { background: #218848; color: #fff; }
+
+  .btn-mode[data-mode="super_diff"] { background: #EBE1FA; color: #6B3FB0; }
+  .btn-mode[data-mode="super_diff"]:hover { background: #A87FE0; color: #fff; }
+  .btn-mode[data-mode="super_diff"].active { background: #6B3FB0; color: #fff; }
+
   /* MATCH WALL */
   .match-count { text-align: center; font-size: 14px; font-weight: 600; color: var(--text-secondary); margin-bottom: 10px; }
   .match-count b { color: var(--accent-dark); }
@@ -134,6 +155,13 @@
 
   .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--text-primary); color: #fff; padding: 12px 20px; border-radius: 30px; font-size: 13px; opacity: 0; pointer-events: none; transition: all 0.25s ease; z-index: 900; white-space: nowrap; }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* LIGHTBOX — ขยายรูปโปรไฟล์ */
+  .lightbox-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 950; align-items: center; justify-content: center; cursor: zoom-out; }
+  .lightbox-overlay.open { display: flex; }
+  .lightbox-img { max-width: 90%; max-height: 85vh; border-radius: 12px; object-fit: contain; cursor: default; }
+  .lightbox-close { position: absolute; top: 20px; right: 20px; width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,0.12); border: none; color: #fff; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+  .lightbox-close:hover { background: rgba(255,255,255,0.25); }
 </style>
 </head>
 <body>
@@ -175,6 +203,12 @@
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox-overlay" id="lightboxOverlay" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="event.stopPropagation();closeLightbox()">✕</button>
+  <img class="lightbox-img" id="lightboxImg" src="" alt="รูปโปรไฟล์" onclick="event.stopPropagation()">
+</div>
 
 <script>
 // ⚠️ ต้องแก้เป็น URL จริงของ Apps Script Web App เดียวกับไฟล์อื่นๆ
@@ -263,8 +297,10 @@ async function loadProfile() {
 function renderEmptyState(ownerName, ownerAvatar) {
   document.getElementById('content').innerHTML = `
     <div class="profile-header">
-      <div class="avatar">${ownerAvatar ? `<img src="${ownerAvatar}">` : '🧑'}</div>
+      <div class="avatar ${ownerAvatar ? 'clickable' : ''}">${ownerAvatar ? `<img src="${ownerAvatar}" onclick="openLightboxProfile('${ownerAvatar.replace(/'/g, "\\'")}')">` : '🧑'}</div>
       <div class="owner-name">${ownerName || ''}</div>
+      <div class="owner-tag">About Me</div>
+      <a class="see-more-link" href="index.html?id=${encodeURIComponent(personId)}">🐱 See more</a>
     </div>
     <div class="state-box">
       <div class="msg">ยังไม่มีข้อมูล About Me ของทาสคนนี้</div>
@@ -282,9 +318,10 @@ function renderView(p) {
   const rows = QUESTIONS.map(q => sliderRowHtml(q, p[q.key], false)).join('');
   document.getElementById('content').innerHTML = `
     <div class="profile-header">
-      <div class="avatar">${p.avatar ? `<img src="${p.avatar}">` : '🧑'}</div>
+      <div class="avatar ${p.avatar ? 'clickable' : ''}">${p.avatar ? `<img src="${p.avatar}" onclick="openLightboxProfile('${p.avatar.replace(/'/g, "\\'")}')">` : '🧑'}</div>
       <div class="owner-name">${p.name || ''}</div>
       <div class="owner-tag">About Me</div>
+      <a class="see-more-link" href="index.html?id=${encodeURIComponent(personId)}">🐱 See more</a>
     </div>
     <div class="section">${rows}</div>
     <div class="btn-row">
@@ -331,7 +368,7 @@ function enterEditMode() {
   const rows = QUESTIONS.map(q => sliderRowHtml(q, (currentProfile && currentProfile[q.key] != null) ? currentProfile[q.key] : 50, true)).join('');
   document.getElementById('content').innerHTML = `
     <div class="profile-header">
-      <div class="avatar">${currentProfile && currentProfile.avatar ? `<img src="${currentProfile.avatar}">` : '🧑'}</div>
+      <div class="avatar ${currentProfile && currentProfile.avatar ? 'clickable' : ''}">${currentProfile && currentProfile.avatar ? `<img src="${currentProfile.avatar}" onclick="openLightboxProfile('${currentProfile.avatar.replace(/'/g, "\\'")}')">` : '🧑'}</div>
       <div class="owner-name">${(currentProfile && currentProfile.name) || ''}</div>
       <div class="owner-tag">แตะค้างแล้วลากไปตามตำแหน่งที่ใช่ที่สุด</div>
     </div>
@@ -561,7 +598,7 @@ function openCardModal(person) {
   const rows = QUESTIONS.map(q => sliderRowHtml(q, person[q.key], false)).join('');
   document.getElementById('cardModalBody').innerHTML = `
     <div class="profile-header">
-      <div class="avatar">${person.avatar ? `<img src="${person.avatar}">` : '🧑'}</div>
+      <div class="avatar ${person.avatar ? 'clickable' : ''}">${person.avatar ? `<img src="${person.avatar}" onclick="openLightboxProfile('${person.avatar.replace(/'/g, "\\'")}')">` : '🧑'}</div>
       <div class="owner-name">${person.name || ''}</div>
       <div class="owner-tag">${(currentMatchMode === 'most_diff' || currentMatchMode === 'super_diff') ? `ต่างกัน ${person.diff_pct}%` : `คล้ายกัน ${person.match_pct}%`}</div>
     </div>
@@ -570,6 +607,18 @@ function openCardModal(person) {
   document.querySelectorAll('#cardModalBody .q-track').forEach(t => positionHandle(t));
 }
 function closeCardModal() { document.getElementById('cardOverlay').classList.remove('open'); }
+
+// ============================================================
+// LIGHTBOX — แตะรูปโปรไฟล์เพื่อขยายดูชัดๆ
+// ============================================================
+function openLightboxProfile(url) {
+  if (!url) return;
+  document.getElementById('lightboxImg').src = url;
+  document.getElementById('lightboxOverlay').classList.add('open');
+}
+function closeLightbox() {
+  document.getElementById('lightboxOverlay').classList.remove('open');
+}
 
 loadProfile();
 </script>
