@@ -201,6 +201,38 @@
   .dp-perf-stat { background: var(--surface); border-radius: 12px; padding: 10px 6px; text-align: center; }
   .dp-perf-stat .num { font-size: 20px; font-weight: 700; line-height: 1.1; }
   .dp-perf-stat .lbl { font-size: 10px; color: var(--text-secondary); margin-top: 2px; }
+
+  /* INFO ICON + TOOLTIP — คำอธิบาย Conversion */
+  .dp-perf-stat .lbl-wrap { display: flex; align-items: center; justify-content: center; gap: 3px; position: relative; }
+  .info-icon {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--text-secondary); color: #fff;
+    font-size: 9px; font-weight: 700; font-style: normal;
+    cursor: pointer; flex-shrink: 0; user-select: none;
+    font-family: 'Inter', sans-serif;
+  }
+  .info-icon:hover { background: var(--accent); }
+  .info-tooltip {
+    display: none;
+    position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+    margin-bottom: 8px;
+    background: #1F1B18; color: #F5F5F0;
+    border-radius: 14px; padding: 14px 16px;
+    font-size: 12px; line-height: 1.6; text-align: left;
+    width: 260px; max-width: 80vw;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    z-index: 50;
+  }
+  .info-tooltip.open { display: block; }
+  .info-tooltip strong { color: #fff; }
+  .info-tooltip .tip-title { font-weight: 700; font-size: 13px; margin-bottom: 6px; display: block; }
+  .info-tooltip .tip-close {
+    position: absolute; top: 8px; right: 10px;
+    background: none; border: none; color: #F5F5F0;
+    font-size: 14px; cursor: pointer; opacity: 0.6; padding: 0;
+  }
+  .info-tooltip .tip-close:hover { opacity: 1; }
   .dp-perf-verdict { background: #FFF9DB; border-radius: 12px; padding: 12px 14px; display: flex; align-items: center; gap: 10px; }
   .dp-perf-verdict .verdict-title { font-size: 15px; font-weight: 700; white-space: nowrap; }
   .dp-perf-verdict .verdict-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.4; }
@@ -579,7 +611,30 @@
     };
   }
 
+  // ============================================================
+  // INFO TOOLTIP — เปิด/ปิดคำอธิบาย Conversion
+  // ============================================================
+  function toggleConversionInfo(dealId, evt) {
+    if (evt) evt.stopPropagation();
+    document.querySelectorAll('.info-tooltip.open').forEach(function (el) {
+      if (el.id !== 'convInfo_' + dealId) el.classList.remove('open');
+    });
+    const tip = document.getElementById('convInfo_' + dealId);
+    if (tip) tip.classList.toggle('open');
+  }
+
+  function closeConversionInfo(dealId, evt) {
+    if (evt) evt.stopPropagation();
+    const tip = document.getElementById('convInfo_' + dealId);
+    if (tip) tip.classList.remove('open');
+  }
+
+  document.addEventListener('click', function () {
+    document.querySelectorAll('.info-tooltip.open').forEach(function (el) { el.classList.remove('open'); });
+  });
+
   function dealPerformanceHtml(deal) {
+
     const p = computeDealPerformance(deal);
     return `
       <div class="dp-performance">
@@ -588,7 +643,22 @@
           <div class="dp-perf-stat"><div class="num">${p.dealLimit}</div><div class="lbl">ทั้งหมด</div></div>
           <div class="dp-perf-stat"><div class="num">${p.redeemedCount}</div><div class="lbl">กดรับ</div></div>
           <div class="dp-perf-stat"><div class="num">${p.usedCount}</div><div class="lbl">มาใช้</div></div>
-          <div class="dp-perf-stat"><div class="num">${p.convPct}%</div><div class="lbl">Conversion</div></div>
+          <div class="dp-perf-stat">
+            <div class="num">${p.convPct}%</div>
+            <div class="lbl-wrap">
+              <div class="lbl">Conversion</div>
+              <span class="info-icon" onclick="toggleConversionInfo('${deal.deal_id}', event)">i</span>
+              <div class="info-tooltip" id="convInfo_${deal.deal_id}">
+                <button class="tip-close" onclick="closeConversionInfo('${deal.deal_id}', event)">✕</button>
+                <span class="tip-title">Conversion คืออะไร</span>
+                คือ % ของคนที่ "กดรับดีลไปแล้ว นำมาใช้จริง"<br><br>
+                วัดว่าคนที่ "กดรับดีล" ไปแล้ว สุดท้ายเดินทางมาใช้สิทธิ์ที่ร้านจริงกี่คน<br><br>
+                <strong>วิธีคิด:</strong> (จำนวนคนมาใช้ ÷ จำนวนคนกดรับ) × 100<br><br>
+                เช่น มีคนกดรับดีล 100 คน มาใช้ที่ร้านจริง 20 คน → Conversion 20%<br><br>
+                ยิ่งเลขนี้สูง แปลว่าคนที่รับดีลไปแล้วไม่ทิ้งดีล ตั้งใจมาใช้จริงๆ นะ
+              </div>
+            </div>
+          </div>
         </div>
         <div class="dp-perf-verdict">
           <div class="verdict-title">${p.verdict.emoji} ${p.verdict.title}</div>
