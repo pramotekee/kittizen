@@ -974,6 +974,34 @@
       const result = await res.json();
 
       if (result.success) {
+        // อัพเดตค่าใน currentDeals ให้ตรงกับที่เพิ่งบันทึกไปทันที ไม่ต้องรอ refetch/refresh หน้า
+        // (ก่อนหน้านี้ไม่มีบรรทัดนี้ ทำให้การ์ด Deal Performance และ deal picker ยังโชว์เลขเก่าค้างอยู่
+        // จนกว่าจะออกไปค้นหาใหม่ ทำให้ร้านค้าคิดว่าระบบไม่บันทึกให้/ค้าง)
+        const savedDeal = currentDeals.find(function (d) { return d.deal_id === selectedDealId; });
+        if (savedDeal) {
+          savedDeal.shop_name = shopName;
+          savedDeal.shop_logo_image = shopLogoImage;
+          savedDeal.shop_contact = shopContact;
+          savedDeal.shop_phone = shopPhone;
+          savedDeal.deal_name = dealName;
+          savedDeal.deal_detail = dealDetail;
+          savedDeal.deal_image = dealImage;
+          savedDeal.deal_limit = parseInt(dealLimit, 10);
+          savedDeal.start_display_date = startDisplayDate;
+          savedDeal.stop_display_date = stopDisplayDate;
+          savedDeal.shop_fb = payload.shop_fb;
+          savedDeal.shop_ig = payload.shop_ig;
+          savedDeal.shop_tt = payload.shop_tt;
+          savedDeal.shop_yt = payload.shop_yt;
+          savedDeal.shop_line = payload.shop_line;
+          savedDeal.status = 'pending'; // deal_update reset เป็น pending เสมอ (ตาม logic ฝั่ง backend)
+
+          // รีเฟรชการ์ด Deal Performance ในฟอร์มที่กำลังเปิดอยู่ทันที
+          document.getElementById('editDealPerformance').innerHTML = dealPerformanceHtml(savedDeal);
+          document.getElementById('redeemedCountHint').textContent =
+            `ตอนนี้มีคนรับดีลนี้ไปแล้ว ${savedDeal.redeemed_count || 0} สิทธิ์ (ไม่สามารถแก้ไขจำนวนนี้ได้จากหน้านี้)`;
+        }
+
         document.getElementById('successPopup').classList.add('open');
         if (newEditCodeInput) {
           currentShopEditCode = newEditCodeInput;
