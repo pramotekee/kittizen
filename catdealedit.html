@@ -194,6 +194,17 @@
   .dp-actions .dp-delete-btn { border-color: var(--error); color: var(--error); }
   .dp-actions .dp-delete-btn:hover { background: #fdecea; }
 
+  /* DEAL PERFORMANCE — สรุปผลของแต่ละดีล แสดงในหน้า deal picker */
+  .dp-performance { margin-bottom: 14px; }
+  .dp-perf-title { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 8px; }
+  .dp-perf-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px; }
+  .dp-perf-stat { background: var(--surface); border-radius: 12px; padding: 10px 6px; text-align: center; }
+  .dp-perf-stat .num { font-size: 20px; font-weight: 700; line-height: 1.1; }
+  .dp-perf-stat .lbl { font-size: 10px; color: var(--text-secondary); margin-top: 2px; }
+  .dp-perf-verdict { background: #FFF9DB; border-radius: 12px; padding: 12px 14px; display: flex; align-items: center; gap: 10px; }
+  .dp-perf-verdict .verdict-title { font-size: 15px; font-weight: 700; white-space: nowrap; }
+  .dp-perf-verdict .verdict-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.4; }
+
   .breadcrumb { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; }
   .breadcrumb a { color: var(--accent); text-decoration: none; }
   .breadcrumb a:hover { text-decoration: underline; }
@@ -316,6 +327,7 @@
 
     <!-- EDIT FORM -->
     <div id="editSection" class="edit-section">
+      <div id="editDealPerformance"></div>
       <hr>
       <h3 style="font-size:16px;margin-bottom:16px;">🏪 Business Information</h3>
 
@@ -514,6 +526,77 @@
     return 'รอตรวจสอบ';
   }
 
+  // ============================================================
+  // DEAL PERFORMANCE — ตาราง 3x3 (กดรับ x Deal Conversion)
+  // ต่ำ <30% / กลาง 30-60% / สูง >60% ของแต่ละแกน
+  // แกน 1: pickupRate = redeemed_count ÷ deal_limit
+  // แกน 2: convRate   = used_count ÷ redeemed_count (Deal Conversion)
+  // ============================================================
+  function rateLevel(pct) {
+    if (pct < 30) return 'low';
+    if (pct <= 60) return 'mid';
+    return 'high';
+  }
+
+  const DEAL_VERDICT_MATRIX = {
+    'low_low':   { emoji: '🔇', title: 'เงียบ...',        desc: 'ดีลยังไม่มีจุดดึงดูดให้สนใจมากนัก' },
+    'low_mid':   { emoji: '📈', title: 'กำลังไปได้ดี',    desc: 'คนยังไม่ค่อยรู้จักดีล แต่คนที่รับไปก็เริ่มมาใช้บ้างแล้ว ลองโปรโมทเพิ่ม' },
+    'low_high':  { emoji: '💛', title: 'ถูกใจ',           desc: 'ดีลดีมาก แต่คนยังไม่ค่อยรู้' },
+    'mid_low':   { emoji: '📈', title: 'กำลังไปได้ดี',    desc: 'เริ่มมีคนสนใจ แต่ยังไม่ค่อยมาใช้สิทธิ์ ลองหาจุดกระตุ้น' },
+    'mid_mid':   { emoji: '📈', title: 'กำลังไปได้ดี',    desc: 'ดีลไปได้เรื่อยๆ ทั้งกดรับและมาใช้อยู่ระดับกลาง' },
+    'mid_high':  { emoji: '📈', title: 'กำลังไปได้ดี',    desc: 'คนเริ่มสนใจ แล้วก็มาใช้เยอะ ใกล้ปังแล้ว' },
+    'high_low':  { emoji: '👀', title: 'คนสนใจ',          desc: 'ดีลใช้ได้ แต่ต้องหาจุดผลักดันดึงคนมาใช้มากขึ้น' },
+    'high_mid':  { emoji: '📈', title: 'กำลังไปได้ดี',    desc: 'คนสนใจเยอะ มาใช้พอสมควร ยังดันต่อได้อีก' },
+    'high_high': { emoji: '🏆', title: 'สุดยอด',          desc: 'ดีลนี้ยอดเยี่ยมมาก ลูกค้าทั้งสนใจและมาใช้จริง' }
+  };
+
+  // ยังไม่มีข้อมูลพอ (ยังไม่มีคนกดรับเลย) — ไม่ต้องเดา แสดงข้อความกลางๆ แทน
+  const DEAL_VERDICT_NO_DATA = { emoji: '🌱', title: 'ยังไม่มีข้อมูล', desc: 'รอให้มีคนกดรับดีลนี้ก่อน ถึงจะเริ่มประเมินผลได้' };
+
+  function computeDealPerformance(deal) {
+    const dealLimit = parseInt(deal.deal_limit, 10) || 0;
+    const redeemedCount = parseInt(deal.redeemed_count, 10) || 0;
+    const usedCount = parseInt(deal.used_count, 10) || 0;
+
+    const pickupPct = dealLimit > 0 ? Math.round((redeemedCount / dealLimit) * 100) : 0;
+    const convPct = redeemedCount > 0 ? Math.round((usedCount / redeemedCount) * 100) : 0;
+
+    let verdict;
+    if (redeemedCount === 0) {
+      verdict = DEAL_VERDICT_NO_DATA;
+    } else {
+      const key = rateLevel(pickupPct) + '_' + rateLevel(convPct);
+      verdict = DEAL_VERDICT_MATRIX[key];
+    }
+
+    return {
+      dealLimit: dealLimit,
+      redeemedCount: redeemedCount,
+      usedCount: usedCount,
+      pickupPct: pickupPct,
+      convPct: convPct,
+      verdict: verdict
+    };
+  }
+
+  function dealPerformanceHtml(deal) {
+    const p = computeDealPerformance(deal);
+    return `
+      <div class="dp-performance">
+        <div class="dp-perf-title">📊 Deal Performance</div>
+        <div class="dp-perf-stats">
+          <div class="dp-perf-stat"><div class="num">${p.dealLimit}</div><div class="lbl">ทั้งหมด</div></div>
+          <div class="dp-perf-stat"><div class="num">${p.redeemedCount}</div><div class="lbl">กดรับ</div></div>
+          <div class="dp-perf-stat"><div class="num">${p.usedCount}</div><div class="lbl">มาใช้</div></div>
+          <div class="dp-perf-stat"><div class="num">${p.convPct}%</div><div class="lbl">Conversion</div></div>
+        </div>
+        <div class="dp-perf-verdict">
+          <div class="verdict-title">${p.verdict.emoji} ${p.verdict.title}</div>
+          <div class="verdict-desc">${p.verdict.desc}</div>
+        </div>
+      </div>`;
+  }
+
   function renderDealPicker() {
     const picker = document.getElementById('dealPicker');
     picker.innerHTML = '';
@@ -531,6 +614,7 @@
           <span class="dp-name">${escapeHtml(deal.deal_name || '(ไม่มีชื่อดีล)')}</span>
           <span class="dp-status ${deal.status}">${statusLabel(deal.status)}</span>
         </div>
+        ${dealPerformanceHtml(deal)}
         <div class="dp-actions">
           <button class="dp-edit-btn" data-role="edit" data-deal-id="${deal.deal_id}">✏️ แก้ไขดีล</button>
           ${pauseOrResumeBtn}
@@ -662,6 +746,8 @@
 
   function loadDealIntoForm(deal) {
     selectedDealId = deal.deal_id;
+
+    document.getElementById('editDealPerformance').innerHTML = dealPerformanceHtml(deal);
 
     document.getElementById('editShopName').value = deal.shop_name || '';
     document.getElementById('editShopEditCode').value = '';
