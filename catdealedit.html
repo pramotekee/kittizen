@@ -457,7 +457,7 @@
       </div>
 
       <button class="btn-submit" id="updateBtn">💾 บันทึกการแก้ไข</button>
-      <small style="display:block;text-align:center;margin-top:10px;">⚠️ การแก้ไขจะถูกส่งกลับไปสถานะ "รอตรวจสอบ" ทุกครั้ง ทีมงานจะตรวจสอบก่อนขึ้นแสดงผลจริงอีกครั้ง</small>
+      <small style="display:block;text-align:center;margin-top:10px;">💡 การแก้ไขจะไม่เปลี่ยนสถานะที่แสดงผลอยู่ ถ้าดีลกำลัง Active อยู่ แก้ไขแล้วก็ยังขึ้นแสดงผลต่อทันที</small>
     </div>
   </div>
 </div>
@@ -468,7 +468,7 @@
 <div class="popup-overlay" id="successPopup">
   <div class="popup">
     <h3>💾 บันทึกการแก้ไขสำเร็จ!</h3>
-    <p class="desc">การแก้ไขจะถูกส่งกลับไปสถานะ "รอตรวจสอบ" ทุกครั้ง ทีมงานจะตรวจสอบก่อนขึ้นแสดงผลจริงอีกครั้ง</p>
+    <p class="desc">การแก้ไขถูกบันทึกเรียบร้อยแล้ว ถ้าดีลนี้กำลัง Active อยู่ ก็ยังขึ้นแสดงผลที่หน้าลูกค้าต่อทันที ไม่ต้องรอตรวจสอบซ้ำ</p>
     <div class="popup-actions">
       <button class="btn-copy" id="goToCatDealBtn" style="width:100%;">🏷️ กลับไปหน้า Cat Deal</button>
       <button class="btn-home" id="stayHereBtn" style="width:100%;">แก้ไขดีลอื่นต่อ</button>
@@ -994,7 +994,8 @@
           savedDeal.shop_tt = payload.shop_tt;
           savedDeal.shop_yt = payload.shop_yt;
           savedDeal.shop_line = payload.shop_line;
-          savedDeal.status = 'pending'; // deal_update reset เป็น pending เสมอ (ตาม logic ฝั่ง backend)
+          // status: ไม่ต้องแก้ไข — คงค่าเดิมไว้ (backend ไม่ reset เป็น pending อีกต่อไปแล้ว
+          // ยกเว้นตอนสร้างดีลใหม่ครั้งแรกเท่านั้นที่เป็น pending)
 
           // รีเฟรชการ์ด Deal Performance ในฟอร์มที่กำลังเปิดอยู่ทันที
           document.getElementById('editDealPerformance').innerHTML = dealPerformanceHtml(savedDeal);
