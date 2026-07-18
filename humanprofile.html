@@ -553,6 +553,9 @@ async function runMatch(mode) {
   const area = document.getElementById('matchArea');
   area.innerHTML = '<div class="state-box"><div class="spinner"></div><div class="msg">กำลังหากลุ่ม...</div></div>';
 
+  // เลื่อนจอลงไปหาโซนผลลัพธ์ทันที เพื่อให้ user เห็น spinner/feedback ทันที ไม่คิดว่าระบบค้าง
+  area.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
   try {
     const res = await fetch(SCRIPT_URL, {
       method: 'POST',
